@@ -43,7 +43,7 @@ Route::prefix('v1')->group(function () {
         
         // Role Management
         Route::get('permissions', [RoleController::class, 'permissions']);
-        Route::put('roles/{role}/permissions', [RoleController::class, 'syncPermissions']);
+        Route::put('roles/{id}/permissions', [RoleController::class, 'syncPermissions']);
         Route::apiResource('roles', RoleController::class);
     });
 });

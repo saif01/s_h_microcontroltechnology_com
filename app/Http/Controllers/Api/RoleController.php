@@ -38,7 +38,16 @@ class RoleController extends Controller
 
         // Generate slug from name if not provided
         if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+            $baseSlug = Str::slug($validated['name']);
+            $slug = $baseSlug;
+            
+            // Ensure slug is unique by appending number if needed
+            $counter = 1;
+            while (Role::where('slug', $slug)->exists() && $counter < 100) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            $validated['slug'] = $slug;
         }
 
         $role = Role::create($validated);
@@ -53,17 +62,43 @@ class RoleController extends Controller
         return response()->json($role, 201);
     }
 
-    public function show(Role $role)
+    public function show($id)
     {
-        $role->load('permissions');
+        $role = Role::with('permissions')->findOrFail($id);
         return response()->json($role);
     }
 
-    public function update(Request $request, Role $role)
+    public function update(Request $request, $id)
     {
-        // Prevent editing system roles
+        $role = Role::findOrFail($id);
+        
+        // For system roles, only allow permission updates
         if ($role->is_system) {
-            return response()->json(['message' => 'System roles cannot be modified'], 403);
+            // Check if only permissions are being updated
+            $hasOtherFields = $request->has('name') || $request->has('slug') || 
+                             $request->has('description') || $request->has('is_active') || 
+                             $request->has('order');
+            
+            if ($hasOtherFields) {
+                return response()->json([
+                    'message' => 'System roles cannot have their name, slug, description, status, or order modified. Only permissions can be updated.'
+                ], 403);
+            }
+            
+            // Only update permissions for system roles
+            if ($request->has('permissions')) {
+                $validated = $request->validate([
+                    'permissions' => 'required|array',
+                    'permissions.*' => 'exists:permissions,id',
+                ]);
+                
+                $role->permissions()->sync($validated['permissions']);
+                $role->load('permissions');
+                
+                return response()->json($role);
+            }
+            
+            return response()->json($role);
         }
 
         $validated = $request->validate([
@@ -76,9 +111,36 @@ class RoleController extends Controller
             'permissions.*' => 'exists:permissions,id',
         ]);
 
-        // Generate slug from name if not provided and name changed
-        if (isset($validated['name']) && empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['name']);
+        // Handle slug: if provided and empty, generate from name; if provided and not empty, ensure unique
+        if (isset($validated['slug']) && empty($validated['slug'])) {
+            // Slug was provided but empty - generate from name
+            if (isset($validated['name'])) {
+                $baseSlug = Str::slug($validated['name']);
+            } else {
+                $baseSlug = Str::slug($role->name);
+            }
+            $slug = $baseSlug;
+            
+            // Ensure slug is unique by appending number if needed
+            $counter = 1;
+            while (Role::where('slug', $slug)->where('id', '!=', $role->id)->exists() && $counter < 100) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+            $validated['slug'] = $slug;
+        } elseif (isset($validated['slug']) && !empty($validated['slug'])) {
+            // If slug is provided and not empty, ensure it's unique
+            $slug = $validated['slug'];
+            $originalSlug = $slug;
+            $counter = 1;
+            while (Role::where('slug', $slug)->where('id', '!=', $role->id)->exists() && $counter < 100) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
+            $validated['slug'] = $slug;
+        } elseif (isset($validated['name']) && !isset($validated['slug'])) {
+            // Name changed but slug not provided - regenerate slug only if name changed significantly
+            // For update, keep existing slug unless explicitly changed
         }
 
         $role->update($validated);
@@ -93,8 +155,10 @@ class RoleController extends Controller
         return response()->json($role);
     }
 
-    public function destroy(Role $role)
+    public function destroy($id)
     {
+        $role = Role::findOrFail($id);
+        
         // Prevent deleting system roles
         if ($role->is_system) {
             return response()->json(['message' => 'System roles cannot be deleted'], 403);
@@ -120,11 +184,12 @@ class RoleController extends Controller
     }
 
     // Sync role permissions
-    public function syncPermissions(Request $request, Role $role)
+    public function syncPermissions(Request $request, $id)
     {
-        if ($role->is_system) {
-            return response()->json(['message' => 'System roles cannot be modified'], 403);
-        }
+        $role = Role::findOrFail($id);
+        
+        // Allow permission updates for all roles, including system roles
+        // (System role properties like name/slug are protected in the update method)
 
         $validated = $request->validate([
             'permissions' => 'required|array',

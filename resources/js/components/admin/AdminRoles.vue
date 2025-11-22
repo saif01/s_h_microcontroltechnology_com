@@ -71,28 +71,40 @@
                     {{ editingRole ? 'Edit Role' : 'Add New Role' }}
                 </v-card-title>
                 <v-card-text>
+                    <v-alert v-if="editingRole && editingRole.is_system" type="info" variant="tonal" class="mb-4">
+                        <strong>System Role:</strong> This is a system role. Core properties (name, slug, description,
+                        status, order) cannot be modified. Only permissions can be updated using the permissions button.
+                    </v-alert>
                     <v-form ref="roleForm" @submit.prevent="saveRole">
                         <v-text-field v-model="form.name" label="Role Name" :rules="[rules.required]" required
-                            hint="Display name for the role" persistent-hint class="mb-4"></v-text-field>
+                            hint="Display name for the role" persistent-hint class="mb-4"
+                            :disabled="editingRole && editingRole.is_system"
+                            @blur="autoGenerateSlugFromName"></v-text-field>
 
                         <v-text-field v-model="form.slug" label="Slug"
-                            hint="URL-friendly identifier (auto-generated if empty)" persistent-hint
-                            class="mb-4"></v-text-field>
+                            hint="URL-friendly identifier (auto-generated if empty)" persistent-hint class="mb-4"
+                            :disabled="editingRole && editingRole.is_system"></v-text-field>
 
                         <v-textarea v-model="form.description" label="Description" hint="Brief description of the role"
-                            persistent-hint rows="2" class="mb-4"></v-textarea>
+                            persistent-hint rows="2" class="mb-4"
+                            :disabled="editingRole && editingRole.is_system"></v-textarea>
 
                         <v-text-field v-model.number="form.order" label="Order" type="number"
-                            hint="Display order (lower numbers first)" persistent-hint class="mb-4"></v-text-field>
+                            hint="Display order (lower numbers first)" persistent-hint class="mb-4"
+                            :disabled="editingRole && editingRole.is_system"></v-text-field>
 
                         <v-switch v-model="form.is_active" label="Active"
-                            hint="Inactive roles cannot be assigned to users" persistent-hint class="mb-4"></v-switch>
+                            hint="Inactive roles cannot be assigned to users" persistent-hint class="mb-4"
+                            :disabled="editingRole && editingRole.is_system"></v-switch>
                     </v-form>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn @click="closeDialog" variant="text">Cancel</v-btn>
-                    <v-btn @click="saveRole" color="primary" :loading="saving">
+                    <v-btn v-if="editingRole && editingRole.is_system" @click="closeDialog" color="primary">
+                        Close
+                    </v-btn>
+                    <v-btn v-else @click="saveRole" color="primary" :loading="saving">
                         {{ editingRole ? 'Update' : 'Create' }}
                     </v-btn>
                 </v-card-actions>
@@ -104,6 +116,9 @@
             <v-card>
                 <v-card-title>
                     Manage Permissions - {{ selectedRole?.name }}
+                    <v-chip v-if="selectedRole?.is_system" color="warning" size="small" class="ml-2">
+                        System Role
+                    </v-chip>
                 </v-card-title>
                 <v-card-text>
                     <div v-if="loadingPermissions" class="text-center py-4">
@@ -160,7 +175,8 @@ export default {
             },
             rules: {
                 required: value => !!value || 'This field is required'
-            }
+            },
+            autoGeneratingSlug: false
         };
     },
     async mounted() {
@@ -174,10 +190,19 @@ export default {
                 const response = await axios.get('/api/v1/roles', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                this.roles = response.data;
+                this.roles = response.data || [];
+
+                // If no roles exist, show a message
+                if (this.roles.length === 0) {
+                    console.warn('No roles found. Run the seeder to create default roles.');
+                }
             } catch (error) {
                 console.error('Error loading roles:', error);
-                this.showError('Failed to load roles');
+                if (error.response?.status === 404) {
+                    this.showError('Roles endpoint not found. Please ensure migrations and seeders have run.');
+                } else {
+                    this.showError('Failed to load roles');
+                }
             }
         },
         async loadPermissions() {
@@ -234,9 +259,32 @@ export default {
                 this.$refs.roleForm.resetValidation();
             }
         },
+        autoGenerateSlugFromName() {
+            // Auto-generate slug from name if slug is empty and user is not editing slug
+            if (!this.form.slug && this.form.name && !this.editingRole) {
+                this.form.slug = this.form.name
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+            }
+        },
         async saveRole() {
+            // Validate form first
+            if (!this.$refs.roleForm) {
+                this.showError('Form reference not found');
+                return;
+            }
+
             if (!this.$refs.roleForm.validate()) {
                 return;
+            }
+
+            // Auto-generate slug if empty
+            if (!this.form.slug && this.form.name) {
+                this.form.slug = this.form.name
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
             }
 
             this.saving = true;
@@ -248,7 +296,34 @@ export default {
 
                 const method = this.editingRole ? 'put' : 'post';
 
-                await axios[method](url, this.form, {
+                // Prepare data - ensure boolean and integer values are properly formatted
+                const data = {
+                    name: this.form.name.trim(),
+                    description: this.form.description ? this.form.description.trim() : null,
+                    is_active: this.form.is_active === true || this.form.is_active === 'true' || this.form.is_active === 1,
+                    order: parseInt(this.form.order) || 0
+                };
+
+                // Handle slug
+                if (this.editingRole) {
+                    // When editing, only send slug if it changed or is empty
+                    if (this.form.slug !== this.editingRole.slug) {
+                        if (this.form.slug && this.form.slug.trim()) {
+                            data.slug = this.form.slug.trim();
+                        } else {
+                            // Send empty string to trigger regeneration
+                            data.slug = '';
+                        }
+                    }
+                    // If slug didn't change, don't send it (backend keeps existing)
+                } else {
+                    // When creating, send slug if provided, otherwise omit (backend will generate)
+                    if (this.form.slug && this.form.slug.trim()) {
+                        data.slug = this.form.slug.trim();
+                    }
+                }
+
+                await axios[method](url, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -259,7 +334,25 @@ export default {
                 await this.loadRoles();
             } catch (error) {
                 console.error('Error saving role:', error);
-                const message = error.response?.data?.message || 'Error saving role';
+                console.error('Error response:', error.response);
+                let message = 'Error saving role';
+
+                if (error.response?.data?.errors) {
+                    // Handle validation errors
+                    const errors = error.response.data.errors;
+                    const errorMessages = [];
+                    Object.keys(errors).forEach(key => {
+                        if (Array.isArray(errors[key])) {
+                            errorMessages.push(`${key}: ${errors[key][0]}`);
+                        } else {
+                            errorMessages.push(`${key}: ${errors[key]}`);
+                        }
+                    });
+                    message = errorMessages.join('\n');
+                } else if (error.response?.data?.message) {
+                    message = error.response.data.message;
+                }
+
                 this.showError(message);
             } finally {
                 this.saving = false;
