@@ -5,7 +5,7 @@
 @use 'bootstrap/scss/bootstrap';
 
 // mdi icons
-@import url('@mdi/font/css/materialdesignicons.css');
+@import '@mdi/font/css/materialdesignicons.css';
 
 // preloader
 @import url('../css/common/preloader.css');
