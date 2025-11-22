@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\UserController;
 
 Route::prefix('v1')->group(function () {
     // Public routes
@@ -34,6 +35,10 @@ Route::prefix('v1')->group(function () {
         // Settings
         Route::get('settings', [SettingController::class, 'index']);
         Route::post('settings', [SettingController::class, 'update']);
+        
+        // Users & Roles
+        Route::get('users/roles', [UserController::class, 'roles']);
+        Route::apiResource('users', UserController::class);
     });
 });
 

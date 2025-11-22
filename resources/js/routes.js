@@ -85,6 +85,12 @@ const routes = [
                 meta: { title: 'Leads Management' }
             },
             {
+                path: 'users',
+                component: () => import('./components/admin/AdminUsers.vue'),
+                name: 'AdminUsers',
+                meta: { title: 'User Management' }
+            },
+            {
                 path: 'settings',
                 component: () => import('./components/admin/AdminSettings.vue'),
                 name: 'AdminSettings',

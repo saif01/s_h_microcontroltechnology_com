@@ -7,6 +7,7 @@
                 <v-list-item prepend-icon="mdi-wrench" title="Services" :to="{ name: 'AdminServices' }"></v-list-item>
                 <v-list-item prepend-icon="mdi-package-variant" title="Products" :to="{ name: 'AdminProducts' }"></v-list-item>
                 <v-list-item prepend-icon="mdi-email" title="Leads" :to="{ name: 'AdminLeads' }"></v-list-item>
+                <v-list-item prepend-icon="mdi-account-group" title="Users" :to="{ name: 'AdminUsers' }"></v-list-item>
                 <v-list-item prepend-icon="mdi-cog" title="Settings" :to="{ name: 'AdminSettings' }"></v-list-item>
             </v-list>
         </v-navigation-drawer>
