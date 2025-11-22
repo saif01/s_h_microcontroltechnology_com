@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\RoleController;
 
 Route::prefix('v1')->group(function () {
     // Public routes
@@ -39,6 +40,11 @@ Route::prefix('v1')->group(function () {
         // Users & Roles
         Route::get('users/roles', [UserController::class, 'roles']);
         Route::apiResource('users', UserController::class);
+        
+        // Role Management
+        Route::get('permissions', [RoleController::class, 'permissions']);
+        Route::put('roles/{role}/permissions', [RoleController::class, 'syncPermissions']);
+        Route::apiResource('roles', RoleController::class);
     });
 });
 
