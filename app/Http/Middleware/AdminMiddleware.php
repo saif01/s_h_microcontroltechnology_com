@@ -15,7 +15,26 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->isAdmin()) {
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        // Check if user has administrator role or access-dashboard permission
+        $hasAccess = false;
+        
+        // Check legacy admin role
+        if ($user->role === 'admin') {
+            $hasAccess = true;
+        }
+        
+        // Check new role system - administrator role or access-dashboard permission
+        if ($user->hasRole('administrator') || $user->hasPermission('access-dashboard')) {
+            $hasAccess = true;
+        }
+
+        if (!$hasAccess) {
             return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
         }
         

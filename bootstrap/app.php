@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'administration' => \App\Http\Middleware\AdministratorMiddleware::class,
             'permit' => \App\Http\Middleware\PermissionMiddleware::class,
+            'permission' => \App\Http\Middleware\PermissionMiddleware::class,
             'online' => \App\Http\Middleware\OnlineCheckerMiddleware::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
