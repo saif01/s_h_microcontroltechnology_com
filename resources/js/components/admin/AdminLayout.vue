@@ -133,6 +133,7 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
+import { useAuthStore } from '../../stores/auth';
 
 export default {
     data() {
@@ -200,32 +201,21 @@ export default {
          * Logout current user and clear all stored data
          * Clears authentication token, user data, roles, and permissions
          */
+        /**
+         * Logout current user and clear all stored data
+         * Clears authentication token, user data, roles, and permissions
+         */
         async logout() {
-            try {
-                // Call logout endpoint to revoke token on server
-                await axios.post('/api/v1/auth/logout', {}, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('admin_token')}`
-                    }
-                });
+            const authStore = useAuthStore();
+            await authStore.logout();
+            
+            // Clear local component state (optional but good for cleanup)
+            this.currentUser = null;
+            this.userRoles = [];
+            this.userPermissions = [];
 
-                // Clear all local data
-                localStorage.removeItem('admin_token');
-                this.currentUser = null;
-                this.userRoles = [];
-                this.userPermissions = [];
-
-                // Redirect to login page
-                this.$router.push('/admin/login');
-            } catch (error) {
-                console.error('Logout error:', error);
-                // Even if logout API call fails, clear local data and redirect
-                localStorage.removeItem('admin_token');
-                this.currentUser = null;
-                this.userRoles = [];
-                this.userPermissions = [];
-                this.$router.push('/admin/login');
-            }
+            // Redirect to login page
+            this.$router.push('/admin/login');
         },
         /**
          * Check if the current user has a specific permission

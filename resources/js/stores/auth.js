@@ -183,15 +183,32 @@ export const useAuthStore = defineStore('auth', {
         /**
          * Logout user
          */
-        logout() {
-            this.user = null;
-            this.token = null;
-            this.roles = [];
-            this.permissions = [];
-            this.isAuthenticated = false;
+        /**
+         * Logout user
+         */
+        async logout() {
+            try {
+                // Call logout endpoint to revoke token on server
+                if (this.token) {
+                    await axios.post('/api/v1/auth/logout', {}, {
+                        headers: {
+                            Authorization: `Bearer ${this.token}`
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                // Clear state
+                this.user = null;
+                this.token = null;
+                this.roles = [];
+                this.permissions = [];
+                this.isAuthenticated = false;
 
-            // Remove token from localStorage
-            localStorage.removeItem('admin_token');
+                // Remove token from localStorage
+                localStorage.removeItem('admin_token');
+            }
         },
 
         /**
