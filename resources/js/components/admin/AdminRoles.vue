@@ -7,6 +7,29 @@
             </v-btn>
         </div>
 
+        <!-- Search and Filter -->
+        <v-card class="mb-4">
+            <v-card-text>
+                <v-row>
+                    <v-col cols="12" md="4">
+                        <v-text-field v-model="search" label="Search roles" prepend-inner-icon="mdi-magnify"
+                            variant="outlined" density="compact" clearable
+                            @update:model-value="loadRoles"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-select v-model="activeFilter" :items="activeOptions" label="Filter by Status"
+                            prepend-inner-icon="mdi-filter" variant="outlined" density="compact" clearable
+                            @update:model-value="loadRoles"></v-select>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
+                            prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
+                            @update:model-value="onPerPageChange"></v-select>
+                    </v-col>
+                </v-row>
+            </v-card-text>
+        </v-card>
+
         <!-- Roles List -->
         <v-card>
             <v-card-title>Roles</v-card-title>
@@ -61,6 +84,10 @@
                         </tr>
                     </tbody>
                 </v-table>
+
+                <!-- Pagination -->
+                <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
+                    @update:model-value="loadRoles" class="mt-4"></v-pagination>
             </v-card-text>
         </v-card>
 
@@ -166,6 +193,21 @@ export default {
             saving: false,
             savingPermissions: false,
             selectedPermissions: [],
+            search: '',
+            activeFilter: null,
+            activeOptions: [
+                { title: 'Active', value: true },
+                { title: 'Inactive', value: false }
+            ],
+            currentPage: 1,
+            perPage: 10,
+            perPageOptions: [10, 25, 50, 100, 500],
+            pagination: {
+                current_page: 1,
+                last_page: 1,
+                per_page: 10,
+                total: 0
+            },
             form: {
                 name: '',
                 slug: '',
@@ -187,10 +229,44 @@ export default {
         async loadRoles() {
             try {
                 const token = localStorage.getItem('admin_token');
+                const params = {
+                    page: this.currentPage,
+                    per_page: this.perPage
+                };
+
+                if (this.search) {
+                    params.search = this.search;
+                }
+
+                if (this.activeFilter !== null) {
+                    params.active = this.activeFilter;
+                }
+
                 const response = await axios.get('/api/v1/roles', {
+                    params,
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                this.roles = response.data || [];
+
+                // Handle both paginated and non-paginated responses
+                if (response.data.data) {
+                    // Paginated response
+                    this.roles = response.data.data || [];
+                    this.pagination = {
+                        current_page: response.data.current_page,
+                        last_page: response.data.last_page,
+                        per_page: response.data.per_page,
+                        total: response.data.total
+                    };
+                } else {
+                    // Non-paginated response (fallback)
+                    this.roles = response.data || [];
+                    this.pagination = {
+                        current_page: 1,
+                        last_page: 1,
+                        per_page: this.roles.length,
+                        total: this.roles.length
+                    };
+                }
 
                 // If no roles exist, show a message
                 if (this.roles.length === 0) {
@@ -443,6 +519,10 @@ export default {
             } else {
                 alert(message);
             }
+        },
+        onPerPageChange() {
+            this.currentPage = 1;
+            this.loadRoles();
         }
     }
 };

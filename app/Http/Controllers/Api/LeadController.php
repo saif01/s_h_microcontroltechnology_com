@@ -21,7 +21,23 @@ class LeadController extends Controller
             $query->where('status', $request->status);
         }
 
-        return response()->json($query->orderBy('created_at', 'desc')->get());
+        // Search functionality
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('subject', 'like', "%{$search}%")
+                  ->orWhere('message', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate results
+        $perPage = $request->get('per_page', 10);
+        $leads = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        
+        return response()->json($leads);
     }
 
     public function show(Lead $lead)

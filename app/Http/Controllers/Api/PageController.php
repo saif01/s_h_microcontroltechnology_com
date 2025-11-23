@@ -8,9 +8,29 @@ use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Page::orderBy('order')->get());
+        $query = Page::query();
+
+        // Search functionality
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by published status
+        if ($request->has('published')) {
+            $query->where('published', $request->published);
+        }
+
+        // Paginate results
+        $perPage = $request->get('per_page', 10);
+        $pages = $query->orderBy('order')->orderBy('title')->paginate($perPage);
+        
+        return response()->json($pages);
     }
 
     public function store(Request $request)

@@ -11,13 +11,18 @@
         <v-card class="mb-4">
             <v-card-text>
                 <v-row>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="4">
                         <v-text-field v-model="search" label="Search by name or email" prepend-inner-icon="mdi-magnify"
                             variant="outlined" density="compact" clearable @input="loadUsers"></v-text-field>
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12" md="4">
                         <v-select v-model="roleFilter" :items="roleOptions" label="Filter by Role" variant="outlined"
                             density="compact" clearable @update:model-value="loadUsers"></v-select>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
+                            prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
+                            @update:model-value="onPerPageChange"></v-select>
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -167,6 +172,8 @@ export default {
             roleFilter: null,
             roleOptions: [],
             currentPage: 1,
+            perPage: 10,
+            perPageOptions: [10, 25, 50, 100, 500],
             pagination: {
                 last_page: 1
             },
@@ -212,7 +219,8 @@ export default {
             try {
                 const token = localStorage.getItem('admin_token');
                 const params = {
-                    page: this.currentPage
+                    page: this.currentPage,
+                    per_page: this.perPage
                 };
                 if (this.search) {
                     params.search = this.search;
@@ -458,6 +466,10 @@ export default {
             } else {
                 alert(message);
             }
+        },
+        onPerPageChange() {
+            this.currentPage = 1;
+            this.loadUsers();
         }
     }
 };

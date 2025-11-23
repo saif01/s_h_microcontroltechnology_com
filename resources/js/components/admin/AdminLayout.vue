@@ -30,6 +30,10 @@
                 <!-- Roles & Permissions Management - Requires 'manage-roles' permission -->
                 <v-list-item prepend-icon="mdi-shield-account" title="Roles" :to="{ name: 'AdminRoles' }"
                     v-if="hasPermission('manage-roles')"></v-list-item>
+                
+                <!-- Permissions Management - Requires 'manage-roles' permission -->
+                <v-list-item prepend-icon="mdi-key" title="Permissions" :to="{ name: 'AdminPermissions' }"
+                    v-if="hasPermission('manage-roles')"></v-list-item>
 
                 <!-- Settings Management - Requires 'manage-settings' permission -->
                 <v-list-item prepend-icon="mdi-cog" title="Settings" :to="{ name: 'AdminSettings' }"

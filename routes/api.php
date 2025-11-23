@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\PermissionController;
 
 Route::prefix('v1')->group(function () {
     // Public routes
@@ -66,6 +67,12 @@ Route::prefix('v1')->group(function () {
             Route::get('permissions', [RoleController::class, 'permissions']);
             Route::put('roles/{id}/permissions', [RoleController::class, 'syncPermissions']);
             Route::apiResource('roles', RoleController::class);
+        });
+        
+        // Permission Management - requires manage-roles permission (same as roles)
+        Route::middleware('permission:manage-roles')->group(function () {
+            Route::get('permissions/groups', [PermissionController::class, 'groups']);
+            Route::apiResource('permissions', PermissionController::class);
         });
     });
 });

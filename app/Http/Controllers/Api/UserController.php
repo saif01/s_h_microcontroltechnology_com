@@ -39,7 +39,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->orderBy('name')->paginate($request->get('per_page', 15));
+        $users = $query->orderBy('name')->paginate($request->get('per_page', 10));
         
         return response()->json($users);
     }

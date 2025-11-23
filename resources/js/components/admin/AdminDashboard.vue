@@ -92,17 +92,43 @@ export default {
             try {
                 const token = localStorage.getItem('admin_token');
                 const [pagesRes, servicesRes, productsRes, leadsRes] = await Promise.all([
-                    axios.get('/api/v1/pages', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('/api/v1/services', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('/api/v1/products', { headers: { Authorization: `Bearer ${token}` } }),
-                    axios.get('/api/v1/leads', { headers: { Authorization: `Bearer ${token}` } })
+                    axios.get('/api/v1/pages', { 
+                        params: { per_page: 1 },
+                        headers: { Authorization: `Bearer ${token}` } 
+                    }),
+                    axios.get('/api/v1/services', { 
+                        params: { per_page: 1 },
+                        headers: { Authorization: `Bearer ${token}` } 
+                    }),
+                    axios.get('/api/v1/products', { 
+                        params: { per_page: 1 },
+                        headers: { Authorization: `Bearer ${token}` } 
+                    }),
+                    axios.get('/api/v1/leads', { 
+                        params: { per_page: 5 },
+                        headers: { Authorization: `Bearer ${token}` } 
+                    })
                 ]);
 
-                this.stats.pages = pagesRes.data.length;
-                this.stats.services = servicesRes.data.length;
-                this.stats.products = productsRes.data.length;
-                this.stats.leads = leadsRes.data.filter(l => l.status === 'new').length;
-                this.recentLeads = leadsRes.data.slice(0, 5);
+                // Handle paginated responses
+                const pagesData = pagesRes.data.data || pagesRes.data;
+                const servicesData = servicesRes.data.data || servicesRes.data;
+                const productsData = productsRes.data.data || productsRes.data;
+                const leadsData = leadsRes.data.data || leadsRes.data;
+
+                this.stats.pages = pagesRes.data.total || (Array.isArray(pagesData) ? pagesData.length : 0);
+                this.stats.services = servicesRes.data.total || (Array.isArray(servicesData) ? servicesData.length : 0);
+                this.stats.products = productsRes.data.total || (Array.isArray(productsData) ? productsData.length : 0);
+                
+                // Count new leads
+                const allLeadsRes = await axios.get('/api/v1/leads', { 
+                    params: { status: 'new', per_page: 1 },
+                    headers: { Authorization: `Bearer ${token}` } 
+                });
+                this.stats.leads = allLeadsRes.data.total || 0;
+                
+                // Get recent leads (first 5)
+                this.recentLeads = Array.isArray(leadsData) ? leadsData.slice(0, 5) : [];
             } catch (error) {
                 console.error('Error loading dashboard:', error);
             }

@@ -97,6 +97,12 @@ const routes = [
                 meta: { title: 'Role Management' }
             },
             {
+                path: 'permissions',
+                component: () => import('./components/admin/AdminPermissions.vue'),
+                name: 'AdminPermissions',
+                meta: { title: 'Permission Management' }
+            },
+            {
                 path: 'settings',
                 component: () => import('./components/admin/AdminSettings.vue'),
                 name: 'AdminSettings',
