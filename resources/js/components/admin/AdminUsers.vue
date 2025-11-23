@@ -162,21 +162,16 @@
 
 <script>
 import axios from 'axios';
+import adminPaginationMixin from '../../mixins/adminPaginationMixin';
 
 export default {
+    mixins: [adminPaginationMixin],
     data() {
         return {
             users: [],
             roles: [],
-            search: '',
             roleFilter: null,
             roleOptions: [],
-            currentPage: 1,
-            perPage: 10,
-            perPageOptions: [10, 25, 50, 100, 500],
-            pagination: {
-                last_page: 1
-            },
             dialog: false,
             editingUser: null,
             saving: false,
@@ -217,11 +212,9 @@ export default {
     methods: {
         async loadUsers() {
             try {
-                const token = localStorage.getItem('admin_token');
-                const params = {
-                    page: this.currentPage,
-                    per_page: this.perPage
-                };
+                this.loading = true;
+                const params = this.buildPaginationParams();
+
                 if (this.search) {
                     params.search = this.search;
                 }
@@ -231,26 +224,21 @@ export default {
 
                 const response = await axios.get('/api/v1/users', {
                     params,
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.users = response.data.data;
-                this.pagination = {
-                    current_page: response.data.current_page,
-                    last_page: response.data.last_page,
-                    per_page: response.data.per_page,
-                    total: response.data.total
-                };
+                this.updatePagination(response.data);
             } catch (error) {
-                console.error('Error loading users:', error);
-                this.showError('Failed to load users');
+                this.handleApiError(error, 'Failed to load users');
+            } finally {
+                this.loading = false;
             }
         },
         async loadRoles() {
             try {
-                const token = localStorage.getItem('admin_token');
                 const response = await axios.get('/api/v1/users/roles', {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
                 this.roles = response.data.roles;
 
@@ -424,9 +412,7 @@ export default {
                 this.showSuccess('User deleted successfully');
                 await this.loadUsers();
             } catch (error) {
-                console.error('Error deleting user:', error);
-                const message = error.response?.data?.message || 'Error deleting user';
-                this.showError(message);
+                this.handleApiError(error, 'Error deleting user');
             }
         },
         getRoleLabel(roleSlug) {
@@ -443,32 +429,8 @@ export default {
             };
             return colors[roleSlug] || 'primary';
         },
-        formatDate(date) {
-            if (!date) return '';
-            return new Date(date).toLocaleDateString();
-        },
-        showSuccess(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'success',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
-        showError(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'error',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
         onPerPageChange() {
-            this.currentPage = 1;
+            this.resetPagination();
             this.loadUsers();
         }
     }

@@ -83,12 +83,13 @@
 
 <script>
 import axios from 'axios';
+import adminPaginationMixin from '../../mixins/adminPaginationMixin';
 
 export default {
+    mixins: [adminPaginationMixin],
     data() {
         return {
             leads: [],
-            search: '',
             statusFilter: null,
             typeFilter: null,
             statusOptions: [
@@ -102,16 +103,7 @@ export default {
                 { title: 'Contact', value: 'contact' },
                 { title: 'Quote', value: 'quote' },
                 { title: 'Support', value: 'support' }
-            ],
-            currentPage: 1,
-            perPage: 10,
-            perPageOptions: [10, 25, 50, 100, 500],
-            pagination: {
-                current_page: 1,
-                last_page: 1,
-                per_page: 10,
-                total: 0
-            }
+            ]
         };
     },
     async mounted() {
@@ -120,11 +112,8 @@ export default {
     methods: {
         async loadLeads() {
             try {
-                const token = localStorage.getItem('admin_token');
-                const params = {
-                    page: this.currentPage,
-                    per_page: this.perPage
-                };
+                this.loading = true;
+                const params = this.buildPaginationParams();
 
                 if (this.search) {
                     params.search = this.search;
@@ -140,19 +129,15 @@ export default {
 
                 const response = await axios.get('/api/v1/leads', {
                     params,
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.leads = response.data.data || [];
-                this.pagination = {
-                    current_page: response.data.current_page,
-                    last_page: response.data.last_page,
-                    per_page: response.data.per_page,
-                    total: response.data.total
-                };
+                this.updatePagination(response.data);
             } catch (error) {
-                console.error('Error loading leads:', error);
-                this.showError('Failed to load leads');
+                this.handleApiError(error, 'Failed to load leads');
+            } finally {
+                this.loading = false;
             }
         },
         viewLead(lead) {
@@ -160,9 +145,8 @@ export default {
         },
         async exportLeads() {
             try {
-                const token = localStorage.getItem('admin_token');
                 const response = await axios.get('/api/v1/leads/export/csv', {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: this.getAuthHeaders(),
                     responseType: 'blob'
                 });
                 const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -174,7 +158,7 @@ export default {
                 document.body.removeChild(link);
                 this.showSuccess('Leads exported successfully');
             } catch (error) {
-                this.showError('Error exporting leads');
+                this.handleApiError(error, 'Error exporting leads');
             }
         },
         getStatusColor(status) {
@@ -187,32 +171,8 @@ export default {
             };
             return colors[status] || 'grey';
         },
-        formatDate(date) {
-            if (!date) return '-';
-            return new Date(date).toLocaleDateString();
-        },
-        showSuccess(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'success',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
-        showError(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'error',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
         onPerPageChange() {
-            this.currentPage = 1;
+            this.resetPagination();
             this.loadLeads();
         }
     }

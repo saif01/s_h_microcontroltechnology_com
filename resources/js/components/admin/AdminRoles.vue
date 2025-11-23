@@ -178,8 +178,10 @@
 
 <script>
 import axios from 'axios';
+import adminPaginationMixin from '../../mixins/adminPaginationMixin';
 
 export default {
+    mixins: [adminPaginationMixin],
     data() {
         return {
             roles: [],
@@ -190,24 +192,13 @@ export default {
             editingRole: null,
             selectedRole: null,
             loadingPermissions: false,
-            saving: false,
             savingPermissions: false,
             selectedPermissions: [],
-            search: '',
             activeFilter: null,
             activeOptions: [
                 { title: 'Active', value: true },
                 { title: 'Inactive', value: false }
             ],
-            currentPage: 1,
-            perPage: 10,
-            perPageOptions: [10, 25, 50, 100, 500],
-            pagination: {
-                current_page: 1,
-                last_page: 1,
-                per_page: 10,
-                total: 0
-            },
             form: {
                 name: '',
                 slug: '',
@@ -228,11 +219,8 @@ export default {
     methods: {
         async loadRoles() {
             try {
-                const token = localStorage.getItem('admin_token');
-                const params = {
-                    page: this.currentPage,
-                    per_page: this.perPage
-                };
+                this.loading = true;
+                const params = this.buildPaginationParams();
 
                 if (this.search) {
                     params.search = this.search;
@@ -244,19 +232,14 @@ export default {
 
                 const response = await axios.get('/api/v1/roles', {
                     params,
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 // Handle both paginated and non-paginated responses
                 if (response.data.data) {
                     // Paginated response
                     this.roles = response.data.data || [];
-                    this.pagination = {
-                        current_page: response.data.current_page,
-                        last_page: response.data.last_page,
-                        per_page: response.data.per_page,
-                        total: response.data.total
-                    };
+                    this.updatePagination(response.data);
                 } else {
                     // Non-paginated response (fallback)
                     this.roles = response.data || [];
@@ -273,19 +256,19 @@ export default {
                     console.warn('No roles found. Run the seeder to create default roles.');
                 }
             } catch (error) {
-                console.error('Error loading roles:', error);
                 if (error.response?.status === 404) {
-                    this.showError('Roles endpoint not found. Please ensure migrations and seeders have run.');
+                    this.handleApiError(error, 'Roles endpoint not found. Please ensure migrations and seeders have run.');
                 } else {
-                    this.showError('Failed to load roles');
+                    this.handleApiError(error, 'Failed to load roles');
                 }
+            } finally {
+                this.loading = false;
             }
         },
         async loadPermissions() {
             try {
-                const token = localStorage.getItem('admin_token');
                 const response = await axios.get('/api/v1/permissions', {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
                 this.groupedPermissions = response.data;
 
@@ -295,8 +278,7 @@ export default {
                     this.permissions.push(...group);
                 });
             } catch (error) {
-                console.error('Error loading permissions:', error);
-                this.showError('Failed to load permissions');
+                this.handleApiError(error, 'Failed to load permissions');
             }
         },
         openDialog(role) {
@@ -365,7 +347,6 @@ export default {
 
             this.saving = true;
             try {
-                const token = localStorage.getItem('admin_token');
                 const url = this.editingRole
                     ? `/api/v1/roles/${this.editingRole.id}`
                     : '/api/v1/roles';
@@ -400,7 +381,7 @@ export default {
                 }
 
                 await axios[method](url, data, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.showSuccess(
@@ -429,7 +410,7 @@ export default {
                     message = error.response.data.message;
                 }
 
-                this.showError(message);
+                this.handleApiError(error, 'Error saving role');
             } finally {
                 this.saving = false;
             }
@@ -445,17 +426,14 @@ export default {
             }
 
             try {
-                const token = localStorage.getItem('admin_token');
                 await axios.delete(`/api/v1/roles/${role.id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.showSuccess('Role deleted successfully');
                 await this.loadRoles();
             } catch (error) {
-                console.error('Error deleting role:', error);
-                const message = error.response?.data?.message || 'Error deleting role';
-                this.showError(message);
+                this.handleApiError(error, 'Error deleting role');
             }
         },
         async openPermissionDialog(role) {
@@ -482,46 +460,23 @@ export default {
         async savePermissions() {
             this.savingPermissions = true;
             try {
-                const token = localStorage.getItem('admin_token');
                 await axios.put(`/api/v1/roles/${this.selectedRole.id}/permissions`, {
                     permissions: this.selectedPermissions
                 }, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.showSuccess('Permissions updated successfully');
                 this.closePermissionDialog();
                 await this.loadRoles();
             } catch (error) {
-                console.error('Error saving permissions:', error);
-                const message = error.response?.data?.message || 'Error saving permissions';
-                this.showError(message);
+                this.handleApiError(error, 'Error saving permissions');
             } finally {
                 this.savingPermissions = false;
             }
         },
-        showSuccess(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'success',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
-        showError(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'error',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
         onPerPageChange() {
-            this.currentPage = 1;
+            this.resetPagination();
             this.loadRoles();
         }
     }

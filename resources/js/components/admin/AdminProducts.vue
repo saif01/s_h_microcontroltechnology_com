@@ -77,27 +77,19 @@
 
 <script>
 import axios from 'axios';
+import adminPaginationMixin from '../../mixins/adminPaginationMixin';
 
 export default {
+    mixins: [adminPaginationMixin],
     data() {
         return {
             products: [],
             showDialog: false,
-            search: '',
             publishedFilter: null,
             publishedOptions: [
                 { title: 'Published', value: true },
                 { title: 'Draft', value: false }
-            ],
-            currentPage: 1,
-            perPage: 10,
-            perPageOptions: [10, 25, 50, 100, 500],
-            pagination: {
-                current_page: 1,
-                last_page: 1,
-                per_page: 10,
-                total: 0
-            }
+            ]
         };
     },
     async mounted() {
@@ -106,11 +98,8 @@ export default {
     methods: {
         async loadProducts() {
             try {
-                const token = localStorage.getItem('admin_token');
-                const params = {
-                    page: this.currentPage,
-                    per_page: this.perPage
-                };
+                this.loading = true;
+                const params = this.buildPaginationParams();
 
                 if (this.search) {
                     params.search = this.search;
@@ -122,19 +111,15 @@ export default {
 
                 const response = await axios.get('/api/v1/products', {
                     params,
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.products = response.data.data || [];
-                this.pagination = {
-                    current_page: response.data.current_page,
-                    last_page: response.data.last_page,
-                    per_page: response.data.per_page,
-                    total: response.data.total
-                };
+                this.updatePagination(response.data);
             } catch (error) {
-                console.error('Error loading products:', error);
-                this.showError('Failed to load products');
+                this.handleApiError(error, 'Failed to load products');
+            } finally {
+                this.loading = false;
             }
         },
         editProduct(product) {
@@ -144,39 +129,18 @@ export default {
         async deleteProduct(id) {
             if (confirm('Are you sure you want to delete this product?')) {
                 try {
-                    const token = localStorage.getItem('admin_token');
                     await axios.delete(`/api/v1/products/${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
+                        headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Product deleted successfully');
                     await this.loadProducts();
                 } catch (error) {
-                    this.showError('Error deleting product');
+                    this.handleApiError(error, 'Error deleting product');
                 }
             }
         },
-        showSuccess(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'success',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
-        showError(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'error',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
         onPerPageChange() {
-            this.currentPage = 1;
+            this.resetPagination();
             this.loadProducts();
         }
     }

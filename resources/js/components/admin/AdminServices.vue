@@ -75,27 +75,19 @@
 
 <script>
 import axios from 'axios';
+import adminPaginationMixin from '../../mixins/adminPaginationMixin';
 
 export default {
+    mixins: [adminPaginationMixin],
     data() {
         return {
             services: [],
             showDialog: false,
-            search: '',
             publishedFilter: null,
             publishedOptions: [
                 { title: 'Published', value: true },
                 { title: 'Draft', value: false }
-            ],
-            currentPage: 1,
-            perPage: 10,
-            perPageOptions: [10, 25, 50, 100, 500],
-            pagination: {
-                current_page: 1,
-                last_page: 1,
-                per_page: 10,
-                total: 0
-            }
+            ]
         };
     },
     async mounted() {
@@ -104,11 +96,8 @@ export default {
     methods: {
         async loadServices() {
             try {
-                const token = localStorage.getItem('admin_token');
-                const params = {
-                    page: this.currentPage,
-                    per_page: this.perPage
-                };
+                this.loading = true;
+                const params = this.buildPaginationParams();
 
                 if (this.search) {
                     params.search = this.search;
@@ -120,19 +109,15 @@ export default {
 
                 const response = await axios.get('/api/v1/services', {
                     params,
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.services = response.data.data || [];
-                this.pagination = {
-                    current_page: response.data.current_page,
-                    last_page: response.data.last_page,
-                    per_page: response.data.per_page,
-                    total: response.data.total
-                };
+                this.updatePagination(response.data);
             } catch (error) {
-                console.error('Error loading services:', error);
-                this.showError('Failed to load services');
+                this.handleApiError(error, 'Failed to load services');
+            } finally {
+                this.loading = false;
             }
         },
         editService(service) {
@@ -142,39 +127,18 @@ export default {
         async deleteService(id) {
             if (confirm('Are you sure you want to delete this service?')) {
                 try {
-                    const token = localStorage.getItem('admin_token');
                     await axios.delete(`/api/v1/services/${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
+                        headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Service deleted successfully');
                     await this.loadServices();
                 } catch (error) {
-                    this.showError('Error deleting service');
+                    this.handleApiError(error, 'Error deleting service');
                 }
             }
         },
-        showSuccess(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'success',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
-        showError(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'error',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
         onPerPageChange() {
-            this.currentPage = 1;
+            this.resetPagination();
             this.loadServices();
         }
     }

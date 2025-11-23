@@ -198,8 +198,10 @@
 
 <script>
 import axios from 'axios';
+import adminPaginationMixin from '../../mixins/adminPaginationMixin';
 
 export default {
+    mixins: [adminPaginationMixin],
     data() {
         return {
             permissions: [],
@@ -208,19 +210,9 @@ export default {
             dialog: false,
             editingPermission: null,
             viewMode: 'flat',
-            searchQuery: '',
+            searchQuery: '', // Note: Using searchQuery instead of search for this component
             selectedGroup: null,
             newGroup: '',
-            saving: false,
-            currentPage: 1,
-            perPage: 10,
-            perPageOptions: [10, 25, 50, 100, 500],
-            pagination: {
-                current_page: 1,
-                last_page: 1,
-                per_page: 10,
-                total: 0
-            },
             form: {
                 name: '',
                 slug: '',
@@ -243,7 +235,7 @@ export default {
          */
         async loadPermissions() {
             try {
-                const token = localStorage.getItem('admin_token');
+                this.loading = true;
                 const params = {};
 
                 if (this.searchQuery) {
@@ -265,7 +257,7 @@ export default {
 
                 const response = await axios.get('/api/v1/permissions', {
                     params,
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 if (this.viewMode === 'grouped') {
@@ -312,8 +304,9 @@ export default {
                     });
                 }
             } catch (error) {
-                console.error('Error loading permissions:', error);
-                this.showError('Failed to load permissions');
+                this.handleApiError(error, 'Failed to load permissions');
+            } finally {
+                this.loading = false;
             }
         },
 
@@ -322,9 +315,8 @@ export default {
          */
         async loadGroups() {
             try {
-                const token = localStorage.getItem('admin_token');
                 const response = await axios.get('/api/v1/permissions/groups', {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
                 this.groups = response.data || [];
             } catch (error) {
@@ -422,7 +414,6 @@ export default {
 
             this.saving = true;
             try {
-                const token = localStorage.getItem('admin_token');
                 const url = this.editingPermission
                     ? `/api/v1/permissions/${this.editingPermission.id}`
                     : '/api/v1/permissions';
@@ -437,7 +428,7 @@ export default {
                 };
 
                 await axios[method](url, data, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.showSuccess(
@@ -447,25 +438,7 @@ export default {
                 await this.loadGroups();
                 await this.loadPermissions();
             } catch (error) {
-                console.error('Error saving permission:', error);
-                let message = 'Error saving permission';
-
-                if (error.response?.data?.errors) {
-                    const errors = error.response.data.errors;
-                    const errorMessages = [];
-                    Object.keys(errors).forEach(key => {
-                        if (Array.isArray(errors[key])) {
-                            errorMessages.push(`${key}: ${errors[key][0]}`);
-                        } else {
-                            errorMessages.push(`${key}: ${errors[key]}`);
-                        }
-                    });
-                    message = errorMessages.join('\n');
-                } else if (error.response?.data?.message) {
-                    message = error.response.data.message;
-                }
-
-                this.showError(message);
+                this.handleApiError(error, 'Error saving permission');
             } finally {
                 this.saving = false;
             }
@@ -485,17 +458,14 @@ export default {
             }
 
             try {
-                const token = localStorage.getItem('admin_token');
                 await axios.delete(`/api/v1/permissions/${permission.id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: this.getAuthHeaders()
                 });
 
                 this.showSuccess('Permission deleted successfully');
                 await this.loadPermissions();
             } catch (error) {
-                console.error('Error deleting permission:', error);
-                const message = error.response?.data?.message || 'Error deleting permission';
-                this.showError(message);
+                this.handleApiError(error, 'Error deleting permission');
             }
         },
 
@@ -515,29 +485,8 @@ export default {
             return colors[group] || 'grey';
         },
 
-        showSuccess(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'success',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
-
-        showError(message) {
-            if (window.Toast) {
-                window.Toast.fire({
-                    icon: 'error',
-                    title: message
-                });
-            } else {
-                alert(message);
-            }
-        },
         onPerPageChange() {
-            this.currentPage = 1;
+            this.resetPagination();
             this.loadPermissions();
         }
     },
