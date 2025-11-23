@@ -60,13 +60,18 @@
                 <v-list-item link router prepend-icon="mdi-cog" title="Settings" :to="{ name: 'AdminSettings' }"
                     value="Settings" exact v-if="hasPermission('manage-settings')"></v-list-item>
 
-                <!-- Login Logs - Requires 'view-login-logs' permission -->
-                <v-list-item link router prepend-icon="mdi-login" title="Login Logs" :to="{ name: 'AdminLoginLogs' }"
-                    value="LoginLogs" exact v-if="hasPermission('view-login-logs')"></v-list-item>
+                <!-- Logs Management - Group for Login Logs and Visitor Logs -->
+                <v-list-group value="logs" prepend-icon="mdi-file-document-multiple" no-action
+                    v-if="hasPermission('view-login-logs') || hasPermission('view-visitor-logs')">
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" title="Logs"></v-list-item>
+                    </template>
 
-                <!-- Visitor Logs - Requires 'view-visitor-logs' permission -->
-                <v-list-item link router prepend-icon="mdi-account-group" title="Visitor Logs" :to="{ name: 'AdminVisitorLogs' }"
-                    value="VisitorLogs" exact v-if="hasPermission('view-visitor-logs')"></v-list-item>
+                    <v-list-item prepend-icon="mdi-login" title="Login Logs" :to="{ name: 'AdminLoginLogs' }"
+                        v-if="hasPermission('view-login-logs')"></v-list-item>
+                    <v-list-item prepend-icon="mdi-account-group" title="Visitor Logs"
+                        :to="{ name: 'AdminVisitorLogs' }" v-if="hasPermission('view-visitor-logs')"></v-list-item>
+                </v-list-group>
             </v-list>
 
             <template v-slot:append>
