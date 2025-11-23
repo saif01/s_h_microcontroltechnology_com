@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @include('common.demo-icon')
+    <meta name="api-base-url" content="{{ url('api/v1') }}">
     <title>Business</title>
     @vite('resources/sass/app.scss')
 </head>

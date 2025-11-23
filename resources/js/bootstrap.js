@@ -9,6 +9,12 @@ import 'bootstrap';
 import axios from 'axios';
 window.axios = axios;
 
+// Set base URL from meta tag
+const apiBaseUrl = document.querySelector('meta[name="api-base-url"]')?.getAttribute('content');
+if (apiBaseUrl) {
+    window.axios.defaults.baseURL = apiBaseUrl;
+}
+
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /**

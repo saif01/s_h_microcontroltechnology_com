@@ -161,7 +161,7 @@ export default {
     methods: {
         async loadContactInfo() {
             try {
-                const response = await axios.get('/api/v1/public/settings', {
+                const response = await axios.get('/api/public/settings', {
                     params: { group: 'contact_page' }
                 });
                 // Response is a key-value object, merge it with contactInfo
@@ -230,6 +230,7 @@ export default {
 .contact-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1) !important;
+    
 }
 
 .icon-box {
