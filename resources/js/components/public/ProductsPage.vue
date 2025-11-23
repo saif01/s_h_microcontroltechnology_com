@@ -1,199 +1,163 @@
 <template>
-    <div class="products-page">
+    <div class="products-page-premium">
         <!-- Hero Section -->
-        <section class="page-hero position-relative d-flex align-center justify-center text-center">
-            <div class="hero-bg-gradient"></div>
-            <div class="hero-pattern"></div>
+        <section class="premium-hero position-relative d-flex align-center justify-center text-center overflow-hidden">
+            <div class="hero-bg-dark"></div>
+            <div class="hero-grid-overlay"></div>
+            <div class="hero-glow-spotlight"></div>
+            
             <v-container class="position-relative z-index-2">
                 <v-fade-transition appear>
                     <div>
-                        <div class="glass-pill d-inline-flex align-center px-4 py-2 rounded-pill mb-6">
-                            <v-icon icon="mdi-package-variant-closed" color="amber-accent-4" size="small" class="mr-2"></v-icon>
-                            <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">PREMIUM CATALOG</span>
+                        <div class="tech-badge d-inline-flex align-center px-4 py-1 mb-6">
+                            <v-icon icon="mdi-shield-check" color="amber-accent-4" size="small" class="mr-2"></v-icon>
+                            <span class="text-caption font-weight-bold text-amber-accent-4 tracking-widest text-uppercase">Industrial Grade</span>
                         </div>
-                        <h1 class="text-h3 text-md-h2 font-weight-black text-white mb-6">Power Products</h1>
-                        <p class="text-h6 text-white opacity-80 mw-800 mx-auto font-weight-light">
-                            Explore our wide range of high-quality power backup and management systems designed for reliability.
+                        <h1 class="text-h3 text-md-h1 font-weight-black text-white mb-6 tracking-tight">
+                            ENGINEERED FOR <span class="text-transparent bg-clip-text bg-gradient-amber">POWER</span>
+                        </h1>
+                        <p class="text-h6 text-grey-lighten-1 opacity-80 mw-800 mx-auto font-weight-light mb-10">
+                            High-performance UPS systems and power solutions designed for critical infrastructure.
                         </p>
                     </div>
                 </v-fade-transition>
             </v-container>
         </section>
 
-        <!-- Products Section -->
-        <section class="py-16 bg-grey-lighten-5">
+        <!-- Main Content -->
+        <section class="py-12 bg-grey-lighten-5 min-vh-100 position-relative">
             <v-container>
-                <v-row>
-                    <!-- Sidebar Filters (Desktop) -->
-                    <v-col cols="12" md="3" class="d-none d-md-block">
-                        <v-card class="rounded-xl pa-6 elevation-2 sticky-top" style="top: 100px;">
-                            <h3 class="text-h6 font-weight-bold mb-4 text-grey-darken-3">Categories</h3>
-                            <v-list density="compact" class="pa-0">
-                                <v-list-item 
-                                    v-for="category in categories" 
-                                    :key="category.id"
-                                    :value="category.id"
-                                    active-color="primary"
-                                    rounded="lg"
-                                    class="mb-1"
-                                    @click="activeCategory = category.id"
-                                    :active="activeCategory === category.id"
-                                >
-                                    <template v-slot:prepend>
-                                        <v-icon :icon="category.icon" size="small" class="mr-2"></v-icon>
-                                    </template>
-                                    <v-list-item-title class="font-weight-medium">{{ category.name }}</v-list-item-title>
-                                    <template v-slot:append>
-                                        <v-chip size="x-small" variant="flat" color="grey-lighten-3">{{ category.count }}</v-chip>
-                                    </template>
+                <!-- Horizontal Filter Bar -->
+                <div class="filter-bar-glass mb-10 pa-4 rounded-xl d-flex flex-column flex-md-row align-center justify-space-between gap-4">
+                    <!-- Categories -->
+                    <div class="d-flex align-center overflow-x-auto w-100 w-md-auto pb-2 pb-md-0 hide-scrollbar">
+                        <v-btn 
+                            v-for="category in categories" 
+                            :key="category.id"
+                            variant="text"
+                            :color="activeCategory === category.id ? 'primary' : 'grey-darken-1'"
+                            class="font-weight-bold text-capitalize mr-2 rounded-lg"
+                            :class="{ 'bg-white elevation-2': activeCategory === category.id }"
+                            @click="activeCategory = category.id"
+                        >
+                            {{ category.name }}
+                        </v-btn>
+                    </div>
+
+                    <!-- Sort & Search -->
+                    <div class="d-flex align-center gap-4 w-100 w-md-auto">
+                        <v-text-field
+                            density="compact"
+                            variant="outlined"
+                            label="Search products..."
+                            prepend-inner-icon="mdi-magnify"
+                            hide-details
+                            bg-color="white"
+                            class="rounded-lg"
+                            style="min-width: 200px;"
+                        ></v-text-field>
+                        <v-menu>
+                            <template v-slot:activator="{ props }">
+                                <v-btn v-bind="props" variant="outlined" color="grey-darken-2" class="bg-white" append-icon="mdi-chevron-down">
+                                    Sort: {{ sortBy }}
+                                </v-btn>
+                            </template>
+                            <v-list>
+                                <v-list-item v-for="item in ['Newest', 'Price: Low to High', 'Price: High to Low']" :key="item" @click="sortBy = item">
+                                    <v-list-item-title>{{ item }}</v-list-item-title>
                                 </v-list-item>
                             </v-list>
+                        </v-menu>
+                    </div>
+                </div>
 
-                            <v-divider class="my-6"></v-divider>
-
-                            <h3 class="text-h6 font-weight-bold mb-4 text-grey-darken-3">Price Range</h3>
-                            <v-range-slider
-                                v-model="priceRange"
-                                :min="0"
-                                :max="5000"
-                                step="100"
-                                color="primary"
-                                thumb-label="always"
-                                class="mt-8"
-                            ></v-range-slider>
-                        </v-card>
-                    </v-col>
-
-                    <!-- Mobile Filter Toggle -->
-                    <v-col cols="12" class="d-md-none mb-4">
-                        <v-btn block variant="outlined" color="primary" prepend-icon="mdi-filter-variant">
-                            Filter Products
-                        </v-btn>
-                    </v-col>
-
-                    <!-- Product Grid -->
-                    <v-col cols="12" md="9">
-                        <div class="d-flex justify-space-between align-center mb-6">
-                            <div class="text-subtitle-1 font-weight-bold text-grey-darken-2">
-                                Showing {{ filteredProducts.length }} Results
-                            </div>
-                            <div style="width: 200px;">
-                                <v-select
-                                    v-model="sortBy"
-                                    :items="['Newest', 'Price: Low to High', 'Price: High to Low']"
-                                    label="Sort By"
-                                    variant="outlined"
-                                    density="compact"
-                                    hide-details
-                                    bg-color="white"
-                                ></v-select>
-                            </div>
-                        </div>
-
-                        <v-row>
-                            <v-col v-for="product in filteredProducts" :key="product.id" cols="12" sm="6" lg="4">
-                                <v-hover v-slot="{ isHovering, props }">
-                                    <v-card
-                                        v-bind="props"
-                                        :elevation="isHovering ? 12 : 0"
-                                        class="h-100 product-card-modern bg-white rounded-xl overflow-hidden border-thin"
-                                        :to="`/products/${product.slug}`"
-                                    >
-                                        <div class="img-wrapper overflow-hidden position-relative" style="height: 240px;">
-                                            <v-chip
-                                                v-if="product.isNew"
-                                                color="amber-accent-4"
-                                                class="position-absolute top-0 left-0 ma-4 z-index-2 font-weight-bold"
-                                                size="small"
-                                            >
-                                                NEW
-                                            </v-chip>
-                                            <v-img
-                                                :src="product.thumbnail || 'https://via.placeholder.com/400x300?text=Product'"
-                                                height="100%"
-                                                cover
-                                                class="product-img transition-transform"
-                                                :class="{ 'scale-110': isHovering }"
-                                            >
-                                                <template v-slot:placeholder>
-                                                    <div class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
-                                                        <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                                                    </div>
-                                                </template>
-                                            </v-img>
-                                            <div class="overlay-actions d-flex align-center justify-center">
-                                                <v-btn icon="mdi-eye" color="white" variant="flat" class="mr-2 hover-scale"></v-btn>
-                                                <v-btn icon="mdi-cart" color="primary" variant="flat" class="hover-scale"></v-btn>
-                                            </div>
-                                        </div>
-                                        <v-card-item class="pt-5 px-5">
-                                            <div class="text-caption text-primary font-weight-bold mb-1 text-uppercase">{{ product.category }}</div>
-                                            <v-card-title class="text-h6 font-weight-bold mb-2 text-grey-darken-3 px-0 lh-tight">
-                                                {{ product.title }}
-                                            </v-card-title>
-                                            <v-card-text class="text-body-2 text-medium-emphasis px-0 text-truncate-2 mb-2">
-                                                {{ product.short_description }}
-                                            </v-card-text>
-                                            <div class="d-flex align-center mb-2">
-                                                <v-rating
-                                                    :model-value="4.5"
-                                                    color="amber"
-                                                    density="compact"
-                                                    half-increments
-                                                    readonly
-                                                    size="small"
-                                                ></v-rating>
-                                                <span class="text-caption text-medium-emphasis ml-2">(24)</span>
-                                            </div>
-                                        </v-card-item>
-                                        <v-card-actions class="px-5 pb-5 pt-0 d-flex align-center">
-                                            <div class="font-weight-black text-h6 text-primary">${{ product.price || '99.00' }}</div>
-                                            <v-spacer></v-spacer>
-                                            <v-btn variant="tonal" color="primary" size="small" class="font-weight-bold rounded-lg">
-                                                Details
-                                            </v-btn>
-                                        </v-card-actions>
-                                    </v-card>
-                                </v-hover>
-                            </v-col>
-                        </v-row>
-                        
-                        <div class="text-center mt-12">
-                            <v-btn variant="outlined" color="primary" rounded="pill" class="px-8 font-weight-bold">
-                                Load More Products
-                            </v-btn>
-                        </div>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </section>
-
-        <!-- Features Strip -->
-        <section class="py-12 bg-surface border-top">
-            <v-container>
+                <!-- Product Grid -->
                 <v-row>
-                    <v-col cols="12" md="4" class="d-flex align-center justify-center text-center text-md-left">
-                        <v-icon icon="mdi-shield-check-outline" size="40" color="primary" class="mr-4"></v-icon>
-                        <div>
-                            <h4 class="text-subtitle-1 font-weight-bold">Official Warranty</h4>
-                            <p class="text-caption text-medium-emphasis">Guaranteed protection on all items</p>
-                        </div>
-                    </v-col>
-                    <v-col cols="12" md="4" class="d-flex align-center justify-center text-center text-md-left">
-                        <v-icon icon="mdi-truck-fast-outline" size="40" color="primary" class="mr-4"></v-icon>
-                        <div>
-                            <h4 class="text-subtitle-1 font-weight-bold">Fast Delivery</h4>
-                            <p class="text-caption text-medium-emphasis">Nationwide shipping available</p>
-                        </div>
-                    </v-col>
-                    <v-col cols="12" md="4" class="d-flex align-center justify-center text-center text-md-left">
-                        <v-icon icon="mdi-headset" size="40" color="primary" class="mr-4"></v-icon>
-                        <div>
-                            <h4 class="text-subtitle-1 font-weight-bold">Expert Support</h4>
-                            <p class="text-caption text-medium-emphasis">24/7 technical assistance</p>
-                        </div>
+                    <v-col v-for="product in filteredProducts" :key="product.id" cols="12" sm="6" lg="4" xl="3">
+                        <v-hover v-slot="{ isHovering, props }">
+                            <v-card
+                                v-bind="props"
+                                :elevation="isHovering ? 10 : 0"
+                                class="product-card-tech h-100 bg-white rounded-lg overflow-hidden border-tech transition-all"
+                                :to="`/products/${product.slug}`"
+                            >
+                                <!-- Image Area -->
+                                <div class="img-container position-relative bg-grey-lighten-4 pa-8 d-flex align-center justify-center" style="height: 280px;">
+                                    <v-chip
+                                        v-if="product.isNew"
+                                        color="amber-accent-4"
+                                        variant="flat"
+                                        size="x-small"
+                                        class="position-absolute top-0 left-0 ma-4 font-weight-bold z-index-2"
+                                    >
+                                        NEW ARRIVAL
+                                    </v-chip>
+                                    
+                                    <v-img
+                                        :src="product.thumbnail || 'https://via.placeholder.com/400x300?text=Product'"
+                                        max-height="200"
+                                        contain
+                                        class="product-img transition-transform"
+                                        :class="{ 'scale-110': isHovering }"
+                                    ></v-img>
+
+                                    <!-- Quick Actions Overlay -->
+                                    <div class="actions-overlay d-flex align-center justify-center gap-2">
+                                        <v-btn icon="mdi-eye-outline" variant="flat" color="white" class="text-primary hover-scale"></v-btn>
+                                        <v-btn icon="mdi-cart-outline" variant="flat" color="primary" class="hover-scale"></v-btn>
+                                    </div>
+                                </div>
+
+                                <!-- Content Area -->
+                                <div class="pa-5">
+                                    <div class="d-flex justify-space-between align-start mb-2">
+                                        <div class="text-caption font-weight-bold text-primary text-uppercase tracking-wide">{{ product.category }}</div>
+                                        <div class="d-flex align-center">
+                                            <v-icon icon="mdi-star" color="amber" size="x-small" class="mr-1"></v-icon>
+                                            <span class="text-caption font-weight-bold">4.8</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="text-h6 font-weight-bold text-grey-darken-4 mb-2 lh-tight text-truncate-2" style="min-height: 48px;">
+                                        {{ product.title }}
+                                    </h3>
+
+                                    <!-- Tech Specs Grid -->
+                                    <div class="specs-grid my-4 py-3 border-top border-bottom border-dashed">
+                                        <div class="spec-item">
+                                            <span class="spec-label">Capacity</span>
+                                            <span class="spec-value">{{ product.specs.capacity }}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Input</span>
+                                            <span class="spec-value">{{ product.specs.input }}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Type</span>
+                                            <span class="spec-value">{{ product.specs.type }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-center justify-space-between mt-4">
+                                        <div>
+                                            <span class="text-caption text-medium-emphasis text-decoration-line-through mr-2" v-if="product.oldPrice">${{ product.oldPrice }}</span>
+                                            <span class="text-h6 font-weight-black text-primary">${{ product.price }}</span>
+                                        </div>
+                                        <v-btn variant="text" color="primary" class="px-0 font-weight-bold text-capitalize">
+                                            Details <v-icon icon="mdi-arrow-right" size="small" class="ml-1"></v-icon>
+                                        </v-btn>
+                                    </div>
+                                </div>
+                            </v-card>
+                        </v-hover>
                     </v-col>
                 </v-row>
+
+                <div class="text-center mt-16">
+                    <v-btn variant="outlined" color="primary" size="large" rounded="pill" class="px-10 font-weight-bold border-2">
+                        View Full Catalog
+                    </v-btn>
+                </div>
             </v-container>
         </section>
     </div>
@@ -209,19 +173,18 @@ export default {
             products: [],
             activeCategory: 'all',
             sortBy: 'Newest',
-            priceRange: [0, 5000],
             categories: [
-                { id: 'all', name: 'All Products', count: 42, icon: 'mdi-view-grid' },
-                { id: 'ups', name: 'UPS Systems', count: 15, icon: 'mdi-battery-charging-high' },
-                { id: 'batteries', name: 'Batteries', count: 12, icon: 'mdi-battery' },
-                { id: 'inverters', name: 'Inverters', count: 8, icon: 'mdi-lightning-bolt' },
-                { id: 'stabilizers', name: 'Stabilizers', count: 7, icon: 'mdi-sine-wave' }
+                { id: 'all', name: 'All' },
+                { id: 'ups', name: 'UPS Systems' },
+                { id: 'batteries', name: 'Batteries' },
+                { id: 'inverters', name: 'Inverters' },
+                { id: 'solar', name: 'Solar' },
+                { id: 'accessories', name: 'Accessories' }
             ]
         };
     },
     computed: {
         filteredProducts() {
-            // In a real app, filtering would happen here or via API
             return this.products;
         }
     },
@@ -232,98 +195,174 @@ export default {
         async loadProducts() {
             try {
                 const response = await axios.get('/api/public/products');
-                this.products = response.data.map(p => ({
-                    ...p,
-                    category: 'UPS Systems', // Mock category
-                    isNew: Math.random() > 0.7, // Mock new badge
-                    price: (Math.random() * 500 + 100).toFixed(2) // Mock price
-                }));
+                this.products = response.data.map(p => this.enhanceProductData(p));
             } catch (error) {
                 console.error('Error loading products:', error);
-                // Fallback data
-                this.products = Array.from({ length: 6 }).map((_, i) => ({
+                // Fallback data with tech specs
+                this.products = Array.from({ length: 8 }).map((_, i) => this.enhanceProductData({
                     id: i,
-                    title: `Power Product ${i + 1}`,
+                    title: `Industrial Power Unit ${i + 100}`,
                     slug: `product-${i + 1}`,
-                    short_description: 'High-performance power solution for your business needs.',
                     category: i % 2 === 0 ? 'UPS Systems' : 'Batteries',
-                    isNew: i === 0,
-                    price: (Math.random() * 500 + 100).toFixed(2)
+                    price: (Math.random() * 1000 + 200).toFixed(2)
                 }));
             }
+        },
+        enhanceProductData(product) {
+            return {
+                ...product,
+                isNew: Math.random() > 0.8,
+                oldPrice: Math.random() > 0.5 ? (parseFloat(product.price) * 1.2).toFixed(2) : null,
+                specs: {
+                    capacity: '1000VA',
+                    input: '230V AC',
+                    type: 'Online Double'
+                }
+            };
         }
     }
 };
 </script>
 
 <style scoped>
-.page-hero {
-    height: 350px;
+.products-page-premium {
+    background: #f8fafc;
+}
+
+/* Hero Styles */
+.premium-hero {
+    height: 400px;
     background: #0f172a;
 }
 
-.hero-bg-gradient {
+.hero-bg-dark {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
-    opacity: 0.9;
+    background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
 }
 
-.hero-pattern {
+.hero-grid-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
-    background-size: 30px 30px;
-    opacity: 0.3;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.5;
 }
 
-.glass-pill {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.product-card-modern .overlay-actions {
+.hero-glow-spotlight {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.3);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1;
+    top: -50%;
+    left: 20%;
+    width: 60%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+    transform: rotate(-15deg);
+    pointer-events: none;
 }
 
-.product-card-modern:hover .overlay-actions {
-    opacity: 1;
+.tech-badge {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 4px;
 }
 
-.scale-110 {
-    transform: scale(1.1);
+.bg-gradient-amber {
+    background: linear-gradient(to right, #fbbf24, #d97706);
 }
 
-.hover-scale:hover {
-    transform: scale(1.1);
+.bg-clip-text {
+    -webkit-background-clip: text;
+    background-clip: text;
 }
 
-.border-thin {
-    border: 1px solid rgba(0,0,0,0.08) !important;
-}
-
-.sticky-top {
+/* Filter Bar */
+.filter-bar-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     position: sticky;
-    top: 100px;
+    top: 90px;
+    z-index: 10;
 }
+
+/* Tech Card Styles */
+.product-card-tech {
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card-tech:hover {
+    border-color: #3b82f6;
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.img-container {
+    overflow: hidden;
+}
+
+.actions-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+
+.product-card-tech:hover .actions-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scale-110 { transform: scale(1.08); }
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.spec-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.spec-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.spec-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.border-dashed { border-style: dashed !important; border-color: #e2e8f0 !important; }
 
 .mw-800 { max-width: 800px; }
 .lh-tight { line-height: 1.2; }
-.tracking-wide { letter-spacing: 0.05em; }
-.z-index-2 { z-index: 2; }
+.tracking-tight { letter-spacing: -0.025em; }
+.tracking-widest { letter-spacing: 0.15em; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
