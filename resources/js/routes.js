@@ -19,9 +19,9 @@ const routes = [
             },
             {
                 path: 'about',
-                component: () => import('./components/pages/about/index.vue'),
+                component: () => import('./components/public/AboutPage.vue'),
                 name: 'About',
-                meta: { title: 'About' }
+                meta: { title: 'About Us' }
             },
             {
                 path: 'services',
