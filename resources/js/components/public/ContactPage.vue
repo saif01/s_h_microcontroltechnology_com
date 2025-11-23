@@ -43,8 +43,8 @@
                             </div>
                             <h3 class="text-h6 font-weight-bold mb-2 text-grey-darken-3">Email Us</h3>
                             <p class="text-body-2 text-medium-emphasis mb-4">We'll respond within 24 hours</p>
-                            <a href="mailto:info@powertech.com" class="text-h6 font-weight-bold text-primary text-decoration-none hover-link">
-                                info@powertech.com
+                            <a href="mailto:info@microcontrol.com" class="text-h6 font-weight-bold text-primary text-decoration-none hover-link">
+                                info@microcontrol.com
                             </a>
                         </v-card>
                     </v-col>

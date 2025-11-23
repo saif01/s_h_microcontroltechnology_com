@@ -197,7 +197,7 @@ router.beforeEach(async (to, from, next) => {
     // Start progress bar on route change
     progressBar.start();
 
-    const appName = import.meta.env.VITE_APP_NAME || 'Business Website';
+    const appName = import.meta.env.VITE_APP_NAME || 'Micro Control Technology';
     const title = to.meta && to.meta.title ? to.meta.title : '';
     document.title = `${title ? title + ' - ' : ''}${appName}`;
 

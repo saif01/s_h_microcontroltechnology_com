@@ -15,8 +15,8 @@
                         <v-icon icon="mdi-flash" color="amber-accent-4" size="28" class="logo-icon"></v-icon>
                     </div>
                     <div class="d-flex flex-column">
-                        <span class="text-h6 font-weight-black text-grey-darken-4 lh-1 tracking-tight logo-text">POWERTECH</span>
-                        <span class="text-caption font-weight-bold text-primary tracking-widest">SOLUTIONS</span>
+                        <span class="text-h6 font-weight-black text-grey-darken-4 lh-1 tracking-tight logo-text">MICRO CONTROL</span>
+                        <span class="text-caption font-weight-bold text-primary tracking-widest">TECHNOLOGY</span>
                     </div>
                 </router-link>
 
@@ -65,7 +65,7 @@
                     <div class="logo-box mr-3">
                         <v-icon icon="mdi-flash" color="amber-accent-4" size="24"></v-icon>
                     </div>
-                    <span class="text-h6 font-weight-black text-grey-darken-4">POWERTECH</span>
+                    <span class="text-h6 font-weight-black text-grey-darken-4">MICRO CONTROL</span>
                     <v-spacer></v-spacer>
                     <v-btn icon="mdi-close" variant="text" @click="drawer = false"></v-btn>
                 </div>
@@ -109,7 +109,7 @@
                             <div class="logo-box-light mr-3 elevation-10">
                                 <v-icon icon="mdi-flash" color="amber-accent-4" size="24"></v-icon>
                             </div>
-                            <span class="text-h5 font-weight-black text-white tracking-tight">POWERTECH</span>
+                            <span class="text-h5 font-weight-black text-white tracking-tight">MICRO CONTROL</span>
                         </div>
                         <p class="text-body-2 text-grey-lighten-1 mb-8 lh-relaxed opacity-80">
                             Leading provider of technical power support solutions. We ensure your business stays powered with reliable UPS systems, backup generators, and professional maintenance.
@@ -178,7 +178,7 @@
 
                 <div class="d-flex flex-column flex-md-row justify-space-between align-center text-caption text-grey-darken-1">
                     <div class="mb-4 mb-md-0">
-                        © {{ new Date().getFullYear() }} PowerTech Solutions. All rights reserved.
+                        © {{ new Date().getFullYear() }} Micro Control Technology. All rights reserved.
                     </div>
                     <div class="d-flex gap-6">
                         <a href="#" class="footer-link-sm">Privacy Policy</a>
@@ -200,7 +200,7 @@ export default {
         return {
             drawer: false,
             isScrolled: false,
-            siteName: 'PowerTech Solutions',
+            siteName: 'Micro Control Technology',
             menuItems: [
                 { id: 1, label: 'Home', url: '/' },
                 { id: 2, label: 'Services', url: '/services' },

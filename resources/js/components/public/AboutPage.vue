@@ -28,7 +28,7 @@
                         <div class="text-overline text-primary font-weight-bold mb-2 tracking-widest">OUR STORY</div>
                         <h2 class="text-h3 font-weight-bold mb-6 text-grey-darken-3">Decades of Excellence in Power Solutions</h2>
                         <p class="text-body-1 text-medium-emphasis mb-6 lh-relaxed">
-                            Founded in 2010, PowerTech Solutions began with a simple mission: to ensure that no business or home has to suffer from power interruptions. What started as a small local service has grown into a leading provider of comprehensive power support solutions.
+                            Founded in 2010, Micro Control Technology began with a simple mission: to ensure that no business or home has to suffer from power interruptions. What started as a small local service has grown into a leading provider of comprehensive power support solutions.
                         </p>
                         <p class="text-body-1 text-medium-emphasis mb-8 lh-relaxed">
                             We specialize in UPS systems, industrial backup power, battery maintenance, and smart energy management. Our team of certified engineers works tirelessly to deliver products and services that you can trust.

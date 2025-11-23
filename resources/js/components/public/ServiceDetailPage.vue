@@ -27,7 +27,7 @@
                     <v-col cols="12" md="8">
                         <div class="text-body-1 text-grey-darken-3 lh-relaxed mb-8">
                             <p class="mb-6">
-                                At PowerTech Solutions, our <strong>{{ service.title }}</strong> service is designed to ensure your operations never miss a beat. We understand the critical nature of reliable power, which is why we offer comprehensive solutions tailored to your specific needs.
+                                At Micro Control Technology, our <strong>{{ service.title }}</strong> service is designed to ensure your operations never miss a beat. We understand the critical nature of reliable power, which is why we offer comprehensive solutions tailored to your specific needs.
                             </p>
                             <h3 class="text-h5 font-weight-bold mb-4">Key Benefits</h3>
                             <v-list density="comfortable" class="bg-transparent mb-6">
