@@ -12,17 +12,17 @@
             <v-card-text>
                 <v-row>
                     <v-col cols="12" md="4">
-                        <v-text-field v-model="search" label="Search by name or email" prepend-inner-icon="mdi-magnify"
-                            variant="outlined" density="compact" clearable @input="loadUsers"></v-text-field>
+                        <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
+                            prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
+                            @update:model-value="onPerPageChange"></v-select>
                     </v-col>
                     <v-col cols="12" md="4">
                         <v-select v-model="roleFilter" :items="roleOptions" label="Filter by Role" variant="outlined"
                             density="compact" clearable @update:model-value="loadUsers"></v-select>
                     </v-col>
                     <v-col cols="12" md="4">
-                        <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
-                            prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
-                            @update:model-value="onPerPageChange"></v-select>
+                        <v-text-field v-model="search" label="Search by name or email" prepend-inner-icon="mdi-magnify"
+                            variant="outlined" density="compact" clearable @input="loadUsers"></v-text-field>
                     </v-col>
                 </v-row>
             </v-card-text>

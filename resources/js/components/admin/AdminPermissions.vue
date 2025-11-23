@@ -11,20 +11,20 @@
         <v-card class="mb-4">
             <v-card-text>
                 <v-row>
-                    <v-col cols="12" md="4">
-                        <v-text-field v-model="searchQuery" label="Search permissions" prepend-inner-icon="mdi-magnify"
-                            variant="outlined" density="compact" clearable
-                            @update:model-value="loadPermissions"></v-text-field>
-                    </v-col>
-                    <v-col cols="12" md="4">
-                        <v-select v-model="selectedGroup" :items="groups" label="Filter by Group"
-                            prepend-inner-icon="mdi-filter" variant="outlined" density="compact" clearable
-                            @update:model-value="loadPermissions"></v-select>
-                    </v-col>
                     <v-col cols="12" md="4" v-if="viewMode === 'flat'">
                         <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
                             prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
                             @update:model-value="onPerPageChange"></v-select>
+                    </v-col>
+                    <v-col cols="12" :md="viewMode === 'flat' ? 4 : 6">
+                        <v-select v-model="selectedGroup" :items="groups" label="Filter by Group"
+                            prepend-inner-icon="mdi-filter" variant="outlined" density="compact" clearable
+                            @update:model-value="loadPermissions"></v-select>
+                    </v-col>
+                    <v-col cols="12" :md="viewMode === 'flat' ? 4 : 6">
+                        <v-text-field v-model="searchQuery" label="Search permissions" prepend-inner-icon="mdi-magnify"
+                            variant="outlined" density="compact" clearable
+                            @update:model-value="loadPermissions"></v-text-field>
                     </v-col>
                 </v-row>
             </v-card-text>

@@ -12,9 +12,9 @@
             <v-card-text>
                 <v-row>
                     <v-col cols="12" md="4">
-                        <v-text-field v-model="search" label="Search roles" prepend-inner-icon="mdi-magnify"
-                            variant="outlined" density="compact" clearable
-                            @update:model-value="loadRoles"></v-text-field>
+                        <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
+                            prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
+                            @update:model-value="onPerPageChange"></v-select>
                     </v-col>
                     <v-col cols="12" md="4">
                         <v-select v-model="activeFilter" :items="activeOptions" label="Filter by Status"
@@ -22,9 +22,9 @@
                             @update:model-value="loadRoles"></v-select>
                     </v-col>
                     <v-col cols="12" md="4">
-                        <v-select v-model="perPage" :items="perPageOptions" label="Items per page"
-                            prepend-inner-icon="mdi-format-list-numbered" variant="outlined" density="compact"
-                            @update:model-value="onPerPageChange"></v-select>
+                        <v-text-field v-model="search" label="Search roles" prepend-inner-icon="mdi-magnify"
+                            variant="outlined" density="compact" clearable
+                            @update:model-value="loadRoles"></v-text-field>
                     </v-col>
                 </v-row>
             </v-card-text>
