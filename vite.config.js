@@ -6,9 +6,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
 
     return {
-        // Use the ASSET_URL if defined, otherwise default to /public/build/
-        // This handles cases where the domain points to the project root instead of the public folder
-        base: env.ASSET_URL || '/public/build/',
+        // Force base path to /public/build/ for shared hosting
+        // This ensures assets are always loaded from the public directory
+        base: '/public/build/',
 
         server: {
             // Enable CORS for development
