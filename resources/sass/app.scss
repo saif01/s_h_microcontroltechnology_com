@@ -15,3 +15,39 @@
 
 // Common app styles
 @import url('../css/app.css');
+
+// ============================================
+// CSS Custom Properties (Variables) for Admin Layout
+// ============================================
+// Central color management for admin panel components
+// Users can customize these colors from here
+
+:root {
+    // Gradient Colors - Primary Theme
+    --admin-gradient-start: #2c73d2;
+    --admin-gradient-end: #008f7a;
+    --admin-gradient-primary: linear-gradient(135deg, var(--admin-gradient-start) 0%, var(--admin-gradient-end) 100%);
+
+    // Alternative gradient reference (for backward compatibility)
+    --project-gradient-primary: var(--admin-gradient-primary);
+
+    // Gradient RGB values for rgba() usage
+    --admin-gradient-start-rgb: 44, 115, 210;
+    --admin-gradient-end-rgb: 0, 143, 122;
+
+    // White overlay opacity values (for backgrounds, borders, etc.)
+    --admin-overlay-very-light: rgba(255, 255, 255, 0.08);
+    --admin-overlay-dark: rgba(255, 255, 255, 0.1);
+    --admin-overlay-light: rgba(255, 255, 255, 0.15);
+    --admin-overlay-medium: rgba(255, 255, 255, 0.2);
+    --admin-overlay-medium-plus: rgba(255, 255, 255, 0.25);
+    --admin-overlay-strong: rgba(255, 255, 255, 0.3);
+    --admin-overlay-very-strong: rgba(255, 255, 255, 0.9);
+    --admin-overlay-solid: rgba(255, 255, 255, 0.95);
+    --admin-overlay-full: rgba(255, 255, 255, 1);
+
+    // Text colors
+    --admin-text-primary: #ffffff;
+    --admin-text-secondary: rgba(255, 255, 255, 0.9);
+    --admin-text-muted: rgba(255, 255, 255, 0.85);
+}
