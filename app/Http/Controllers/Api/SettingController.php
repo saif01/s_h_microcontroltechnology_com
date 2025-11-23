@@ -42,8 +42,8 @@ class SettingController extends Controller
         ]);
 
         foreach ($validated['settings'] as $key => $settingData) {
-            if (is_array($settingData) && isset($settingData['value'])) {
-                $value = $settingData['value'];
+            if (is_array($settingData) && (array_key_exists('value', $settingData) || isset($settingData['type']))) {
+                $value = $settingData['value'] ?? null;
                 $type = $settingData['type'] ?? 'text';
                 $group = $settingData['group'] ?? 'general';
             } else {

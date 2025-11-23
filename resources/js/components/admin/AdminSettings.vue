@@ -1,104 +1,233 @@
 <template>
-    <div>
-        <h1 class="text-h4 mb-6">Settings</h1>
+    <div class="settings-page">
+        <div class="d-flex align-center justify-space-between mb-6">
+            <div>
+                <h1 class="text-h4 font-weight-bold">Settings</h1>
+                <p class="text-body-1 text-medium-emphasis">Manage your application preferences and configurations</p>
+            </div>
+            <v-btn color="primary" size="large" prepend-icon="mdi-content-save" :loading="loading" @click="saveSettings" elevation="2">
+                Save Changes
+            </v-btn>
+        </div>
 
-        <v-tabs v-model="activeTab" class="mb-6">
-            <v-tab value="general">General</v-tab>
-            <v-tab value="social">Social Media</v-tab>
-            <v-tab value="seo">SEO</v-tab>
-            <v-tab value="email">Email</v-tab>
-            <v-tab value="branding">Branding</v-tab>
-        </v-tabs>
+        <v-row>
+            <!-- Navigation Sidebar -->
+            <v-col cols="12" md="3" lg="2">
+                <v-card elevation="0" class="bg-transparent">
+                    <v-list bg-color="transparent" color="primary" rounded="lg" class="pa-0">
+                        <v-list-item value="general" @click="activeTab = 'general'" :active="activeTab === 'general'" rounded="lg" class="mb-1">
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-cog-outline"></v-icon>
+                            </template>
+                            <v-list-item-title class="font-weight-medium">General</v-list-item-title>
+                        </v-list-item>
+                        
+                        <v-list-item value="branding" @click="activeTab = 'branding'" :active="activeTab === 'branding'" rounded="lg" class="mb-1">
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-palette-outline"></v-icon>
+                            </template>
+                            <v-list-item-title class="font-weight-medium">Branding</v-list-item-title>
+                        </v-list-item>
 
-        <v-card>
-            <v-card-text>
-                <v-form @submit.prevent="saveSettings">
-                    <!-- General Settings -->
-                    <v-window v-model="activeTab">
-                        <v-window-item value="general">
-                            <h2 class="text-h6 mb-4">General Settings</h2>
-                            <v-text-field v-model="settings.general.site_name.value" label="Site Name"
-                                hint="The name of your website" persistent-hint class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.general.site_tagline.value" label="Site Tagline"
-                                hint="A short tagline for your website" persistent-hint class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.general.contact_email.value" label="Contact Email"
-                                type="email" hint="Main contact email address" persistent-hint
-                                class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.general.contact_phone.value" label="Contact Phone"
-                                hint="Main contact phone number" persistent-hint class="mb-4"></v-text-field>
-                            <v-textarea v-model="settings.general.address.value" label="Address" hint="Business address"
-                                persistent-hint rows="3" class="mb-4"></v-textarea>
-                        </v-window-item>
+                        <v-list-item value="social" @click="activeTab = 'social'" :active="activeTab === 'social'" rounded="lg" class="mb-1">
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-share-variant-outline"></v-icon>
+                            </template>
+                            <v-list-item-title class="font-weight-medium">Social Media</v-list-item-title>
+                        </v-list-item>
 
-                        <!-- Social Media Settings -->
-                        <v-window-item value="social">
-                            <h2 class="text-h6 mb-4">Social Media Links</h2>
-                            <v-text-field v-model="settings.social.facebook_url.value" label="Facebook URL" type="url"
-                                hint="Your Facebook page URL" persistent-hint prepend-inner-icon="mdi-facebook"
-                                class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.social.twitter_url.value" label="Twitter URL" type="url"
-                                hint="Your Twitter profile URL" persistent-hint prepend-inner-icon="mdi-twitter"
-                                class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.social.linkedin_url.value" label="LinkedIn URL" type="url"
-                                hint="Your LinkedIn company page URL" persistent-hint prepend-inner-icon="mdi-linkedin"
-                                class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.social.instagram_url.value" label="Instagram URL" type="url"
-                                hint="Your Instagram profile URL" persistent-hint prepend-inner-icon="mdi-instagram"
-                                class="mb-4"></v-text-field>
-                        </v-window-item>
+                        <v-list-item value="seo" @click="activeTab = 'seo'" :active="activeTab === 'seo'" rounded="lg" class="mb-1">
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-magnify"></v-icon>
+                            </template>
+                            <v-list-item-title class="font-weight-medium">SEO</v-list-item-title>
+                        </v-list-item>
 
-                        <!-- SEO Settings -->
-                        <v-window-item value="seo">
-                            <h2 class="text-h6 mb-4">SEO Settings</h2>
-                            <v-text-field v-model="settings.seo.meta_title.value" label="Meta Title"
-                                hint="Default meta title for pages" persistent-hint class="mb-4"></v-text-field>
-                            <v-textarea v-model="settings.seo.meta_description.value" label="Meta Description"
-                                hint="Default meta description for pages" persistent-hint rows="3"
-                                class="mb-4"></v-textarea>
-                            <v-text-field v-model="settings.seo.meta_keywords.value" label="Meta Keywords"
-                                hint="Default meta keywords (comma-separated)" persistent-hint
-                                class="mb-4"></v-text-field>
-                        </v-window-item>
+                        <v-list-item value="email" @click="activeTab = 'email'" :active="activeTab === 'email'" rounded="lg" class="mb-1">
+                            <template v-slot:prepend>
+                                <v-icon icon="mdi-email-outline"></v-icon>
+                            </template>
+                            <v-list-item-title class="font-weight-medium">Email</v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-card>
+            </v-col>
 
-                        <!-- Email Settings -->
-                        <v-window-item value="email">
-                            <h2 class="text-h6 mb-4">Email Settings</h2>
-                            <v-text-field v-model="settings.email.smtp_host.value" label="SMTP Host"
-                                hint="SMTP server hostname" persistent-hint class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.email.smtp_port.value" label="SMTP Port" type="number"
-                                hint="SMTP server port (usually 587 or 465)" persistent-hint
-                                class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.email.smtp_username.value" label="SMTP Username"
-                                hint="SMTP authentication username" persistent-hint class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.email.smtp_password.value" label="SMTP Password"
-                                type="password" hint="SMTP authentication password" persistent-hint
-                                class="mb-4"></v-text-field>
-                            <v-select v-model="settings.email.smtp_encryption.value" :items="['none', 'tls', 'ssl']"
-                                label="SMTP Encryption" hint="Encryption method" persistent-hint
-                                class="mb-4"></v-select>
-                        </v-window-item>
+            <!-- Content Area -->
+            <v-col cols="12" md="9" lg="10">
+                <v-card elevation="1" rounded="lg" class="fill-height">
+                    <v-card-text class="pa-6">
+                        <v-form @submit.prevent="saveSettings">
+                            <v-window v-model="activeTab">
+                                <!-- General Settings -->
+                                <v-window-item value="general" transition="fade-transition" reverse-transition="fade-transition">
+                                    <div class="mb-6">
+                                        <h2 class="text-h5 font-weight-bold mb-1">General Settings</h2>
+                                        <p class="text-body-2 text-medium-emphasis">Basic information about your website</p>
+                                    </div>
+                                    
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.general.site_name.value" label="Site Name"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="The name of your website" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.general.site_tagline.value" label="Site Tagline"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="A short tagline for your website" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.general.contact_email.value" label="Contact Email"
+                                                type="email" variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-email"
+                                                hint="Main contact email address" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.general.contact_phone.value" label="Contact Phone"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-phone"
+                                                hint="Main contact phone number" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea v-model="settings.general.address.value" label="Address" 
+                                                variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-map-marker"
+                                                hint="Business address" persistent-hint rows="3" auto-grow></v-textarea>
+                                        </v-col>
+                                    </v-row>
+                                </v-window-item>
 
-                        <!-- Branding Settings -->
-                        <v-window-item value="branding">
-                            <h2 class="text-h6 mb-4">Branding</h2>
-                            <v-text-field v-model="settings.branding.logo.value" label="Logo URL"
-                                hint="URL to your logo image" persistent-hint class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.branding.favicon.value" label="Favicon URL"
-                                hint="URL to your favicon" persistent-hint class="mb-4"></v-text-field>
-                            <v-text-field v-model="settings.branding.primary_color.value" label="Primary Color"
-                                type="color" hint="Primary brand color" persistent-hint class="mb-4"></v-text-field>
-                        </v-window-item>
-                    </v-window>
+                                <!-- Branding Settings -->
+                                <v-window-item value="branding" transition="fade-transition" reverse-transition="fade-transition">
+                                    <div class="mb-6">
+                                        <h2 class="text-h5 font-weight-bold mb-1">Branding</h2>
+                                        <p class="text-body-2 text-medium-emphasis">Customize the look and feel of your site</p>
+                                    </div>
 
-                    <v-divider class="my-6"></v-divider>
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.branding.logo.value" label="Logo URL"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-image"
+                                                hint="URL to your logo image" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.branding.favicon.value" label="Favicon URL"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-image-size-select-actual"
+                                                hint="URL to your favicon" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.branding.primary_color.value" label="Primary Color"
+                                                type="color" variant="outlined" density="comfortable" style="height: 60px"
+                                                hint="Primary brand color" persistent-hint></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-window-item>
 
-                    <div class="d-flex justify-end gap-3">
-                        <v-btn @click="loadSettings" variant="outlined">Reset</v-btn>
-                        <v-btn type="submit" color="primary" :loading="loading">Save Settings</v-btn>
-                    </div>
-                </v-form>
-            </v-card-text>
-        </v-card>
+                                <!-- Social Media Settings -->
+                                <v-window-item value="social" transition="fade-transition" reverse-transition="fade-transition">
+                                    <div class="mb-6">
+                                        <h2 class="text-h5 font-weight-bold mb-1">Social Media Links</h2>
+                                        <p class="text-body-2 text-medium-emphasis">Connect your social profiles</p>
+                                    </div>
+
+                                    <v-row>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.social.facebook_url.value" label="Facebook URL" type="url"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Your Facebook page URL" persistent-hint prepend-inner-icon="mdi-facebook"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.social.twitter_url.value" label="Twitter URL" type="url"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Your Twitter profile URL" persistent-hint prepend-inner-icon="mdi-twitter"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.social.linkedin_url.value" label="LinkedIn URL" type="url"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Your LinkedIn company page URL" persistent-hint prepend-inner-icon="mdi-linkedin"></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.social.instagram_url.value" label="Instagram URL" type="url"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Your Instagram profile URL" persistent-hint prepend-inner-icon="mdi-instagram"></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-window-item>
+
+                                <!-- SEO Settings -->
+                                <v-window-item value="seo" transition="fade-transition" reverse-transition="fade-transition">
+                                    <div class="mb-6">
+                                        <h2 class="text-h5 font-weight-bold mb-1">SEO Settings</h2>
+                                        <p class="text-body-2 text-medium-emphasis">Optimize your site for search engines</p>
+                                    </div>
+
+                                    <v-row>
+                                        <v-col cols="12">
+                                            <v-text-field v-model="settings.seo.meta_title.value" label="Default Meta Title"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Default meta title for pages" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-textarea v-model="settings.seo.meta_description.value" label="Default Meta Description"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Default meta description for pages" persistent-hint rows="3" auto-grow></v-textarea>
+                                        </v-col>
+                                        <v-col cols="12">
+                                            <v-text-field v-model="settings.seo.meta_keywords.value" label="Meta Keywords"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Default meta keywords (comma-separated)" persistent-hint></v-text-field>
+                                        </v-col>
+                                    </v-row>
+                                </v-window-item>
+
+                                <!-- Email Settings -->
+                                <v-window-item value="email" transition="fade-transition" reverse-transition="fade-transition">
+                                    <div class="mb-6">
+                                        <h2 class="text-h5 font-weight-bold mb-1">Email Settings</h2>
+                                        <p class="text-body-2 text-medium-emphasis">Configure SMTP for email delivery</p>
+                                    </div>
+
+                                    <v-row>
+                                        <v-col cols="12" md="8">
+                                            <v-text-field v-model="settings.email.smtp_host.value" label="SMTP Host"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-server"
+                                                hint="SMTP server hostname" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="4">
+                                            <v-text-field v-model="settings.email.smtp_port.value" label="SMTP Port" type="number"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                hint="Port (e.g. 587, 465)" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.email.smtp_username.value" label="SMTP Username"
+                                                variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-account"
+                                                hint="SMTP authentication username" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field v-model="settings.email.smtp_password.value" label="SMTP Password"
+                                                type="password" variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-lock"
+                                                hint="SMTP authentication password" persistent-hint></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select v-model="settings.email.smtp_encryption.value" :items="['none', 'tls', 'ssl']"
+                                                label="SMTP Encryption" variant="outlined" density="comfortable" color="primary"
+                                                prepend-inner-icon="mdi-shield-check"
+                                                hint="Encryption method" persistent-hint></v-select>
+                                        </v-col>
+                                    </v-row>
+                                </v-window-item>
+                            </v-window>
+                        </v-form>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
     </div>
 </template>
 
@@ -220,7 +349,13 @@ export default {
                 this.showSuccess('Settings saved successfully');
             } catch (error) {
                 console.error('Error saving settings:', error);
-                this.showError('Error saving settings');
+                let message = 'Error saving settings';
+                if (error.response && error.response.data && error.response.data.message) {
+                    message = error.response.data.message;
+                } else if (error.message) {
+                    message = error.message;
+                }
+                this.showError(message);
             } finally {
                 this.loading = false;
             }
@@ -250,7 +385,8 @@ export default {
 </script>
 
 <style scoped>
-.gap-3 {
-    gap: 12px;
+.settings-page {
+    max-width: 1600px;
+    margin: 0 auto;
 }
 </style>
