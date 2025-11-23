@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="d-flex justify-space-between align-center mb-6">
-            <h1 class="text-h4">Role Management</h1>
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog(null)">
+        <div class="page-header">
+            <h1 class="text-h4 page-title">Role Management</h1>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog(null)" class="add-button">
                 Add New Role
             </v-btn>
         </div>
@@ -173,7 +173,7 @@
                                     <v-card-title class="d-flex justify-space-between align-center py-2">
                                         <div class="d-flex align-center gap-2">
                                             <span class="text-h6">{{ group.charAt(0).toUpperCase() + group.slice(1)
-                                                }}</span>
+                                            }}</span>
                                             <v-chip size="small" color="primary" variant="flat">
                                                 {{ getSelectedCountInGroup(group) }} / {{ permissions.length }} selected
                                             </v-chip>
@@ -983,6 +983,7 @@ export default {
 </script>
 
 <style scoped>
+/* Permissions Container Styles */
 .permissions-container {
     max-height: 600px;
     overflow-y: auto;
@@ -1010,5 +1011,35 @@ export default {
 
 .permissions-container::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+</style>
+
+<style>
+/* Non-scoped styles for add button - ensures it works across all scenarios */
+.page-header .add-button {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+}
+
+.page-header .add-button .v-btn__content {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.page-header .add-button .v-btn__prepend {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    margin-inline-end: 8px !important;
+}
+
+.page-header .add-button .v-icon {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    font-size: 20px !important;
 }
 </style>

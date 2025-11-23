@@ -9,7 +9,7 @@
             </div>
 
             <v-list-item v-if="currentUser" class="user-profile-header"
-                :prepend-avatar="currentUser.avatar || 'https://via.placeholder.com/150'"
+                :prepend-avatar="currentUser.avatar || 'https://it.cpbangladesh.com/all-assets/common/logo/cpb/cpbit.png'"
                 :title="currentUser.name || 'Admin Panel'"
                 :subtitle="userRoles && userRoles.length > 0 ? userRoles.map(r => r.name).join(', ') : 'No roles assigned'">
             </v-list-item>
@@ -85,7 +85,8 @@
                     <template v-slot:activator="{ props }">
                         <v-avatar v-bind="props" size="42" class="fill-image mr-2" :title="currentUser.name">
                             <v-img cover v-if="currentUser.avatar" :src="currentUser.avatar" :alt="currentUser.name" />
-                            <v-img cover v-else src="https://via.placeholder.com/150" alt="image" />
+                            <v-img cover v-else src="https://it.cpbangladesh.com/all-assets/common/logo/cpb/cpbit.png"
+                                alt="image" />
                         </v-avatar>
                     </template>
                     <v-list>
@@ -532,14 +533,21 @@ export default {
     font-weight: 600;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
-    background: var(--admin-overlay-solid) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 :deep(.v-btn:hover) {
-    background: var(--admin-overlay-full) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Keep themed button colors (e.g., primary) visible; only lighten neutral buttons */
+:deep(.v-btn:not([class*="bg-"]):not(.v-btn--variant-text):not(.v-btn--variant-plain)) {
+    background: var(--admin-overlay-solid) !important;
+}
+
+:deep(.v-btn:not([class*="bg-"]):not(.v-btn--variant-text):not(.v-btn--variant-plain):hover) {
+    background: var(--admin-overlay-full) !important;
 }
 
 .app-bar-modern {

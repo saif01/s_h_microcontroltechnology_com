@@ -63,6 +63,107 @@ vue-progress-bar,
     margin-inline-end: 0 !important;
 }
 
+/* Admin Page Wrapper - Ensures proper layout */
+.admin-page-wrapper {
+    width: 100% !important;
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* Admin Page Header Styles - Ensures Add button is always visible */
+.page-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+    width: 100% !important;
+    margin-bottom: 24px !important;
+    position: relative !important;
+    z-index: 1 !important;
+    overflow: visible !important;
+}
+
+.page-title {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.add-button {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    min-width: fit-content !important;
+    position: relative !important;
+    z-index: 10 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    overflow: visible !important;
+}
+
+/* Force button content to be visible - direct selectors */
+.add-button .v-btn__content {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.add-button .v-btn__prepend {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    margin-inline-end: 8px !important;
+}
+
+.add-button .v-icon {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    font-size: 20px !important;
+    color: inherit !important;
+}
+
+/* Ensure button is not hidden by parent containers */
+.v-container .page-header .add-button {
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Responsive adjustments for page header */
+@media (max-width: 960px) {
+    .page-header {
+        gap: 12px !important;
+    }
+    
+    .page-title {
+        font-size: 1.5rem !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+    }
+    
+    .page-title {
+        text-align: center !important;
+        margin-bottom: 8px !important;
+        font-size: 1.25rem !important;
+    }
+    
+    .add-button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
 /* HTML Page Loader (shows before Vue loads) */
 .html-page-loader {
     position: fixed;

@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="d-flex justify-space-between align-center mb-6">
-            <h1 class="text-h4">Permission Management</h1>
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog(null)">
+        <div class="page-header">
+            <h1 class="text-h4 page-title">Permission Management</h1>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog(null)" class="add-button">
                 Add New Permission
             </v-btn>
         </div>

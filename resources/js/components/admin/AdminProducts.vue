@@ -1,8 +1,8 @@
 <template>
     <div>
-        <div class="d-flex justify-space-between align-center mb-6">
-            <h1 class="text-h4">Products Management</h1>
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="showDialog = true">Create Product</v-btn>
+        <div class="page-header">
+            <h1 class="text-h4 page-title">Products Management</h1>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="showDialog = true" class="add-button">Create Product</v-btn>
         </div>
 
         <!-- Search and Filter -->
