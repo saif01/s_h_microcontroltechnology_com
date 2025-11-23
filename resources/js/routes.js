@@ -153,7 +153,7 @@ const router = createRouter({
 
 
 // Run before every route request
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     // Start progress bar on route change
     try {
         const progressBar = router.getProgressBar ? router.getProgressBar() : null;
@@ -175,23 +175,47 @@ router.beforeEach((to, from, next) => {
     let title = to.meta && to.meta.title ? to.meta.title : '';
     document.title = `${title ? title + ' - ' : ''}${appName}`;
 
+    // Import auth store
+    const { useAuthStore } = await import('./stores/auth');
+    const authStore = useAuthStore();
+
     // Check authentication for admin routes
     if (to.meta.requiresAuth) {
-        const token = localStorage.getItem('admin_token');
-        if (!token) {
-            const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-            if (progressBar && typeof progressBar.finish === 'function') {
-                progressBar.finish();
+        if (!authStore.isAuthenticated || !authStore.token) {
+            // Try to fetch user if token exists
+            if (authStore.token) {
+                try {
+                    await authStore.fetchUser();
+                    if (!authStore.isAuthenticated) {
+                        const progressBar = router.getProgressBar ? router.getProgressBar() : null;
+                        if (progressBar && typeof progressBar.finish === 'function') {
+                            progressBar.finish();
+                        }
+                        next({ name: 'AdminLogin' });
+                        return;
+                    }
+                } catch (error) {
+                    const progressBar = router.getProgressBar ? router.getProgressBar() : null;
+                    if (progressBar && typeof progressBar.finish === 'function') {
+                        progressBar.finish();
+                    }
+                    next({ name: 'AdminLogin' });
+                    return;
+                }
+            } else {
+                const progressBar = router.getProgressBar ? router.getProgressBar() : null;
+                if (progressBar && typeof progressBar.finish === 'function') {
+                    progressBar.finish();
+                }
+                next({ name: 'AdminLogin' });
+                return;
             }
-            next({ name: 'AdminLogin' });
-            return;
         }
     }
 
     // Redirect logged-in admin away from login page
     if (to.name === 'AdminLogin') {
-        const token = localStorage.getItem('admin_token');
-        if (token) {
+        if (authStore.isAuthenticated && authStore.token) {
             const progressBar = router.getProgressBar ? router.getProgressBar() : null;
             if (progressBar && typeof progressBar.finish === 'function') {
                 progressBar.finish();

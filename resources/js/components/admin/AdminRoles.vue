@@ -37,20 +37,20 @@
                 <v-table>
                     <thead>
                         <tr>
-                            <th class="sortable" @click="onSort('name')" >
+                            <th class="sortable" @click="onSort('name')">
                                 <div class="d-flex align-center">
                                     Name
                                     <v-icon :icon="getSortIcon('name')" size="small" class="ml-1"></v-icon>
                                 </div>
                             </th>
-                            <th class="sortable" @click="onSort('slug')" >
+                            <th class="sortable" @click="onSort('slug')">
                                 <div class="d-flex align-center">
                                     Slug
                                     <v-icon :icon="getSortIcon('slug')" size="small" class="ml-1"></v-icon>
                                 </div>
                             </th>
                             <th>Permissions</th>
-                            <th class="sortable" @click="onSort('is_active')" >
+                            <th class="sortable" @click="onSort('is_active')">
                                 <div class="d-flex align-center">
                                     Status
                                     <v-icon :icon="getSortIcon('is_active')" size="small" class="ml-1"></v-icon>
@@ -138,6 +138,40 @@
                         <v-switch v-model="form.is_active" label="Active"
                             hint="Inactive roles cannot be assigned to users" persistent-hint class="mb-4"
                             :disabled="editingRole && editingRole.is_system"></v-switch>
+
+                        <!-- Permissions Section -->
+                        <v-divider class="my-4"></v-divider>
+                        <div class="mb-2">
+                            <h3 class="text-h6 mb-2">Permissions</h3>
+                            <p class="text-caption text-grey mb-4">Select permissions to assign to this role</p>
+                        </div>
+                        <v-expansion-panels v-if="Object.keys(safeGroupedPermissions).length > 0" variant="accordion"
+                            class="mb-4">
+                            <v-expansion-panel v-for="(permissions, group) in safeGroupedPermissions" :key="group">
+                                <v-expansion-panel-title>
+                                    <div class="d-flex justify-space-between align-center w-100">
+                                        <span>{{ group.charAt(0).toUpperCase() + group.slice(1) }}</span>
+                                        <v-chip size="small" color="primary" variant="text">
+                                            {{ getSelectedCountInGroup(group) }} / {{ permissions.length }} selected
+                                        </v-chip>
+                                    </div>
+                                </v-expansion-panel-title>
+                                <v-expansion-panel-text>
+                                    <v-row v-if="Array.isArray(permissions)">
+                                        <v-col v-for="permission in permissions" :key="permission.id" cols="12" md="6">
+                                            <v-checkbox :model-value="isFormPermissionSelected(permission.id)"
+                                                @update:model-value="toggleFormPermission(permission.id)"
+                                                :label="permission.name" :hint="permission.description" persistent-hint
+                                                density="compact">
+                                            </v-checkbox>
+                                        </v-col>
+                                    </v-row>
+                                </v-expansion-panel-text>
+                            </v-expansion-panel>
+                        </v-expansion-panels>
+                        <v-alert v-else type="info" variant="tonal" class="mb-4">
+                            No permissions available. Please ensure permissions are loaded.
+                        </v-alert>
                     </v-form>
                 </v-card-text>
                 <v-card-actions>
@@ -167,15 +201,24 @@
                         <v-progress-circular indeterminate color="primary"></v-progress-circular>
                     </div>
                     <div v-else>
-                        <div v-for="(permissions, group) in groupedPermissions" :key="group" class="mb-6">
-                            <h3 class="text-h6 mb-3">{{ group.charAt(0).toUpperCase() + group.slice(1) }}</h3>
-                            <v-row>
-                                <v-col v-for="permission in permissions" :key="permission.id" cols="12" md="6">
-                                    <v-checkbox :model-value="isPermissionSelected(permission.id)"
-                                        @update:model-value="togglePermission(permission.id)" :label="permission.name"
-                                        :hint="permission.description" persistent-hint density="compact"></v-checkbox>
-                                </v-col>
-                            </v-row>
+                        <div v-if="Object.keys(safeGroupedPermissions).length === 0" class="text-center py-4">
+                            <p class="text-grey">No permissions available</p>
+                        </div>
+                        <div v-else>
+                            <div v-for="(permissions, group) in safeGroupedPermissions" :key="group" class="mb-6">
+                                <h3 class="text-h6 mb-3">{{ group.charAt(0).toUpperCase() + group.slice(1) }}</h3>
+                                <v-row v-if="Array.isArray(permissions)">
+                                    <v-col v-for="permission in permissions" :key="permission.id" cols="12" md="6">
+                                        <v-checkbox :model-value="isPermissionSelected(permission.id)"
+                                            @update:model-value="togglePermission(permission.id)"
+                                            :label="permission.name" :hint="permission.description" persistent-hint
+                                            density="compact"></v-checkbox>
+                                    </v-col>
+                                </v-row>
+                                <v-alert v-else type="warning" variant="tonal" class="mt-2">
+                                    Invalid permission group structure
+                                </v-alert>
+                            </div>
                         </div>
                     </div>
                 </v-card-text>
@@ -219,13 +262,30 @@ export default {
                 slug: '',
                 description: '',
                 is_active: true,
-                order: 0
+                order: 0,
+                permissions: []
             },
             rules: {
                 required: value => !!value || 'This field is required'
             },
             autoGeneratingSlug: false
         };
+    },
+    computed: {
+        safeGroupedPermissions() {
+            // Ensure groupedPermissions is always an object
+            if (!this.groupedPermissions || typeof this.groupedPermissions !== 'object') {
+                return {};
+            }
+            // Filter out any non-array values
+            const safe = {};
+            Object.keys(this.groupedPermissions).forEach(key => {
+                if (Array.isArray(this.groupedPermissions[key])) {
+                    safe[key] = this.groupedPermissions[key];
+                }
+            });
+            return safe;
+        }
     },
     async mounted() {
         await this.loadRoles();
@@ -285,26 +345,100 @@ export default {
                 const response = await axios.get('/api/v1/permissions', {
                     headers: this.getAuthHeaders()
                 });
-                this.groupedPermissions = response.data;
+
+                // Handle different response structures
+                let permissionsData = response.data;
+
+                // If response has a data property, use it
+                if (response.data && response.data.data) {
+                    permissionsData = response.data.data;
+                }
+
+                // Initialize as empty object if not valid
+                if (!permissionsData || typeof permissionsData !== 'object') {
+                    console.warn('Invalid permissions response structure:', permissionsData);
+                    this.groupedPermissions = {};
+                    this.permissions = [];
+                    return;
+                }
+
+                // Check if it's an array (ungrouped)
+                if (Array.isArray(permissionsData)) {
+                    // Group by group property if available, otherwise use 'general'
+                    this.groupedPermissions = {};
+                    permissionsData.forEach(permission => {
+                        const group = permission.group || permission.group_name || 'general';
+                        if (!this.groupedPermissions[group]) {
+                            this.groupedPermissions[group] = [];
+                        }
+                        this.groupedPermissions[group].push(permission);
+                    });
+                } else {
+                    // It's an object (grouped)
+                    this.groupedPermissions = permissionsData;
+                }
 
                 // Flatten for easier access
                 this.permissions = [];
-                Object.values(response.data).forEach(group => {
-                    this.permissions.push(...group);
+                Object.values(this.groupedPermissions).forEach(group => {
+                    // Ensure group is an array before spreading
+                    if (Array.isArray(group)) {
+                        this.permissions.push(...group);
+                    } else {
+                        console.warn('Invalid group structure:', group);
+                    }
                 });
             } catch (error) {
+                console.error('Error loading permissions:', error);
+                this.groupedPermissions = {};
+                this.permissions = [];
                 this.handleApiError(error, 'Failed to load permissions');
             }
         },
-        openDialog(role) {
+        async openDialog(role) {
+            // Ensure permissions are loaded before opening dialog
+            if (Object.keys(this.groupedPermissions).length === 0) {
+                await this.loadPermissions();
+            }
+
             if (role) {
                 this.editingRole = role;
+                // Load full role data if permissions are not loaded
+                let rolePermissions = [];
+                if (role.permissions) {
+                    // Handle both array of objects and array of IDs
+                    rolePermissions = role.permissions.map(p => {
+                        if (typeof p === 'object' && p.id) {
+                            return p.id;
+                        }
+                        return p;
+                    });
+                } else {
+                    // Try to fetch role with permissions if not included
+                    try {
+                        const response = await axios.get(`/api/v1/roles/${role.id}`, {
+                            headers: this.getAuthHeaders()
+                        });
+                        if (response.data && response.data.permissions) {
+                            rolePermissions = response.data.permissions.map(p => {
+                                if (typeof p === 'object' && p.id) {
+                                    return p.id;
+                                }
+                                return p;
+                            });
+                        }
+                    } catch (error) {
+                        console.warn('Could not load role permissions:', error);
+                    }
+                }
+
                 this.form = {
                     name: role.name,
                     slug: role.slug,
                     description: role.description || '',
                     is_active: role.is_active,
-                    order: role.order || 0
+                    order: role.order || 0,
+                    permissions: rolePermissions
                 };
             } else {
                 this.editingRole = null;
@@ -313,7 +447,8 @@ export default {
                     slug: '',
                     description: '',
                     is_active: true,
-                    order: 0
+                    order: 0,
+                    permissions: []
                 };
             }
             this.dialog = true;
@@ -326,7 +461,8 @@ export default {
                 slug: '',
                 description: '',
                 is_active: true,
-                order: 0
+                order: 0,
+                permissions: []
             };
             if (this.$refs.roleForm) {
                 this.$refs.roleForm.resetValidation();
@@ -393,6 +529,11 @@ export default {
                     if (this.form.slug && this.form.slug.trim()) {
                         data.slug = this.form.slug.trim();
                     }
+                }
+
+                // Include permissions in the request
+                if (this.form.permissions && Array.isArray(this.form.permissions)) {
+                    data.permissions = this.form.permissions;
                 }
 
                 await axios[method](url, data, {
@@ -471,6 +612,24 @@ export default {
             } else {
                 this.selectedPermissions.push(permissionId);
             }
+        },
+        // Form permission methods (for role dialog)
+        isFormPermissionSelected(permissionId) {
+            return this.form.permissions.includes(permissionId);
+        },
+        toggleFormPermission(permissionId) {
+            const index = this.form.permissions.indexOf(permissionId);
+            if (index > -1) {
+                this.form.permissions.splice(index, 1);
+            } else {
+                this.form.permissions.push(permissionId);
+            }
+        },
+        getSelectedCountInGroup(group) {
+            if (!this.safeGroupedPermissions[group] || !Array.isArray(this.safeGroupedPermissions[group])) {
+                return 0;
+            }
+            return this.safeGroupedPermissions[group].filter(p => this.form.permissions.includes(p.id)).length;
         },
         async savePermissions() {
             this.savingPermissions = true;

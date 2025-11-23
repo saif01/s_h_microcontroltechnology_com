@@ -87,7 +87,14 @@ function setupResponseInterceptors() {
 
             // Handle 401 errors (Unauthorized)
             if (error.response && error.response.status === 401) {
-                localStorage.removeItem('admin_token');
+                // Use auth store if available
+                import('../stores/auth').then(({ useAuthStore }) => {
+                    const authStore = useAuthStore();
+                    authStore.logout();
+                }).catch(() => {
+                    // Fallback if store not available
+                    localStorage.removeItem('admin_token');
+                });
                 router.push({ name: 'AdminLogin' });
             }
 
