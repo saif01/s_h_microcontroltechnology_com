@@ -7,6 +7,14 @@
     @vite('resources/sass/app.scss')
 </head>
 <body>
+    <!-- HTML-based page loader (shows before Vue loads) -->
+    <div id="html-page-loader" class="html-page-loader">
+        <div class="html-page-loader-content">
+            <div class="html-page-loader-spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
     <div id="app"></div>
 
 <p>Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})</p>

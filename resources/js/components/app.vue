@@ -1,5 +1,7 @@
 <template>
     <v-app>
+        <!-- Page Loader - Shows on initial page load/refresh -->
+        <PageLoader />
         <!-- Router View - Layouts will be rendered here -->
         <router-view />
         <!-- Vue Progress Bar Component - Must be after router-view -->
@@ -8,8 +10,13 @@
 </template>
 
 <script>
+import PageLoader from './PageLoader.vue';
+
 export default {
     name: 'App',
+    components: {
+        PageLoader
+    },
     mounted() {
         console.log('App component mounted.');
 
