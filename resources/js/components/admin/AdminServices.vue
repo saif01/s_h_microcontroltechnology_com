@@ -35,9 +35,24 @@
                 <v-table>
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Slug</th>
-                            <th>Published</th>
+                            <th class="sortable" @click="onSort('title')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Title
+                                    <v-icon :icon="getSortIcon('title')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('slug')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Slug
+                                    <v-icon :icon="getSortIcon('slug')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('published')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Published
+                                    <v-icon :icon="getSortIcon('published')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -140,7 +155,17 @@ export default {
         onPerPageChange() {
             this.resetPagination();
             this.loadServices();
+        },
+        onSort(field) {
+            this.handleSort(field);
+            this.loadServices();
         }
     }
 };
 </script>
+
+<style scoped>
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+</style>

@@ -35,10 +35,30 @@
                 <v-table>
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>SKU</th>
-                            <th>Price</th>
-                            <th>Published</th>
+                            <th class="sortable" @click="onSort('title')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Title
+                                    <v-icon :icon="getSortIcon('title')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('sku')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    SKU
+                                    <v-icon :icon="getSortIcon('sku')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('price')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Price
+                                    <v-icon :icon="getSortIcon('price')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('published')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Published
+                                    <v-icon :icon="getSortIcon('published')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -142,7 +162,17 @@ export default {
         onPerPageChange() {
             this.resetPagination();
             this.loadProducts();
+        },
+        onSort(field) {
+            this.handleSort(field);
+            this.loadProducts();
         }
     }
 };
 </script>
+
+<style scoped>
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+</style>

@@ -37,10 +37,25 @@
                 <v-table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Slug</th>
+                            <th class="sortable" @click="onSort('name')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Name
+                                    <v-icon :icon="getSortIcon('name')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('slug')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Slug
+                                    <v-icon :icon="getSortIcon('slug')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
                             <th>Permissions</th>
-                            <th>Status</th>
+                            <th class="sortable" @click="onSort('is_active')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Status
+                                    <v-icon :icon="getSortIcon('is_active')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
                             <th>Type</th>
                             <th>Actions</th>
                         </tr>
@@ -478,7 +493,17 @@ export default {
         onPerPageChange() {
             this.resetPagination();
             this.loadRoles();
+        },
+        onSort(field) {
+            this.handleSort(field);
+            this.loadRoles();
         }
     }
 };
 </script>
+
+<style scoped>
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+</style>

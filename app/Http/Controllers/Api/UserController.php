@@ -39,7 +39,22 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->orderBy('name')->paginate($request->get('per_page', 10));
+        // Sorting
+        $sortBy = $request->get('sort_by', 'name');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        $allowedSortFields = ['id', 'name', 'email', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'name';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
+
+        $users = $query->paginate($request->get('per_page', 10));
         
         return response()->json($users);
     }

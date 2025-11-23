@@ -27,9 +27,28 @@ class ServiceController extends Controller
             $query->where('published', $request->published);
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'order');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        $allowedSortFields = ['id', 'title', 'slug', 'published', 'order', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'order';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
+        
+        if ($sortBy !== 'title' && $sortBy !== 'order') {
+            $query->orderBy('title', 'asc');
+        }
+
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $services = $query->orderBy('order')->orderBy('title')->paginate($perPage);
+        $services = $query->paginate($perPage);
         
         return response()->json($services);
     }

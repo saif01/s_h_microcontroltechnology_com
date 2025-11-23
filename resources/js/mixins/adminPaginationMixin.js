@@ -31,6 +31,10 @@ export default {
             // Common search state
             search: '',
 
+            // Sorting state
+            sortBy: null,
+            sortDirection: 'asc', // 'asc' or 'desc'
+
             // Loading states
             loading: false,
             saving: false
@@ -123,11 +127,19 @@ export default {
          * @returns {Object} Parameters object for API request
          */
         buildPaginationParams(additionalParams = {}) {
-            return {
+            const params = {
                 page: this.currentPage,
                 per_page: this.perPage,
                 ...additionalParams
             };
+
+            // Add sorting parameters if sortBy is set
+            if (this.sortBy) {
+                params.sort_by = this.sortBy;
+                params.sort_direction = this.sortDirection;
+            }
+
+            return params;
         },
 
         /**
@@ -181,6 +193,43 @@ export default {
             }
 
             this.showError(message);
+        },
+
+        /**
+         * Handle table header sort click
+         * @param {string} field - Field name to sort by
+         */
+        handleSort(field) {
+            if (this.sortBy === field) {
+                // Toggle direction if same field
+                this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                // New field, default to ascending
+                this.sortBy = field;
+                this.sortDirection = 'asc';
+            }
+            // Reset to first page when sorting changes
+            this.currentPage = 1;
+        },
+
+        /**
+         * Get sort icon for table header
+         * @param {string} field - Field name
+         * @returns {string} Icon name
+         */
+        getSortIcon(field) {
+            if (this.sortBy !== field) {
+                return 'mdi-sort';
+            }
+            return this.sortDirection === 'asc' ? 'mdi-sort-ascending' : 'mdi-sort-descending';
+        },
+
+        /**
+         * Reset sorting
+         */
+        resetSorting() {
+            this.sortBy = null;
+            this.sortDirection = 'asc';
         }
     }
 };

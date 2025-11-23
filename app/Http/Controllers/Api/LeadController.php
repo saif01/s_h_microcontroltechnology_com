@@ -33,9 +33,24 @@ class LeadController extends Controller
             });
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+        
+        $allowedSortFields = ['id', 'name', 'email', 'phone', 'type', 'status', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'created_at';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'desc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
+
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $leads = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $leads = $query->paginate($perPage);
         
         return response()->json($leads);
     }

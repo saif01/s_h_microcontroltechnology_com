@@ -46,8 +46,18 @@
                         <v-table>
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Slug</th>
+                                    <th class="sortable" @click="onSort('name')" style="cursor: pointer;">
+                                        <div class="d-flex align-center">
+                                            Name
+                                            <v-icon :icon="getSortIcon('name')" size="small" class="ml-1"></v-icon>
+                                        </div>
+                                    </th>
+                                    <th class="sortable" @click="onSort('slug')" style="cursor: pointer;">
+                                        <div class="d-flex align-center">
+                                            Slug
+                                            <v-icon :icon="getSortIcon('slug')" size="small" class="ml-1"></v-icon>
+                                        </div>
+                                    </th>
                                     <th>Description</th>
                                     <th>Roles</th>
                                     <th>Actions</th>
@@ -89,9 +99,24 @@
                 <v-table v-else>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Slug</th>
-                            <th>Group</th>
+                            <th class="sortable" @click="onSort('name')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Name
+                                    <v-icon :icon="getSortIcon('name')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('slug')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Slug
+                                    <v-icon :icon="getSortIcon('slug')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
+                            <th class="sortable" @click="onSort('group')" style="cursor: pointer;">
+                                <div class="d-flex align-center">
+                                    Group
+                                    <v-icon :icon="getSortIcon('group')" size="small" class="ml-1"></v-icon>
+                                </div>
+                            </th>
                             <th>Description</th>
                             <th>Roles</th>
                             <th>Actions</th>
@@ -488,6 +513,10 @@ export default {
         onPerPageChange() {
             this.resetPagination();
             this.loadPermissions();
+        },
+        onSort(field) {
+            this.handleSort(field);
+            this.loadPermissions();
         }
     },
     watch: {
@@ -499,3 +528,9 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+</style>

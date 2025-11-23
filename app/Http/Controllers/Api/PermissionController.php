@@ -32,6 +32,19 @@ class PermissionController extends Controller
             });
         }
 
+        // Sorting (only for flat view)
+        $sortBy = $request->get('sort_by', 'group');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        $allowedSortFields = ['id', 'name', 'slug', 'group', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'group';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+
         // Get grouped or flat list
         if ($request->has('grouped') && $request->grouped) {
             // For grouped view, we still return all permissions grouped (no pagination)
@@ -40,9 +53,18 @@ class PermissionController extends Controller
             return response()->json($grouped);
         }
 
+        // Apply sorting for flat view
+        $query->orderBy($sortBy, $sortDirection);
+        
+        if ($sortBy !== 'name' && $sortBy !== 'group') {
+            $query->orderBy('group', 'asc')->orderBy('name', 'asc');
+        } elseif ($sortBy === 'group') {
+            $query->orderBy('name', 'asc');
+        }
+
         // Paginate results for flat view
         $perPage = $request->get('per_page', 10);
-        $permissions = $query->withCount('roles')->orderBy('group')->orderBy('name')->paginate($perPage);
+        $permissions = $query->withCount('roles')->paginate($perPage);
         
         return response()->json($permissions);
     }

@@ -29,9 +29,28 @@ class RoleController extends Controller
             });
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'order');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        $allowedSortFields = ['id', 'name', 'slug', 'is_active', 'order', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'order';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
+        
+        if ($sortBy !== 'name' && $sortBy !== 'order') {
+            $query->orderBy('name', 'asc');
+        }
+
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $roles = $query->with('permissions')->orderBy('order')->orderBy('name')->paginate($perPage);
+        $roles = $query->with('permissions')->paginate($perPage);
         
         return response()->json($roles);
     }

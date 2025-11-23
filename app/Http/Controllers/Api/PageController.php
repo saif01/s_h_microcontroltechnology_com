@@ -26,9 +26,32 @@ class PageController extends Controller
             $query->where('published', $request->published);
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'order');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        // Validate sort_by field to prevent SQL injection
+        $allowedSortFields = ['id', 'title', 'slug', 'page_type', 'published', 'order', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'order';
+        }
+        
+        // Validate sort direction
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        
+        // Apply sorting
+        $query->orderBy($sortBy, $sortDirection);
+        
+        // If sorting by order, add title as secondary sort
+        if ($sortBy !== 'title' && $sortBy !== 'order') {
+            $query->orderBy('title', 'asc');
+        }
+
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $pages = $query->orderBy('order')->orderBy('title')->paginate($perPage);
+        $pages = $query->paginate($perPage);
         
         return response()->json($pages);
     }

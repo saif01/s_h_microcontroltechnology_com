@@ -33,9 +33,28 @@ class ProductController extends Controller
             $query->where('featured', $request->featured);
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'order');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        $allowedSortFields = ['id', 'title', 'slug', 'sku', 'price', 'published', 'featured', 'stock', 'order', 'created_at', 'updated_at'];
+        if (!in_array($sortBy, $allowedSortFields)) {
+            $sortBy = 'order';
+        }
+        
+        if (!in_array($sortDirection, ['asc', 'desc'])) {
+            $sortDirection = 'asc';
+        }
+        
+        $query->orderBy($sortBy, $sortDirection);
+        
+        if ($sortBy !== 'title' && $sortBy !== 'order') {
+            $query->orderBy('title', 'asc');
+        }
+
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $products = $query->orderBy('order')->orderBy('title')->paginate($perPage);
+        $products = $query->paginate($perPage);
         
         return response()->json($products);
     }
