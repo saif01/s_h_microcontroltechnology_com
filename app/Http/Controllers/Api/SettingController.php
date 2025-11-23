@@ -17,7 +17,7 @@ class SettingController extends Controller
         }
 
         $settings = $query->orderBy('group')->orderBy('key')->get();
-        
+
         // Group settings by group
         $grouped = $settings->groupBy('group')->map(function ($items) {
             return $items->mapWithKeys(function ($item) {
@@ -31,7 +31,7 @@ class SettingController extends Controller
                 ]];
             });
         });
-        
+
         return response()->json($grouped);
     }
 
