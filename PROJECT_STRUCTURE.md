@@ -40,14 +40,58 @@ This is a comprehensive business website platform built according to the SRS doc
 
 ### Frontend (Vue 3)
 
+#### Main Entry Point
+- **`resources/js/app.js`**: Main application entry point
+  - Initializes Vue app instance
+  - Registers all plugins and utilities
+  - Mounts the application
+
+#### Utilities (`resources/js/utils/`)
+- **`axios.config.js`**: Axios HTTP client configuration
+  - Base URL configuration (development/production)
+  - Default headers setup
+  - Request interceptors (authentication tokens)
+  - Response interceptors (error handling, CORS, 401 errors)
+
+#### Plugins (`resources/js/plugins/`)
+- **`vuetify.js`**: Vuetify UI framework configuration
+  - Component registration
+  - Directive registration
+  - Theme configuration
+
+- **`progressBar.js`**: Vue Progress Bar plugin configuration
+  - Progress bar options (color, thickness, location)
+  - Router helper functions for progress bar access
+  - Setup functions for router hooks
+
+- **`sweetalert.js`**: SweetAlert2 plugin configuration
+  - Toast notifications setup
+  - Global Swal and Toast exposure
+  - Configuration for alerts and notifications
+
 #### Components
 - **Admin Components** (`resources/js/components/admin/`):
-  - AdminLayout.vue (admin navigation)
+  - AdminLayout.vue (admin navigation with sidebar, app bar, footer)
   - AdminDashboard.vue (dashboard with statistics)
+  - AdminPages.vue, AdminServices.vue, AdminProducts.vue
+  - AdminLeads.vue, AdminUsers.vue
+  - AdminRoles.vue, AdminPermissions.vue
+  - AdminSettings.vue, AdminLogin.vue
 
 - **Public Components** (`resources/js/components/public/`):
   - PublicLayout.vue (public website layout)
   - HomePage.vue (homepage component)
+  - ServicesPage.vue, ProductsPage.vue
+  - ContactPage.vue
+
+#### Mixins (`resources/js/mixins/`)
+- **`adminPaginationMixin.js`**: Shared pagination logic for admin components
+
+#### Routes (`resources/js/routes.js`)
+- Public routes configuration
+- Admin routes configuration (with authentication guards)
+- Router navigation hooks for progress bar
+- Route meta information handling
 
 ## Setup Instructions
 
@@ -148,6 +192,11 @@ npm run dev
 - Dashboard with statistics
 - CRUD operations for content
 - Leads management and export
+- Role-based permissions system
+- User management
+- Modern UI with gradient design
+- Progress bar for route navigation
+- Toast notifications
 
 ✅ **Public Website:**
 - Dynamic homepage
@@ -155,15 +204,93 @@ npm run dev
 - Services/Products display
 - Contact forms
 
+✅ **Frontend Architecture:**
+- Modular plugin system (Vuetify, ProgressBar, SweetAlert)
+- Utility functions for axios configuration
+- Organized component structure
+- Mixins for shared functionality
+- Centralized CSS variables for theming
+- Responsive design with compact tables
+
+## Frontend File Structure
+
+```
+resources/js/
+├── app.js                          # Main entry point (cleaned and organized)
+├── bootstrap.js                    # Bootstrap configuration
+├── routes.js                       # Vue Router configuration
+│
+├── utils/                          # Utility functions
+│   └── axios.config.js            # Axios HTTP client configuration
+│
+├── plugins/                        # Vue plugins
+│   ├── vuetify.js                 # Vuetify UI framework setup
+│   ├── progressBar.js             # Progress bar plugin setup
+│   └── sweetalert.js              # SweetAlert2 plugin setup
+│
+├── mixins/                         # Vue mixins for shared logic
+│   └── adminPaginationMixin.js    # Pagination mixin for admin components
+│
+└── components/
+    ├── app.vue                     # Root component
+    ├── admin/                      # Admin panel components
+    │   ├── AdminLayout.vue        # Admin layout (sidebar, app bar, footer)
+    │   ├── AdminDashboard.vue     # Dashboard
+    │   ├── AdminPages.vue         # Pages management
+    │   ├── AdminServices.vue      # Services management
+    │   ├── AdminProducts.vue      # Products management
+    │   ├── AdminLeads.vue         # Leads management
+    │   ├── AdminUsers.vue         # User management
+    │   ├── AdminRoles.vue         # Role management
+    │   ├── AdminPermissions.vue   # Permission management
+    │   ├── AdminSettings.vue      # Settings management
+    │   └── AdminLogin.vue         # Admin login page
+    │
+    ├── public/                     # Public website components
+    │   ├── PublicLayout.vue       # Public layout
+    │   ├── HomePage.vue           # Homepage
+    │   ├── ServicesPage.vue       # Services listing
+    │   ├── ProductsPage.vue       # Products listing
+    │   └── ContactPage.vue        # Contact page
+    │
+    └── pages/                      # Additional page components
+        ├── dashboard.vue
+        └── about/
+            └── index.vue
+```
+
+## Styling & Assets
+
+### CSS/SASS Files
+- **`resources/sass/app.scss`**: Main stylesheet
+  - Bootstrap import
+  - Vuetify styles
+  - CSS custom properties (variables) for admin theme colors
+  - Admin table styles (compact, bordered, responsive)
+  - Footer styles
+
+- **`resources/css/app.css`**: Additional styles
+  - Common admin table styles
+  - Progress bar styles
+  - Navigation menu adjustments
+
+### CSS Variables (Centralized in `app.scss`)
+- `--admin-gradient-start`: Primary gradient start color (#2c73d2)
+- `--admin-gradient-end`: Primary gradient end color (#008f7a)
+- `--admin-gradient-primary`: Complete gradient definition
+- `--admin-overlay-*`: Various overlay opacity values
+- `--admin-text-primary`: Primary text color (#ffffff)
+
 ## Next Steps (To Complete)
 
-1. **Vue Routes**: Update `resources/js/routes.js` to include admin and public routes
-2. **Admin Components**: Create full CRUD components for pages, services, products
-3. **Public Components**: Create full public website components (about, services, products, contact)
-4. **File Upload**: Implement media library and file upload functionality
-5. **Email Notifications**: Configure and test email sending for leads
-6. **SEO**: Implement SEO meta tags management
-7. **Settings UI**: Create admin UI for managing site settings
+1. ✅ **Frontend Architecture**: Completed modular plugin system
+2. ✅ **Admin UI Design**: Completed modern gradient design with animations
+3. ✅ **Progress Bar**: Implemented for route navigation
+4. ✅ **Table Styles**: Added compact, bordered, responsive table design
+5. **File Upload**: Implement media library and file upload functionality
+6. **Email Notifications**: Configure and test email sending for leads
+7. **SEO**: Implement SEO meta tags management
+8. **Settings UI**: Enhance admin UI for managing site settings
 
 ## Default Admin Credentials
 
