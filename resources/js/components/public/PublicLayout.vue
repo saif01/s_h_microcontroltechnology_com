@@ -144,10 +144,10 @@
                             <div class="heading-underline"></div>
                         </h4>
                         <ul class="list-unstyled">
-                            <li class="mb-3"><a href="#" class="footer-link text-body-2 text-grey-lighten-1">UPS Installation</a></li>
-                            <li class="mb-3"><a href="#" class="footer-link text-body-2 text-grey-lighten-1">Battery Replacement</a></li>
-                            <li class="mb-3"><a href="#" class="footer-link text-body-2 text-grey-lighten-1">Industrial Backup</a></li>
-                            <li class="mb-3"><a href="#" class="footer-link text-body-2 text-grey-lighten-1">24/7 Support</a></li>
+                            <li class="mb-3"><router-link to="/services/ups-installation" class="footer-link text-body-2 text-grey-lighten-1">UPS Installation</router-link></li>
+                            <li class="mb-3"><router-link to="/services/battery-replacement" class="footer-link text-body-2 text-grey-lighten-1">Battery Replacement</router-link></li>
+                            <li class="mb-3"><router-link to="/services/industrial-backup" class="footer-link text-body-2 text-grey-lighten-1">Industrial Backup</router-link></li>
+                            <li class="mb-3"><router-link to="/services/support" class="footer-link text-body-2 text-grey-lighten-1">24/7 Support</router-link></li>
                         </ul>
                     </v-col>
 

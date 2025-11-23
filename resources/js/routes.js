@@ -30,10 +30,22 @@ const routes = [
                 meta: { title: 'Services' }
             },
             {
+                path: 'services/:slug',
+                component: () => import('./components/public/ServiceDetailPage.vue'),
+                name: 'ServiceDetail',
+                meta: { title: 'Service Details' }
+            },
+            {
                 path: 'products',
                 component: () => import('./components/public/ProductsPage.vue'),
                 name: 'Products',
                 meta: { title: 'Products' }
+            },
+            {
+                path: 'products/:slug',
+                component: () => import('./components/public/ProductDetailPage.vue'),
+                name: 'ProductDetail',
+                meta: { title: 'Product Details' }
             },
             {
                 path: 'contact',
