@@ -17,6 +17,20 @@ export default defineConfig(({ mode }) => {
             host: '0.0.0.0',
             hmr: {
                 host: 'localhost',
+                protocol: 'ws',
+            },
+            // Allowed hosts for development
+            allowedHosts: [
+                'sh.test',
+                'test-2.cpbfivestar.com',
+                'localhost',
+                '127.0.0.1',
+            ],
+            // CORS configuration
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN',
             },
         },
 

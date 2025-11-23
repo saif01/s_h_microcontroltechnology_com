@@ -152,27 +152,29 @@ const router = createRouter({
 });
 
 
+// Helper to handle progress bar
+const progressBar = {
+    start: () => {
+        const bar = router.getProgressBar ? router.getProgressBar() : null;
+        if (bar && typeof bar.start === 'function') bar.start();
+    },
+    finish: () => {
+        const bar = router.getProgressBar ? router.getProgressBar() : null;
+        if (bar && typeof bar.finish === 'function') bar.finish();
+    },
+    fail: () => {
+        const bar = router.getProgressBar ? router.getProgressBar() : null;
+        if (bar && typeof bar.fail === 'function') bar.fail();
+    }
+};
+
 // Run before every route request
 router.beforeEach(async (to, from, next) => {
     // Start progress bar on route change
-    try {
-        const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-        if (progressBar) {
-            if (typeof progressBar.start === 'function') {
-                progressBar.start();
-                console.log('Progress bar started');
-            } else {
-                console.warn('Progress bar start method not found');
-            }
-        } else {
-            console.warn('Progress bar instance not available in router hook');
-        }
-    } catch (error) {
-        console.error('Error starting progress bar:', error);
-    }
+    progressBar.start();
 
-    let appName = 'Business Website';
-    let title = to.meta && to.meta.title ? to.meta.title : '';
+    const appName = import.meta.env.VITE_APP_NAME || 'Business Website';
+    const title = to.meta && to.meta.title ? to.meta.title : '';
     document.title = `${title ? title + ' - ' : ''}${appName}`;
 
     // Import auth store
@@ -187,26 +189,17 @@ router.beforeEach(async (to, from, next) => {
                 try {
                     await authStore.fetchUser();
                     if (!authStore.isAuthenticated) {
-                        const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-                        if (progressBar && typeof progressBar.finish === 'function') {
-                            progressBar.finish();
-                        }
+                        progressBar.finish();
                         next({ name: 'AdminLogin' });
                         return;
                     }
                 } catch (error) {
-                    const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-                    if (progressBar && typeof progressBar.finish === 'function') {
-                        progressBar.finish();
-                    }
+                    progressBar.finish();
                     next({ name: 'AdminLogin' });
                     return;
                 }
             } else {
-                const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-                if (progressBar && typeof progressBar.finish === 'function') {
-                    progressBar.finish();
-                }
+                progressBar.finish();
                 next({ name: 'AdminLogin' });
                 return;
             }
@@ -216,10 +209,7 @@ router.beforeEach(async (to, from, next) => {
     // Redirect logged-in admin away from login page
     if (to.name === 'AdminLogin') {
         if (authStore.isAuthenticated && authStore.token) {
-            const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-            if (progressBar && typeof progressBar.finish === 'function') {
-                progressBar.finish();
-            }
+            progressBar.finish();
             next({ name: 'AdminDashboard' });
             return;
         }
@@ -231,29 +221,14 @@ router.beforeEach(async (to, from, next) => {
 // Run after route is resolved
 router.afterEach((to, from) => {
     // Finish progress bar after route change
-    try {
-        const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-        if (progressBar && typeof progressBar.finish === 'function') {
-            setTimeout(() => {
-                progressBar.finish();
-                console.log('Progress bar finished');
-            }, 100);
-        }
-    } catch (error) {
-        console.error('Error finishing progress bar:', error);
-    }
+    setTimeout(() => {
+        progressBar.finish();
+    }, 100);
 });
 
 // Handle route errors
 router.onError((error) => {
-    try {
-        const progressBar = router.getProgressBar ? router.getProgressBar() : null;
-        if (progressBar && typeof progressBar.fail === 'function') {
-            progressBar.fail();
-        }
-    } catch (err) {
-        console.error('Error handling progress bar failure:', err);
-    }
+    progressBar.fail();
     console.error('Router error:', error);
 });
 
