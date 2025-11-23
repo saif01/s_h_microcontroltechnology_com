@@ -6,10 +6,9 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
 
     return {
-        // Use the ASSET_URL if defined, otherwise default to /build/
-        // If you are in a subdirectory, ensure ASSET_URL is set in .env
-        // Example for XAMPP: ASSET_URL=/s_h_micro_control/build/
-        base: env.ASSET_URL || '/build/',
+        // Use the ASSET_URL if defined, otherwise default to /public/build/
+        // This handles cases where the domain points to the project root instead of the public folder
+        base: env.ASSET_URL || '/public/build/',
 
         server: {
             // Enable CORS for development

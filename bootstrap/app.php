@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
         
+        // Trust all proxies (required for shared hosting/load balancers)
+        $middleware->trustProxies(at: '*');
+        
         $middleware->alias([
             'administration' => \App\Http\Middleware\AdministratorMiddleware::class,
             'permit' => \App\Http\Middleware\PermissionMiddleware::class,
