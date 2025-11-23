@@ -4,9 +4,12 @@
     user-select: none;
 }
 
-.sortable:hover {
+/* Sortable hover only for table body cells, not headers */
+tbody .sortable:hover {
     background-color: rgba(0, 0, 0, 0.04);
 }
+
+/* Table headers have their own hover styles defined in app.scss */
 
 /* Reduce gap between prepend-icon and title in navigation menu */
 .v-navigation-drawer .v-list-item__prepend>.v-list-item__spacer {

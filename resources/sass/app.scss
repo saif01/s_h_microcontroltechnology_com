@@ -51,3 +51,54 @@
     --admin-text-secondary: rgba(255, 255, 255, 0.9);
     --admin-text-muted: rgba(255, 255, 255, 0.85);
 }
+
+// ============================================
+// Admin Table Header Styles
+// ============================================
+// Apply admin-gradient-start color to all table headers in admin pages
+
+// Vuetify table headers - multiple selectors for compatibility
+.v-table thead th,
+.v-table thead tr th,
+.v-table table thead th {
+    background: var(--admin-gradient-start) !important;
+    color: var(--admin-text-primary) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.875rem !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 16px !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+// Standard HTML table headers (if used)
+table thead th,
+table thead tr th {
+    background: var(--admin-gradient-start) !important;
+    color: var(--admin-text-primary) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    font-size: 0.875rem !important;
+    letter-spacing: 0.5px !important;
+    padding: 12px 16px !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+// Sortable header hover effect
+.v-table thead th.sortable:hover,
+.v-table thead tr th.sortable:hover,
+table thead th.sortable:hover,
+table thead tr th.sortable:hover {
+    background: var(--admin-gradient-end) !important;
+    cursor: pointer !important;
+    transition: background 0.3s ease !important;
+}
+
+// Sortable header active/sorted state
+.v-table thead th.sortable.active,
+.v-table thead tr th.sortable.active,
+table thead th.sortable.active,
+table thead tr th.sortable.active {
+    background: var(--admin-gradient-end) !important;
+    box-shadow: inset 0 -3px 0 rgba(255, 255, 255, 0.5) !important;
+}
