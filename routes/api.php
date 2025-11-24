@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\LeadController;
 use App\Http\Controllers\Api\LoginLogController;
 use App\Http\Controllers\Api\PageController;
@@ -30,6 +31,7 @@ Route::prefix('openapi')->group(function () {
     Route::get('/services/{slug}', [PublicServiceController::class, 'show']);
     Route::get('/products', [PublicProductController::class, 'index']);
     Route::get('/products/{slug}', [PublicProductController::class, 'show']);
+    Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::post('/contact', [ContactController::class, 'submit']);
 
@@ -61,6 +63,7 @@ Route::prefix('v1')->group(function () {
         // Products - requires manage-products permission
         Route::middleware('permission:manage-products')->group(function () {
             Route::apiResource('products', ProductController::class);
+            Route::apiResource('categories', CategoryController::class);
         });
 
         // Leads - requires view-leads permission for viewing, manage-leads for updates/deletes

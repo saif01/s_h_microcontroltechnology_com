@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -54,7 +55,7 @@ class ProductController extends Controller
 
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $products = $query->paginate($perPage);
+        $products = $query->with(['categories', 'tags'])->paginate($perPage);
         
         return response()->json($products);
     }
@@ -84,13 +85,72 @@ class ProductController extends Controller
             'order' => 'integer',
         ]);
 
-        $product = Product::create($validated);
+        // Handle key_features, faqs, warranty_info - store in specifications or as separate data
+        $productData = $validated;
+        
+        // Store key_features, faqs, warranty_info in specifications JSON if provided
+        if ($request->has('key_features') || $request->has('faqs') || $request->has('warranty_info')) {
+            $specs = $productData['specifications'] ?? [];
+            if ($request->has('key_features')) {
+                $specs['_key_features'] = $request->key_features;
+            }
+            if ($request->has('faqs')) {
+                $specs['_faqs'] = $request->faqs;
+            }
+            if ($request->has('warranty_info')) {
+                $specs['_warranty_info'] = $request->warranty_info;
+            }
+            $productData['specifications'] = $specs;
+        }
+        
+        $product = Product::create($productData);
+        
+        // Sync categories
+        if ($request->has('category_ids') && is_array($request->category_ids)) {
+            $product->categories()->sync($request->category_ids);
+        }
+        
+        // Sync tags - handle both tag_ids and tag_names
+        if ($request->has('tag_ids') && is_array($request->tag_ids)) {
+            $product->tags()->sync($request->tag_ids);
+        } elseif ($request->has('tag_names') && is_array($request->tag_names)) {
+            $tagIds = [];
+            foreach ($request->tag_names as $tagName) {
+                if (!empty($tagName)) {
+                    $tag = Tag::firstOrCreate(
+                        ['name' => $tagName, 'type' => 'product'],
+                        ['slug' => \Str::slug($tagName)]
+                    );
+                    $tagIds[] = $tag->id;
+                }
+            }
+            $product->tags()->sync($tagIds);
+        }
+        
         return response()->json($product->load(['categories', 'tags']), 201);
     }
 
     public function show(Product $product)
     {
-        return response()->json($product->load(['categories', 'tags']));
+        $product = $product->load(['categories', 'tags']);
+        
+        // Extract key_features, faqs, warranty_info from specifications
+        $specs = $product->specifications ?? [];
+        if (isset($specs['_key_features'])) {
+            $product->key_features = $specs['_key_features'];
+            unset($specs['_key_features']);
+        }
+        if (isset($specs['_faqs'])) {
+            $product->faqs = $specs['_faqs'];
+            unset($specs['_faqs']);
+        }
+        if (isset($specs['_warranty_info'])) {
+            $product->warranty_info = $specs['_warranty_info'];
+            unset($specs['_warranty_info']);
+        }
+        $product->specifications = $specs;
+        
+        return response()->json($product);
     }
 
     public function update(Request $request, Product $product)
@@ -118,7 +178,48 @@ class ProductController extends Controller
             'order' => 'integer',
         ]);
 
-        $product->update($validated);
+        // Handle key_features, faqs, warranty_info
+        $productData = $validated;
+        
+        // Store key_features, faqs, warranty_info in specifications JSON if provided
+        if ($request->has('key_features') || $request->has('faqs') || $request->has('warranty_info')) {
+            $specs = $product->specifications ?? [];
+            if ($request->has('key_features')) {
+                $specs['_key_features'] = $request->key_features;
+            }
+            if ($request->has('faqs')) {
+                $specs['_faqs'] = $request->faqs;
+            }
+            if ($request->has('warranty_info')) {
+                $specs['_warranty_info'] = $request->warranty_info;
+            }
+            $productData['specifications'] = $specs;
+        }
+        
+        $product->update($productData);
+        
+        // Sync categories
+        if ($request->has('category_ids')) {
+            $product->categories()->sync($request->category_ids ?? []);
+        }
+        
+        // Sync tags - handle both tag_ids and tag_names
+        if ($request->has('tag_ids')) {
+            $product->tags()->sync($request->tag_ids ?? []);
+        } elseif ($request->has('tag_names') && is_array($request->tag_names)) {
+            $tagIds = [];
+            foreach ($request->tag_names as $tagName) {
+                if (!empty($tagName)) {
+                    $tag = Tag::firstOrCreate(
+                        ['name' => $tagName, 'type' => 'product'],
+                        ['slug' => \Str::slug($tagName)]
+                    );
+                    $tagIds[] = $tag->id;
+                }
+            }
+            $product->tags()->sync($tagIds);
+        }
+        
         return response()->json($product->load(['categories', 'tags']));
     }
 

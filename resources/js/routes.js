@@ -91,6 +91,12 @@ const routes = [
                 meta: { title: 'Products Management' }
             },
             {
+                path: 'categories',
+                component: () => import('./components/admin/AdminCategories.vue'),
+                name: 'AdminCategories',
+                meta: { title: 'Categories Management' }
+            },
+            {
                 path: 'leads',
                 component: () => import('./components/admin/AdminLeads.vue'),
                 name: 'AdminLeads',

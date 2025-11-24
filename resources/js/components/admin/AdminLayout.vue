@@ -31,9 +31,16 @@
                     value="Services" exact v-if="hasPermission('manage-services')"></v-list-item>
 
                 <!-- Products Management - Requires 'manage-products' permission -->
-                <v-list-item link router prepend-icon="mdi-package-variant" title="Products"
-                    :to="{ name: 'AdminProducts' }" value="Products" exact
-                    v-if="hasPermission('manage-products')"></v-list-item>
+                <v-list-group value="products" prepend-icon="mdi-package-variant" no-action
+                    v-if="hasPermission('manage-products')">
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" title="Products"></v-list-item>
+                    </template>
+                    <v-list-item prepend-icon="mdi-package-variant" title="Products"
+                        :to="{ name: 'AdminProducts' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-folder" title="Categories"
+                        :to="{ name: 'AdminCategories' }"></v-list-item>
+                </v-list-group>
 
                 <!-- Leads Management - Requires 'view-leads' permission -->
                 <v-list-item link router prepend-icon="mdi-email" title="Leads" :to="{ name: 'AdminLeads' }"

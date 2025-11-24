@@ -81,7 +81,9 @@ This is a comprehensive business website platform built according to the SRS doc
 - **Public Components** (`resources/js/components/public/`):
   - PublicLayout.vue (public website layout)
   - HomePage.vue (homepage component)
-  - ServicesPage.vue, ProductsPage.vue
+  - ServicesPage.vue, ServiceDetailPage.vue
+  - ProductsPage.vue (product listing with filters, search, and comparison)
+  - ProductDetailPage.vue (detailed product view with gallery, specs, FAQs, warranty)
   - ContactPage.vue
 
 #### Mixins (`resources/js/mixins/`)
@@ -158,14 +160,16 @@ npm run dev
 
 - Similar CRUD for services, products, leads, etc.
 
-### Public API (`/api/public/`)
+### Public API (`/api/openapi/`)
 
-- `GET /api/public/home` - Homepage data
-- `GET /api/public/pages/{slug}` - Get page by slug
-- `GET /api/public/services` - List services
-- `GET /api/public/services/{slug}` - Get service by slug
-- `GET /api/public/products` - List products
-- `POST /api/public/contact` - Submit contact form
+- `GET /api/openapi/home` - Homepage data
+- `GET /api/openapi/pages/{slug}` - Get page by slug
+- `GET /api/openapi/services` - List services
+- `GET /api/openapi/services/{slug}` - Get service by slug
+- `GET /api/openapi/products` - List products (supports category filter, search, sorting)
+- `GET /api/openapi/products/{slug}` - Get product by slug (includes categories, tags, specifications, downloads)
+- `GET /api/openapi/settings` - Get public settings
+- `POST /api/openapi/contact` - Submit contact form
 
 ## Features Implemented
 
@@ -201,7 +205,15 @@ npm run dev
 ✅ **Public Website:**
 - Dynamic homepage
 - Page system
-- Services/Products display
+- Services/Products display with filtering and search
+- Product comparison tool (compare up to 3 products side-by-side)
+- Product detail pages with:
+  - Hero section with product overview
+  - Product gallery with image zoom
+  - Key features and technical specifications
+  - Downloadable datasheets and documentation
+  - Customer FAQs section
+  - Warranty & service information
 - Contact forms
 
 ✅ **Frontend Architecture:**
@@ -211,6 +223,9 @@ npm run dev
 - Mixins for shared functionality
 - Centralized CSS variables for theming
 - Responsive design with compact tables
+- Modern, clean UI design for public pages
+- Product comparison functionality
+- Advanced filtering and search capabilities
 
 ## Frontend File Structure
 
@@ -250,7 +265,9 @@ resources/js/
     │   ├── PublicLayout.vue       # Public layout
     │   ├── HomePage.vue           # Homepage
     │   ├── ServicesPage.vue       # Services listing
-    │   ├── ProductsPage.vue       # Products listing
+    │   ├── ServiceDetailPage.vue  # Service detail page
+    │   ├── ProductsPage.vue       # Products listing with filters, search, comparison
+    │   ├── ProductDetailPage.vue  # Product detail with gallery, specs, FAQs, warranty
     │   └── ContactPage.vue        # Contact page
     │
     └── pages/                      # Additional page components
@@ -309,12 +326,70 @@ Module::where('name', 'services')->update(['enabled' => true]);
 
 Or via API/Admin panel (when implemented).
 
+## Product Pages Features
+
+### ProductsPage.vue - Product Listing
+
+**Features:**
+- **Hero Section**: Modern hero with gradient background, product range title, and premium quality badge
+- **Category Filtering**: Filter products by category with icon-based category buttons
+- **Search Functionality**: Real-time search across product titles, descriptions, SKU, and specifications
+- **Sorting Options**: Sort by newest, price (low to high/high to low), name (A-Z/Z-A), or featured
+- **Product Cards**: 
+  - Product images with hover effects
+  - Quick specifications preview
+  - Price display with optional old price
+  - Featured product badges
+  - Quick action buttons (view, compare)
+- **Product Comparison Tool**: 
+  - Compare up to 3 products side-by-side
+  - Comparison dialog showing:
+    - Price comparison
+    - Key specifications
+    - Technical differences
+    - Recommended use-cases
+    - Quick access to product details
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **Sticky Filter Bar**: Filter bar becomes sticky on scroll for easy access
+
+### ProductDetailPage.vue - Product Details
+
+**Features:**
+- **Hero Section**: Full-width hero with product title, category badge, SKU, and price card
+- **Product Gallery**: 
+  - Main product image with zoom functionality
+  - Thumbnail navigation
+  - Image zoom dialog for detailed viewing
+- **Key Features Section**: Highlighted product features with icons
+- **Quick Specifications**: Quick specs preview in sidebar
+- **Tabbed Content**:
+  - **Overview**: Detailed product description and benefits
+  - **Technical Specs**: Complete technical specifications table
+  - **Features**: Detailed feature list with descriptions
+  - **Downloads**: Downloadable datasheets, manuals, and documentation (PDF, ZIP, etc.)
+  - **FAQs**: Expandable FAQ section with common questions
+  - **Warranty & Service**: 
+    - Warranty coverage details
+    - Service and support information
+    - Trust badges (Warranty, Delivery, Support)
+- **Related Products**: Display related products at the bottom
+- **Trust Badges**: Warranty, delivery, and support information
+- **Responsive Design**: Fully responsive layout for all devices
+
+**Technical Implementation:**
+- Integrated with `/api/openapi/products` and `/api/openapi/products/{slug}` endpoints
+- Handles missing data gracefully with fallback content
+- Uses Vuetify components for consistent UI
+- Optimized performance with computed properties
+- Clean, maintainable code structure
+
 ## Notes
 
 - This is a foundational structure that can be expanded
 - All core models and relationships are set up
 - Admin authentication is working
 - Public API endpoints are ready
-- Vue components need routes configuration
+- Vue components are fully configured with routes
+- Product pages feature modern, clean design suitable for business/industrial websites
 - Additional admin and public components can be added incrementally
 

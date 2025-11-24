@@ -130,15 +130,16 @@ Similar endpoints for: `services`, `products`, `leads`, etc.
 **Leads Export:**
 - `GET /api/v1/leads/export/csv` - Export leads to CSV
 
-### Public API (`/api/public/`)
+### Public API (`/api/openapi/`)
 
-- `GET /api/public/home` - Homepage data
-- `GET /api/public/pages/{slug}` - Get page by slug
-- `GET /api/public/services` - List services
-- `GET /api/public/services/{slug}` - Get service by slug
-- `GET /api/public/products` - List products
-- `GET /api/public/products/{slug}` - Get product by slug
-- `POST /api/public/contact` - Submit contact form
+- `GET /api/openapi/home` - Homepage data
+- `GET /api/openapi/pages/{slug}` - Get page by slug
+- `GET /api/openapi/services` - List services
+- `GET /api/openapi/services/{slug}` - Get service by slug
+- `GET /api/openapi/products` - List products (supports category filter, search, sorting)
+- `GET /api/openapi/products/{slug}` - Get product by slug (includes categories, tags, specifications, downloads)
+- `GET /api/openapi/settings` - Get public settings
+- `POST /api/openapi/contact` - Submit contact form
 
 ## 🎨 Module Configuration
 
