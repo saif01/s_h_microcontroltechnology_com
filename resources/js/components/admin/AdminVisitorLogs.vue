@@ -2,7 +2,8 @@
     <div>
         <div class="page-header">
             <h1 class="text-h4 page-title">Visitor Log Management</h1>
-            <v-btn color="error" prepend-icon="mdi-delete" @click="deleteSelected" :disabled="selectedLogs.length === 0">
+            <v-btn color="error" prepend-icon="mdi-delete" @click="deleteSelected"
+                :disabled="selectedLogs.length === 0">
                 Delete Selected ({{ selectedLogs.length }})
             </v-btn>
         </div>
@@ -61,6 +62,19 @@
                     </v-card-text>
                 </v-card>
             </v-col>
+            <v-col cols="12" md="3">
+                <v-card>
+                    <v-card-text>
+                        <div class="d-flex align-center">
+                            <v-icon color="purple" size="40" class="mr-3">mdi-database</v-icon>
+                            <div>
+                                <div class="text-h6">{{ pagination.total || 0 }}</div>
+                                <div class="text-caption text-grey">Total Records</div>
+                            </div>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
         </v-row>
 
         <!-- Search and Filter -->
@@ -88,8 +102,8 @@
                             @update:model-value="loadLogs"></v-select>
                     </v-col>
                     <v-col cols="12" md="4">
-                        <v-text-field v-model="search" label="Search (IP, URL, user agent)" prepend-inner-icon="mdi-magnify"
-                            variant="outlined" density="compact" clearable
+                        <v-text-field v-model="search" label="Search (IP, URL, user agent)"
+                            prepend-inner-icon="mdi-magnify" variant="outlined" density="compact" clearable
                             @update:model-value="loadLogs"></v-text-field>
                     </v-col>
                 </v-row>
@@ -98,13 +112,23 @@
 
         <!-- Visitor Logs Table -->
         <v-card>
-            <v-card-title>Visitor Logs</v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
+                <span>Visitor Logs</span>
+                <span class="text-caption text-grey">
+                    Total Records: <strong>{{ pagination.total || 0 }}</strong>
+                    <span v-if="logs.length > 0">
+                        | Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage,
+                            pagination.total) }} of {{ pagination.total }}
+                    </span>
+                </span>
+            </v-card-title>
             <v-card-text>
                 <v-table>
                     <thead>
                         <tr>
                             <th>
-                                <v-checkbox v-model="selectAll" @change="toggleSelectAll" density="compact"></v-checkbox>
+                                <v-checkbox v-model="selectAll" @change="toggleSelectAll"
+                                    density="compact"></v-checkbox>
                             </th>
                             <th class="sortable" @click="onSort('ip_address')">
                                 <div class="d-flex align-center">
@@ -161,7 +185,8 @@
                             <td>{{ formatDate(log.created_at) }}</td>
                             <td>
                                 <v-btn size="small" icon="mdi-eye" @click="viewLog(log)" variant="text"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deleteLog(log)" variant="text" color="error"></v-btn>
+                                <v-btn size="small" icon="mdi-delete" @click="deleteLog(log)" variant="text"
+                                    color="error"></v-btn>
                             </td>
                         </tr>
                         <tr v-if="logs.length === 0">
@@ -170,9 +195,20 @@
                     </tbody>
                 </v-table>
 
-                <!-- Pagination -->
-                <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
-                    @update:model-value="loadLogs" class="mt-4"></v-pagination>
+                <!-- Pagination and Records Info -->
+                <div class="d-flex justify-space-between align-center mt-4">
+                    <div class="text-caption text-grey">
+                        <span v-if="logs.length > 0">
+                            Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage,
+                                pagination.total) }} of {{ pagination.total }} records
+                        </span>
+                        <span v-else>
+                            No records found
+                        </span>
+                    </div>
+                    <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
+                        @update:model-value="loadLogs"></v-pagination>
+                </div>
             </v-card-text>
         </v-card>
 
@@ -189,13 +225,15 @@
                             <div class="mb-3">
                                 <strong>URL:</strong>
                                 <div class="mt-1">
-                                    <a :href="selectedLog.url" target="_blank" class="text-primary">{{ selectedLog.url }}</a>
+                                    <a :href="selectedLog.url" target="_blank" class="text-primary">{{ selectedLog.url
+                                    }}</a>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <strong>Referer:</strong>
                                 <div class="mt-1">
-                                    <a v-if="selectedLog.referer" :href="selectedLog.referer" target="_blank" class="text-primary">{{ selectedLog.referer }}</a>
+                                    <a v-if="selectedLog.referer" :href="selectedLog.referer" target="_blank"
+                                        class="text-primary">{{ selectedLog.referer }}</a>
                                     <span v-else class="text-grey">-</span>
                                 </div>
                             </div>
@@ -228,7 +266,8 @@
                             <div class="mb-2">
                                 <strong>User Agent:</strong>
                             </div>
-                            <v-textarea :value="selectedLog.user_agent || '-'" readonly variant="outlined" density="compact" rows="3"></v-textarea>
+                            <v-textarea :value="selectedLog.user_agent || '-'" readonly variant="outlined"
+                                density="compact" rows="3"></v-textarea>
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -287,7 +326,7 @@ export default {
                     headers: this.getAuthHeaders()
                 });
                 this.statistics = response.data;
-                
+
                 // Populate browser options from statistics
                 if (response.data.browser_stats) {
                     this.browserOptions = Object.keys(response.data.browser_stats).map(browser => ({
@@ -431,4 +470,3 @@ export default {
     margin: 0;
 }
 </style>
-
