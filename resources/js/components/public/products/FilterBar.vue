@@ -28,30 +28,32 @@
                     class="text-caption font-weight-bold text-grey-darken-1 mb-1 mb-md-2 text-uppercase tracking-wide d-none d-md-block">
                     Categories
                 </div>
-                <div class="category-filter d-flex align-center overflow-x-auto w-100 pb-1 hide-scrollbar gap-1">
-                    <v-btn v-for="category in categories" :key="category.id" variant="flat"
-                        :color="activeCategory === category.id ? 'primary' : 'grey-lighten-3'"
-                        class="category-btn font-weight-bold text-capitalize rounded-lg" :class="{
-                            'category-btn-active': activeCategory === category.id,
-                            'category-btn-inactive': activeCategory !== category.id
-                        }" size="x-small" density="compact" @click="$emit('update:activeCategory', category.id)">
-                        <v-icon v-if="category.icon" :icon="category.icon" size="x-small" class="mr-1" />
-                        <span class="category-text">{{ category.name }}</span>
-                    </v-btn>
+                <div class="category-filter-wrapper">
+                    <div class="category-filter d-flex align-center overflow-x-auto w-100 pb-1 gap-1">
+                        <v-btn v-for="category in categories" :key="category.id" variant="flat"
+                            :color="activeCategory === category.id ? 'primary' : 'grey-lighten-3'"
+                            class="category-btn font-weight-bold text-capitalize rounded-lg flex-shrink-0" :class="{
+                                'category-btn-active': activeCategory === category.id,
+                                'category-btn-inactive': activeCategory !== category.id
+                            }" size="x-small" density="compact" @click="$emit('update:activeCategory', category.id)">
+                            <v-icon v-if="category.icon" :icon="category.icon" size="x-small" class="mr-1" />
+                            <span class="category-text">{{ category.name }}</span>
+                        </v-btn>
+                    </div>
                 </div>
             </div>
 
             <!-- Search & Sort Section -->
             <div class="search-sort-section pa-3 pa-md-3 pt-0">
-                <div class="d-flex flex-column flex-sm-row align-stretch align-sm-center gap-2">
+                <div class="search-sort-row d-flex align-center gap-1">
                     <!-- Search Field -->
-                    <div class="search-wrapper flex-grow-1 w-100">
+                    <div class="search-wrapper flex-grow-1">
                         <v-text-field :model-value="searchQuery" density="compact" variant="outlined"
                             placeholder="Search products..." prepend-inner-icon="mdi-magnify" hide-details="auto"
                             bg-color="white" class="search-field rounded-lg" clearable
                             @update:model-value="handleSearchInput" @click:clear="$emit('update:searchQuery', '')">
                             <template v-if="searchQuery" #append-inner>
-                                <v-chip size="x-small" color="primary" variant="flat" class="mr-1">
+                                <v-chip size="x-small" color="primary" variant="flat" class="results-chip mr-1">
                                     {{ resultsCount }}
                                 </v-chip>
                             </template>
@@ -59,14 +61,14 @@
                     </div>
 
                     <!-- Sort & Actions -->
-                    <div class="d-flex align-center gap-1 w-100 w-sm-auto">
+                    <div class="sort-actions-wrapper d-flex align-center gap-1 flex-shrink-0">
                         <!-- Sort Menu -->
-                        <v-menu location="bottom end" :close-on-content-click="true">
+                        <v-menu location="bottom end" :close-on-content-click="true" class="sort-menu-mobile">
                             <template #activator="{ props: menuProps }">
                                 <v-btn v-bind="menuProps" variant="outlined" color="grey-darken-2"
                                     class="sort-btn bg-white text-grey-darken-2 font-weight-medium"
-                                    append-icon="mdi-chevron-down" size="small" density="compact">
-                                    <v-icon icon="mdi-sort" size="small" class="mr-1 d-none d-sm-inline" />
+                                    append-icon="mdi-chevron-down" size="x-small" density="compact">
+                                    <v-icon icon="mdi-sort" size="x-small" class="mr-1 d-none d-sm-inline" />
                                     <span class="d-none d-sm-inline">{{ sortByLabel }}</span>
                                     <span class="d-sm-none">Sort</span>
                                 </v-btn>
@@ -90,9 +92,9 @@
                         <!-- Comparison Button -->
                         <v-btn v-if="comparisonCount > 0" color="primary" variant="flat"
                             prepend-icon="mdi-scale-balance" class="comparison-btn text-white font-weight-bold"
-                            size="small" density="compact" @click="$emit('open-comparison')">
+                            size="x-small" density="compact" @click="$emit('open-comparison')">
                             <span class="d-none d-sm-inline mr-1">Compare</span>
-                            <v-chip size="x-small" color="white" variant="flat" class="comparison-badge">
+                            <v-chip size="x-small" color="white" variant="flat" class="comparison-badge ml-1">
                                 {{ comparisonCount }}
                             </v-chip>
                         </v-btn>
@@ -225,8 +227,51 @@ onUnmounted(() => {
     }
 }
 
+.category-filter-wrapper {
+    position: relative;
+    width: 100%;
+}
+
 .category-filter {
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    /* Show scrollbar on mobile for better UX */
+}
+
+/* Hide scrollbar on desktop, show on mobile */
+@media (min-width: 960px) {
+    .category-filter {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .category-filter::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+@media (max-width: 959px) {
+    .category-filter {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+
+    .category-filter::-webkit-scrollbar {
+        height: 4px;
+        display: block;
+    }
+
+    .category-filter::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .category-filter::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 2px;
+    }
 }
 
 .category-btn {
@@ -237,6 +282,8 @@ onUnmounted(() => {
     font-size: 0.75rem;
     min-height: 28px;
     padding: 4px 10px !important;
+    flex-shrink: 0;
+    min-width: auto;
 }
 
 .category-text {
@@ -258,18 +305,28 @@ onUnmounted(() => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
+.search-sort-row {
+    width: 100%;
+    align-items: stretch;
+}
+
 .search-wrapper {
     position: relative;
     min-width: 0;
+    flex: 1 1 auto;
 }
 
 .search-field {
     transition: all 0.3s ease;
+    width: 100%;
 }
 
 .search-field :deep(.v-field) {
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    min-height: 28px;
+    /* Match sort button height */
+    height: 28px;
 }
 
 .search-field :deep(.v-field--focused) {
@@ -279,10 +336,26 @@ onUnmounted(() => {
 .search-field :deep(.v-field__input) {
     font-size: 0.8125rem;
     padding: 6px 10px;
+    line-height: 20px;
 }
 
-.search-field :deep(.v-field) {
-    min-height: 36px;
+.search-field :deep(.v-field__prepend-inner) {
+    padding-inline-start: 10px;
+}
+
+.search-field :deep(.v-field__prepend-inner .v-icon) {
+    font-size: 18px;
+}
+
+.results-chip {
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
+.sort-actions-wrapper {
+    flex-shrink: 0;
+    min-width: 0;
+    gap: 4px;
 }
 
 .sort-btn {
@@ -290,8 +363,9 @@ onUnmounted(() => {
     border-radius: 8px;
     white-space: nowrap;
     min-width: auto;
-    min-height: 36px;
-    font-size: 0.8125rem;
+    min-height: 28px;
+    font-size: 0.75rem;
+    padding: 4px 8px !important;
 }
 
 .sort-btn:hover {
@@ -299,9 +373,15 @@ onUnmounted(() => {
     transform: translateY(-1px);
 }
 
+.sort-btn .v-icon {
+    font-size: 16px;
+}
+
 .sort-menu-list {
     border-radius: 10px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    min-width: 200px;
+    max-width: 90vw;
 }
 
 .sort-option {
@@ -327,13 +407,20 @@ onUnmounted(() => {
     position: relative;
     overflow: visible;
     white-space: nowrap;
-    min-height: 36px;
-    font-size: 0.8125rem;
+    min-height: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+    min-width: auto;
+    padding: 4px 8px !important;
 }
 
 .comparison-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(var(--v-theme-primary), 0.35) !important;
+}
+
+.comparison-btn .v-icon {
+    font-size: 16px;
 }
 
 .comparison-badge {
@@ -416,30 +503,99 @@ onUnmounted(() => {
         font-size: 0.8125rem !important;
     }
 
+    .category-filter-wrapper {
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+
+    .category-filter {
+        padding-bottom: 4px;
+    }
+
     .category-btn {
         font-size: 0.7rem !important;
         padding: 4px 8px !important;
         min-height: 28px;
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
     .category-btn .v-icon {
         font-size: 12px !important;
     }
 
-    .search-field :deep(.v-field__input) {
-        font-size: 0.75rem !important;
-        padding: 5px 8px !important;
+    .category-text {
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+
+    /* Search & Sort Row - Keep side by side with compact height */
+    .search-sort-row {
+        gap: 6px !important;
+        align-items: stretch;
+    }
+
+    /* Search Field Mobile Styles - Compact like category buttons */
+    .search-wrapper {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .search-field {
+        width: 100%;
     }
 
     .search-field :deep(.v-field) {
-        min-height: 36px;
+        min-height: 28px !important;
+        height: 28px !important;
+        /* Match sort button height exactly */
+        border-radius: 8px;
+    }
+
+    .search-field :deep(.v-field__input) {
+        font-size: 0.75rem !important;
+        /* Compact text */
+        padding: 4px 8px !important;
+        min-height: 28px !important;
+        line-height: 20px !important;
+    }
+
+    .search-field :deep(.v-field__prepend-inner) {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        align-items: center;
+    }
+
+    .search-field :deep(.v-field__prepend-inner) {
+        padding-inline-start: 8px;
+    }
+
+    .search-field :deep(.v-field__prepend-inner .v-icon) {
+        font-size: 16px !important;
+    }
+
+    .results-chip {
+        font-size: 0.65rem !important;
+        padding: 2px 4px !important;
+        height: 16px !important;
+        min-width: 16px !important;
+    }
+
+    /* Sort & Actions Mobile Styles - Compact */
+    .sort-actions-wrapper {
+        gap: 4px !important;
+        flex-shrink: 0;
     }
 
     .sort-btn,
     .comparison-btn {
-        font-size: 0.75rem !important;
-        padding: 5px 10px !important;
-        min-height: 36px;
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+        min-height: 28px !important;
+        height: 28px !important;
+        /* Match search field height exactly */
+        min-width: auto;
     }
 
     .sort-btn .v-icon,
@@ -447,10 +603,27 @@ onUnmounted(() => {
         font-size: 14px !important;
     }
 
+    .sort-btn .v-btn__append .v-icon {
+        font-size: 14px !important;
+    }
+
     .comparison-badge {
         min-width: 16px !important;
         height: 16px !important;
         font-size: 0.6rem !important;
+        font-weight: 700 !important;
+        margin-left: 2px !important;
+    }
+
+    .sort-menu-list {
+        min-width: 200px;
+        max-width: calc(100vw - 40px);
+    }
+
+    .sort-option {
+        min-height: 40px;
+        /* Touch target */
+        padding: 8px 12px !important;
     }
 }
 
@@ -460,21 +633,83 @@ onUnmounted(() => {
         gap: 6px !important;
     }
 
+    .category-filter-wrapper {
+        margin: 0 -10px;
+        padding: 0 10px;
+    }
+
     .category-btn {
         font-size: 0.65rem !important;
         padding: 3px 8px !important;
         min-height: 26px;
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
-    .search-sort-section .d-flex {
-        flex-direction: column;
-        gap: 8px !important;
+    /* Keep search and sort side by side even on extra small screens */
+    .search-sort-row {
+        gap: 4px !important;
     }
 
-    .search-wrapper,
+    .search-wrapper {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .sort-actions-wrapper {
+        gap: 4px !important;
+        flex-shrink: 0;
+    }
+
+    .search-field :deep(.v-field) {
+        min-height: 26px !important;
+        /* Match sort button height */
+        height: 26px !important;
+    }
+
+    .search-field :deep(.v-field__input) {
+        font-size: 0.7rem !important;
+        padding: 3px 6px !important;
+        min-height: 26px !important;
+    }
+
+    .search-field :deep(.v-field__prepend-inner) {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .search-field :deep(.v-field__prepend-inner .v-icon) {
+        font-size: 14px !important;
+    }
+
     .sort-btn,
     .comparison-btn {
-        width: 100% !important;
+        font-size: 0.65rem !important;
+        padding: 3px 6px !important;
+        min-height: 26px !important;
+        height: 26px !important;
+        /* Match search field height exactly */
+    }
+
+    .sort-btn .v-icon,
+    .comparison-btn .v-icon {
+        font-size: 12px !important;
+    }
+
+    .sort-btn .v-btn__append .v-icon {
+        font-size: 12px !important;
+    }
+
+    .comparison-badge {
+        min-width: 14px !important;
+        height: 14px !important;
+        font-size: 0.55rem !important;
+    }
+
+    .sort-menu-list {
+        min-width: 200px;
+        max-width: calc(100vw - 20px);
     }
 }
 </style>
