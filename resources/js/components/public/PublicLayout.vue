@@ -13,7 +13,7 @@
                         <span class="text-h6 font-weight-black text-grey-darken-4 lh-1 tracking-tight logo-text">{{
                             siteName.toUpperCase() }}</span>
                         <span class="text-caption font-weight-bold text-primary tracking-widest">{{ siteTagline
-                        }}</span>
+                            }}</span>
                     </div>
                 </router-link>
 
@@ -93,7 +93,7 @@
                                 <v-icon icon="mdi-flash" color="amber-accent-4" size="24"></v-icon>
                             </div>
                             <span class="text-h5 font-weight-black text-white tracking-tight">{{ siteName.toUpperCase()
-                            }}</span>
+                                }}</span>
                         </div>
                         <p class="text-body-2 text-grey-lighten-1 mb-8 lh-relaxed opacity-80">
                             {{ footerDescription }}
@@ -234,7 +234,7 @@ export default {
     methods: {
         async loadSettings() {
             try {
-                const response = await axios.get('/api/public/settings');
+                const response = await axios.get('/api/openapi/settings');
                 const data = response.data;
 
                 // Update settings object

@@ -11,10 +11,32 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VisitorLogController;
+use App\Http\Controllers\Public\ContactController;
+use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\PageController as PublicPageController;
+use App\Http\Controllers\Public\ProductController as PublicProductController;
+use App\Http\Controllers\Public\ServiceController as PublicServiceController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('test', function () {
+    return response()->json(['message' => 'Hello World']);
+});
+
 // Public, unauthenticated API endpoints (no version prefix)
-Route::get('public/settings', [SettingController::class, 'publicIndex']);
+Route::prefix('openapi')->group(function () {
+    Route::get('/home', [HomeController::class, 'index']);
+    Route::get('/pages/{slug}', [PublicPageController::class, 'show']);
+    Route::get('/services', [PublicServiceController::class, 'index']);
+    Route::get('/services/{slug}', [PublicServiceController::class, 'show']);
+    Route::get('/products', [PublicProductController::class, 'index']);
+    Route::get('/products/{slug}', [PublicProductController::class, 'show']);
+    Route::get('/settings', [SettingController::class, 'publicIndex']);
+    Route::post('/contact', [ContactController::class, 'submit']);
+
+    Route::get('test2', function () {
+        return response()->json(['message' => 'Hello World 2']);
+    });
+});
 
 Route::prefix('v1')->group(function () {
     // Public routes
