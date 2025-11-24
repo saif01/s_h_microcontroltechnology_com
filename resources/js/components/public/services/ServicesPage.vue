@@ -11,9 +11,11 @@
                             <v-icon icon="mdi-cogs" color="amber-accent-4" size="small" class="mr-2"></v-icon>
                             <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">OUR EXPERTISE</span>
                         </div>
-                        <h1 class="text-h3 text-md-h2 font-weight-black text-white mb-6">Comprehensive Power Solutions</h1>
+                        <h1 class="text-h4 text-lg-h3 font-weight-black text-white mb-6 lh-tight text-shadow-sm">
+                            Comprehensive Power Solutions</h1>
                         <p class="text-h6 text-white opacity-80 mw-800 mx-auto font-weight-light">
-                            From installation to maintenance, we provide end-to-end technical support to keep your operations running smoothly.
+                            From installation to maintenance, we provide end-to-end technical support to keep your
+                            operations running smoothly.
                         </p>
                     </div>
                 </v-fade-transition>
@@ -27,24 +29,24 @@
                 <v-row>
                     <v-col v-for="(service, i) in services" :key="service.id" cols="12" md="6">
                         <v-hover v-slot="{ isHovering, props }">
-                            <v-card
-                                v-bind="props"
-                                :elevation="isHovering ? 12 : 2"
+                            <v-card v-bind="props" :elevation="isHovering ? 12 : 2"
                                 class="h-100 service-card-detailed rounded-xl transition-all overflow-hidden"
-                                :to="`/services/${service.slug}`"
-                            >
+                                :to="`/services/${service.slug}`">
                                 <div class="d-flex flex-column flex-md-row h-100">
-                                    <div class="service-icon-side bg-primary-darken-1 d-flex align-center justify-center pa-6">
+                                    <div
+                                        class="service-icon-side bg-primary-darken-1 d-flex align-center justify-center pa-6">
                                         <v-icon :icon="getServiceIcon(i)" size="48" color="amber-accent-4"></v-icon>
                                     </div>
                                     <div class="pa-8 flex-grow-1 bg-white">
-                                        <h3 class="text-h5 font-weight-bold mb-3 text-grey-darken-3">{{ service.title }}</h3>
+                                        <h3 class="text-h5 font-weight-bold mb-3 text-grey-darken-3">{{ service.title }}
+                                        </h3>
                                         <p class="text-body-1 text-medium-emphasis mb-6 lh-relaxed">
                                             {{ service.short_description }}
                                         </p>
                                         <div class="d-flex align-center">
                                             <span class="text-primary font-weight-bold link-hover-effect">
-                                                Explore Service <v-icon icon="mdi-arrow-right" size="small" class="ml-1"></v-icon>
+                                                Explore Service <v-icon icon="mdi-arrow-right" size="small"
+                                                    class="ml-1"></v-icon>
                                             </span>
                                         </div>
                                     </div>
@@ -68,8 +70,10 @@
                     <!-- Connecting Line (Desktop) -->
                     <div class="d-none d-md-block process-line"></div>
 
-                    <v-col v-for="(step, i) in process" :key="i" cols="12" md="4" class="text-center position-relative z-index-2">
-                        <div class="process-step mb-6 mx-auto bg-white rounded-circle elevation-6 d-flex align-center justify-center text-h4 font-weight-black text-primary border-thin">
+                    <v-col v-for="(step, i) in process" :key="i" cols="12" md="4"
+                        class="text-center position-relative z-index-2">
+                        <div
+                            class="process-step mb-6 mx-auto bg-white rounded-circle elevation-6 d-flex align-center justify-center text-h4 font-weight-black text-primary border-thin">
                             {{ i + 1 }}
                         </div>
                         <h4 class="text-h5 font-weight-bold mb-3">{{ step.title }}</h4>
@@ -87,14 +91,8 @@
                 <p class="text-h6 text-white opacity-80 mb-8 font-weight-light">
                     We understand that every business is unique. Contact us for a tailored power strategy.
                 </p>
-                <v-btn
-                    size="x-large"
-                    color="amber-accent-4"
-                    variant="flat"
-                    rounded="pill"
-                    class="px-10 font-weight-bold text-black hover-lift"
-                    :to="{ name: 'Contact' }"
-                >
+                <v-btn size="x-large" color="amber-accent-4" variant="flat" rounded="pill"
+                    class="px-10 font-weight-bold text-black hover-lift" :to="{ name: 'Contact' }">
                     Get a Free Consultation
                 </v-btn>
             </v-container>
@@ -177,7 +175,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
     background-size: 30px 30px;
     opacity: 0.3;
 }
@@ -200,7 +198,7 @@ export default {
 }
 
 .service-card-detailed {
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .service-icon-side {
@@ -247,7 +245,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.05) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.05) 75%, transparent 75%, transparent);
     background-size: 40px 40px;
     opacity: 0.3;
 }
@@ -260,10 +258,35 @@ export default {
     transform: translateY(-2px);
 }
 
-.mw-800 { max-width: 800px; }
-.lh-relaxed { line-height: 1.6; }
-.tracking-wide { letter-spacing: 0.05em; }
-.tracking-widest { letter-spacing: 0.15em; }
-.z-index-1 { z-index: 1; }
-.z-index-2 { z-index: 2; }
+.mw-800 {
+    max-width: 800px;
+}
+
+.lh-relaxed {
+    line-height: 1.6;
+}
+
+.lh-tight {
+    line-height: 1.2;
+}
+
+.tracking-wide {
+    letter-spacing: 0.05em;
+}
+
+.tracking-widest {
+    letter-spacing: 0.15em;
+}
+
+.text-shadow-sm {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.z-index-1 {
+    z-index: 1;
+}
+
+.z-index-2 {
+    z-index: 2;
+}
 </style>
