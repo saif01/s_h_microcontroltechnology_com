@@ -130,6 +130,66 @@ class UploadController extends Controller
         }
     }
 
+    public function uploadFile(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|max:10240', // 10MB max
+            'folder' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $folder = $request->input('folder', 'downloads');
+            $prefix = $request->input('prefix', ''); // Product name prefix
+            
+            // Get file info before moving
+            $extension = $file->getClientOriginalExtension();
+            $fileSize = $file->getSize();
+            $mimeType = $file->getMimeType();
+            $originalName = $file->getClientOriginalName();
+            
+            // Generate filename with prefix if provided
+            $filenameBase = '';
+            if (!empty($prefix)) {
+                // Sanitize prefix: remove special chars, convert to lowercase, replace spaces with hyphens
+                $sanitizedPrefix = Str::slug($prefix);
+                $filenameBase = $sanitizedPrefix . '-';
+            }
+            // Use original filename (sanitized) with random suffix for uniqueness
+            $nameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+            $sanitizedName = Str::slug($nameWithoutExt);
+            $filename = $filenameBase . $sanitizedName . '-' . Str::random(10) . '.' . $extension;
+            
+            // Create folder in public directory if it doesn't exist
+            $publicPath = public_path('uploads/' . $folder);
+            if (!file_exists($publicPath)) {
+                File::makeDirectory($publicPath, 0755, true);
+            }
+            
+            // Move file to public/uploads/{folder}/
+            $file->move($publicPath, $filename);
+            
+            // Get relative path and full URL
+            $relativePath = 'uploads/' . $folder . '/' . $filename;
+            $url = asset($relativePath);
+            
+            return response()->json([
+                'success' => true,
+                'url' => $url,
+                'path' => $relativePath,
+                'filename' => $filename,
+                'original_name' => $originalName,
+                'size' => $fileSize,
+                'mime_type' => $mimeType,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function deleteImage(Request $request)
     {
         $request->validate([

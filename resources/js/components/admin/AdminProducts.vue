@@ -818,15 +818,56 @@
                                         </v-col>
                                         <v-col cols="12" md="3">
                                             <v-text-field v-model="download.size" label="Size" variant="outlined"
-                                                placeholder="e.g., 1.2 MB"></v-text-field>
+                                                placeholder="e.g., 1.2 MB" :disabled="!!download.file"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" md="2">
                                             <v-btn icon="mdi-delete" color="error" variant="text"
                                                 @click="removeDownload(index)"></v-btn>
                                         </v-col>
                                         <v-col cols="12">
+                                            <div class="text-subtitle-2 font-weight-bold mb-2">Upload File</div>
+                                            <v-file-input v-model="download.file"
+                                                :label="download.file ? 'File Selected' : 'Select File to Upload'"
+                                                accept=".pdf,.zip,.doc,.docx,.xls,.xlsx" prepend-icon="mdi-file-upload"
+                                                variant="outlined" show-size clearable
+                                                @update:model-value="handleDownloadFileChange(index)"
+                                                hint="PDF, ZIP, DOC, DOCX, XLS, XLSX files (max 10MB)"></v-file-input>
+
+                                            <!-- File Preview -->
+                                            <div v-if="download.file" class="mt-2 mb-2">
+                                                <v-card class="elevation-1 pa-2">
+                                                    <div class="d-flex align-center">
+                                                        <v-icon icon="mdi-file" color="primary" class="mr-2"></v-icon>
+                                                        <div class="flex-grow-1">
+                                                            <div class="text-body-2 font-weight-bold">{{
+                                                                download.file.name }}
+                                                            </div>
+                                                            <div class="text-caption text-medium-emphasis">
+                                                                {{ formatFileSize(download.file.size) }}
+                                                                <span v-if="download.uploading" class="ml-2">
+                                                                    <v-progress-circular indeterminate size="16"
+                                                                        color="primary"></v-progress-circular>
+                                                                    Uploading...
+                                                                </span>
+                                                                <span v-else-if="download.uploaded"
+                                                                    class="ml-2 text-success">
+                                                                    <v-icon icon="mdi-check-circle"
+                                                                        size="small"></v-icon>
+                                                                    Uploaded
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <v-btn icon="mdi-close" size="small" variant="text"
+                                                            color="error" @click="clearDownloadFile(index)"></v-btn>
+                                                    </div>
+                                                </v-card>
+                                            </div>
+
+                                            <v-divider class="my-3"></v-divider>
+                                            <div class="text-subtitle-2 text-medium-emphasis mb-2">Or Enter File URL
+                                            </div>
                                             <v-text-field v-model="download.url" label="File URL" variant="outlined"
-                                                placeholder="https://..."></v-text-field>
+                                                placeholder="https://..." :disabled="!!download.file"></v-text-field>
                                         </v-col>
                                     </v-row>
                                 </div>
@@ -1279,6 +1320,14 @@ export default {
             };
             this.specificationsList = [];
             this.featuresList = [];
+            // Clear download files before resetting list
+            this.downloadsList.forEach(download => {
+                if (download.file) {
+                    download.file = null;
+                    download.uploading = false;
+                    download.uploaded = false;
+                }
+            });
             this.downloadsList = [];
             this.faqsList = [];
             this.warrantyInfo = {
@@ -1472,10 +1521,78 @@ export default {
             this.featuresList.splice(index, 1);
         },
         addDownload() {
-            this.downloadsList.push({ title: '', type: 'PDF', size: '', url: '' });
+            this.downloadsList.push({
+                title: '',
+                type: 'PDF',
+                size: '',
+                url: '',
+                file: null,
+                uploading: false,
+                uploaded: false
+            });
         },
         removeDownload(index) {
             this.downloadsList.splice(index, 1);
+        },
+        handleDownloadFileChange(index) {
+            const download = this.downloadsList[index];
+            if (download.file) {
+                // Auto-detect file type from extension
+                const extension = download.file.name.split('.').pop().toUpperCase();
+                if (['PDF', 'ZIP', 'DOC', 'DOCX', 'XLS', 'XLSX'].includes(extension)) {
+                    download.type = extension;
+                }
+                // Auto-fill size
+                download.size = this.formatFileSize(download.file.size);
+            }
+        },
+        clearDownloadFile(index) {
+            const download = this.downloadsList[index];
+            download.file = null;
+            download.uploading = false;
+            download.uploaded = false;
+            if (!download.url) {
+                download.size = '';
+            }
+        },
+        async uploadDownloadFile(index) {
+            const download = this.downloadsList[index];
+            if (!download.file) return null;
+
+            download.uploading = true;
+            try {
+                const formData = new FormData();
+                formData.append('file', download.file);
+                formData.append('folder', 'downloads');
+                // Add product title as prefix if available
+                if (this.form.title) {
+                    formData.append('prefix', this.form.title);
+                }
+
+                const response = await axios.post('/api/v1/upload/file', formData, {
+                    headers: {
+                        ...this.getAuthHeaders(),
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.success) {
+                    download.url = response.data.url;
+                    download.size = this.formatFileSize(response.data.size);
+                    download.uploaded = true;
+                    return response.data.url;
+                } else {
+                    throw new Error(response.data.message || 'Failed to upload file');
+                }
+            } catch (error) {
+                console.error('Error uploading download file:', error);
+                const errorMessage = error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    'Failed to upload file';
+                throw new Error(errorMessage);
+            } finally {
+                download.uploading = false;
+            }
         },
         addFAQ() {
             this.faqsList.push({ question: '', answer: '' });
@@ -1522,6 +1639,19 @@ export default {
                     } catch (error) {
                         this.showError(error.message || 'Failed to upload gallery images');
                         return;
+                    }
+                }
+
+                // Upload download files if new files are selected
+                for (let i = 0; i < this.downloadsList.length; i++) {
+                    const download = this.downloadsList[i];
+                    if (download.file && !download.uploaded) {
+                        try {
+                            await this.uploadDownloadFile(i);
+                        } catch (error) {
+                            this.showError(`Failed to upload download file "${download.title || download.file.name}": ${error.message}`);
+                            return;
+                        }
                     }
                 }
 

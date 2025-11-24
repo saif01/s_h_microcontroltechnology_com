@@ -73,6 +73,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('upload/image', [UploadController::class, 'uploadImage']);
             Route::post('upload/images', [UploadController::class, 'uploadMultipleImages']);
+            Route::post('upload/file', [UploadController::class, 'uploadFile']);
             Route::delete('upload/image', [UploadController::class, 'deleteImage']);
         });
 
