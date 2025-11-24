@@ -10,6 +10,8 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VisitorLogController;
 use App\Http\Controllers\Public\ContactController;
@@ -64,6 +66,14 @@ Route::prefix('v1')->group(function () {
         Route::middleware('permission:manage-products')->group(function () {
             Route::apiResource('products', ProductController::class);
             Route::apiResource('categories', CategoryController::class);
+            Route::apiResource('tags', TagController::class);
+        });
+
+        // Upload routes - requires authentication
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('upload/image', [UploadController::class, 'uploadImage']);
+            Route::post('upload/images', [UploadController::class, 'uploadMultipleImages']);
+            Route::delete('upload/image', [UploadController::class, 'deleteImage']);
         });
 
         // Leads - requires view-leads permission for viewing, manage-leads for updates/deletes

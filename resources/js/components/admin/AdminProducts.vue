@@ -633,19 +633,79 @@
                             <v-window-item value="media">
                                 <v-row>
                                     <v-col cols="12">
-                                        <v-text-field v-model="form.thumbnail" label="Thumbnail URL" variant="outlined"
-                                            prepend-inner-icon="mdi-image" hint="Main product image URL"></v-text-field>
-                                        <div v-if="form.thumbnail" class="mt-2">
-                                            <v-img :src="form.thumbnail" max-height="200" contain
-                                                class="rounded"></v-img>
+                                        <div class="text-subtitle-1 font-weight-bold mb-2">Thumbnail Image</div>
+                                        <v-file-input v-model="thumbnailFile" label="Select Thumbnail Image"
+                                            accept="image/*" prepend-icon="mdi-camera" variant="outlined"
+                                            @update:model-value="previewThumbnail" clearable show-size
+                                            hint="Select an image file (will upload on save)"></v-file-input>
+
+                                        <!-- Preview for selected file -->
+                                        <div v-if="thumbnailFile && thumbnailPreview" class="mt-3 mb-3">
+                                            <v-card class="elevation-2" style="max-width: 300px;">
+                                                <v-img :src="thumbnailPreview" max-height="200" contain
+                                                    class="rounded"></v-img>
+                                                <v-card-text class="pa-2">
+                                                    <div class="text-caption text-medium-emphasis">
+                                                        {{ thumbnailFile.name || 'Selected file' }}
+                                                        <span v-if="thumbnailFile.size">
+                                                            ({{ formatFileSize(thumbnailFile.size) }})
+                                                        </span>
+                                                    </div>
+                                                </v-card-text>
+                                            </v-card>
                                         </div>
+
+                                        <!-- Preview for existing/uploaded thumbnail -->
+                                        <div v-else-if="form.thumbnail" class="mt-2 mb-3">
+                                            <v-card class="elevation-2" style="max-width: 300px;">
+                                                <v-img :src="form.thumbnail" max-height="200" contain
+                                                    class="rounded"></v-img>
+                                                <v-card-text class="pa-2">
+                                                    <div class="text-caption text-medium-emphasis">Current thumbnail
+                                                    </div>
+                                                </v-card-text>
+                                            </v-card>
+                                        </div>
+
+                                        <v-text-field v-model="form.thumbnail" label="Or Enter Image URL"
+                                            variant="outlined" prepend-inner-icon="mdi-link"
+                                            hint="Alternative: Paste image URL" class="mt-2"></v-text-field>
                                     </v-col>
                                     <v-col cols="12">
                                         <div class="text-subtitle-1 font-weight-bold mb-2">Product Images (Gallery)
                                         </div>
+                                        <v-file-input v-model="galleryFiles" label="Select Gallery Images"
+                                            accept="image/*" prepend-icon="mdi-image-multiple" variant="outlined"
+                                            multiple @update:model-value="previewGalleryImages" clearable show-size
+                                            hint="Select multiple image files (will upload on save)"></v-file-input>
+
+                                        <!-- Preview for selected files -->
+                                        <div v-if="galleryPreviews.length > 0" class="mt-3 mb-4">
+                                            <div class="text-subtitle-2 text-medium-emphasis mb-2">Selected Images ({{
+                                                galleryPreviews.length }})</div>
+                                            <div class="d-flex flex-wrap gap-3">
+                                                <v-card v-for="(preview, index) in galleryPreviews" :key="index"
+                                                    class="elevation-2" style="max-width: 200px; position: relative;">
+                                                    <v-img :src="preview.url" height="150" cover></v-img>
+                                                    <v-card-text class="pa-2">
+                                                        <div class="text-caption text-truncate">{{ preview.name }}</div>
+                                                        <div class="text-caption text-medium-emphasis"
+                                                            v-if="preview.size">
+                                                            {{ formatFileSize(preview.size) }}
+                                                        </div>
+                                                    </v-card-text>
+                                                    <v-btn icon="mdi-close" size="x-small" color="error" variant="flat"
+                                                        class="position-absolute" style="top: 4px; right: 4px;"
+                                                        @click="removeGalleryPreview(index)"></v-btn>
+                                                </v-card>
+                                            </div>
+                                        </div>
+
+                                        <v-divider class="my-4"></v-divider>
+                                        <div class="text-subtitle-2 text-medium-emphasis mb-2">Or Add Image URLs</div>
                                         <div v-for="(img, index) in form.images" :key="index" class="mb-3">
                                             <v-text-field v-model="form.images[index]" :label="`Image ${index + 1} URL`"
-                                                variant="outlined" prepend-inner-icon="mdi-image">
+                                                variant="outlined" prepend-inner-icon="mdi-link">
                                                 <template v-slot:append>
                                                     <v-btn icon="mdi-delete" size="small" variant="text" color="error"
                                                         @click="removeImage(index)"></v-btn>
@@ -653,12 +713,12 @@
                                             </v-text-field>
                                             <div v-if="form.images[index]" class="mt-2">
                                                 <v-img :src="form.images[index]" max-height="150" contain
-                                                    class="rounded"></v-img>
+                                                    class="rounded elevation-1"></v-img>
                                             </div>
                                         </div>
                                         <v-btn color="primary" variant="outlined" prepend-icon="mdi-plus"
                                             @click="addImage">Add
-                                            Image</v-btn>
+                                            Image URL</v-btn>
                                     </v-col>
                                 </v-row>
                             </v-window-item>
@@ -963,7 +1023,13 @@ export default {
                 period: '2 Years',
                 coverage: [],
                 terms: ''
-            }
+            },
+            thumbnailFile: null,
+            galleryFiles: [],
+            uploadingThumbnail: false,
+            uploadingGallery: false,
+            thumbnailPreview: null,
+            galleryPreviews: []
         };
     },
     async mounted() {
@@ -1220,6 +1286,10 @@ export default {
                 coverage: [],
                 terms: ''
             };
+            this.thumbnailFile = null;
+            this.thumbnailPreview = null;
+            this.galleryFiles = [];
+            this.galleryPreviews = [];
             this.formTab = 'basic';
         },
         generateSlug() {
@@ -1235,6 +1305,159 @@ export default {
         },
         removeImage(index) {
             this.form.images.splice(index, 1);
+        },
+        previewThumbnail(file) {
+            if (!file) {
+                this.thumbnailPreview = null;
+                return;
+            }
+
+            // Handle both single file and array
+            const fileToPreview = Array.isArray(file) ? file[0] : file;
+            if (!fileToPreview) {
+                this.thumbnailPreview = null;
+                return;
+            }
+
+            // Create preview URL
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.thumbnailPreview = e.target.result;
+            };
+            reader.readAsDataURL(fileToPreview);
+        },
+        previewGalleryImages(files) {
+            if (!files) {
+                this.galleryPreviews = [];
+                return;
+            }
+
+            // Handle both single file and array
+            const filesToPreview = Array.isArray(files) ? files : [files];
+            if (filesToPreview.length === 0) {
+                this.galleryPreviews = [];
+                return;
+            }
+
+            // Create previews for all selected files
+            this.galleryPreviews = [];
+            filesToPreview.forEach((file, index) => {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.galleryPreviews.push({
+                            url: e.target.result,
+                            name: file.name,
+                            size: file.size,
+                            file: file
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        },
+        removeGalleryPreview(index) {
+            this.galleryPreviews.splice(index, 1);
+            // Also remove from galleryFiles array
+            if (Array.isArray(this.galleryFiles)) {
+                this.galleryFiles.splice(index, 1);
+            } else {
+                this.galleryFiles = [];
+            }
+        },
+        formatFileSize(bytes) {
+            if (!bytes) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        },
+        async uploadThumbnailFile() {
+            if (!this.thumbnailFile) return null;
+
+            const fileToUpload = Array.isArray(this.thumbnailFile) ? this.thumbnailFile[0] : this.thumbnailFile;
+            if (!fileToUpload) return null;
+
+            this.uploadingThumbnail = true;
+            try {
+                const formData = new FormData();
+                formData.append('image', fileToUpload);
+                formData.append('folder', 'products');
+                // Add product title as prefix if available
+                if (this.form.title) {
+                    formData.append('prefix', this.form.title);
+                }
+
+                const response = await axios.post('/api/v1/upload/image', formData, {
+                    headers: {
+                        ...this.getAuthHeaders(),
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.success) {
+                    return response.data.url;
+                } else {
+                    throw new Error(response.data.message || 'Failed to upload thumbnail');
+                }
+            } catch (error) {
+                console.error('Error uploading thumbnail:', error);
+                const errorMessage = error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    'Failed to upload thumbnail';
+                throw new Error(errorMessage);
+            } finally {
+                this.uploadingThumbnail = false;
+            }
+        },
+        async uploadGalleryFiles() {
+            if (!this.galleryPreviews || this.galleryPreviews.length === 0) return [];
+
+            const uploadedUrls = [];
+            this.uploadingGallery = true;
+
+            try {
+                // Collect all files from previews
+                const filesToUpload = this.galleryPreviews
+                    .filter(preview => preview.file)
+                    .map(preview => preview.file);
+
+                if (filesToUpload.length === 0) return [];
+
+                // Upload all files in one request
+                const formData = new FormData();
+                filesToUpload.forEach(file => {
+                    formData.append('images[]', file);
+                });
+                formData.append('folder', 'products');
+                // Add product title as prefix if available
+                if (this.form.title) {
+                    formData.append('prefix', this.form.title);
+                }
+
+                const response = await axios.post('/api/v1/upload/images', formData, {
+                    headers: {
+                        ...this.getAuthHeaders(),
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.success && response.data.images && response.data.images.length > 0) {
+                    uploadedUrls.push(...response.data.images.map(img => img.url));
+                } else {
+                    throw new Error(response.data.message || 'Failed to upload images');
+                }
+
+                return uploadedUrls;
+            } catch (error) {
+                console.error('Error uploading gallery images:', error);
+                const errorMessage = error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    'Failed to upload images';
+                throw new Error(errorMessage);
+            } finally {
+                this.uploadingGallery = false;
+            }
         },
         addSpecification() {
             this.specificationsList.push({ key: '', value: '' });
@@ -1276,6 +1499,32 @@ export default {
 
                 this.saving = true;
 
+                // Upload thumbnail if a new file is selected
+                let thumbnailUrl = this.form.thumbnail;
+                if (this.thumbnailFile) {
+                    try {
+                        thumbnailUrl = await this.uploadThumbnailFile();
+                        if (thumbnailUrl) {
+                            this.form.thumbnail = thumbnailUrl;
+                        }
+                    } catch (error) {
+                        this.showError(error.message || 'Failed to upload thumbnail');
+                        return;
+                    }
+                }
+
+                // Upload gallery images if new files are selected
+                let galleryUrls = [...this.form.images.filter(img => img)];
+                if (this.galleryPreviews && this.galleryPreviews.length > 0) {
+                    try {
+                        const uploadedUrls = await this.uploadGalleryFiles();
+                        galleryUrls = [...galleryUrls, ...uploadedUrls];
+                    } catch (error) {
+                        this.showError(error.message || 'Failed to upload gallery images');
+                        return;
+                    }
+                }
+
                 // Build specifications object
                 const specifications = {};
                 this.specificationsList.forEach(spec => {
@@ -1291,8 +1540,8 @@ export default {
                     sku: this.form.sku || null,
                     short_description: this.form.short_description || null,
                     description: this.form.description || null,
-                    thumbnail: this.form.thumbnail || null,
-                    images: this.form.images.filter(img => img),
+                    thumbnail: thumbnailUrl || null,
+                    images: galleryUrls,
                     price: this.form.price ? parseFloat(this.form.price) : null,
                     price_range: this.form.price_range || null,
                     show_price: this.form.show_price !== false,
@@ -1331,12 +1580,19 @@ export default {
                     this.showSuccess('Product created successfully');
                 }
 
+                // Clear file inputs and previews
+                this.thumbnailFile = null;
+                this.thumbnailPreview = null;
+                this.galleryFiles = [];
+                this.galleryPreviews = [];
+
                 this.closeDialog();
                 await this.loadProducts();
             } catch (error) {
                 console.error('Error saving product:', error);
                 const errorMessage = error.response?.data?.message ||
                     error.response?.data?.error ||
+                    error.message ||
                     'Failed to save product';
                 this.showError(errorMessage);
             } finally {
@@ -1574,6 +1830,11 @@ export default {
             this.showDialog = false;
             this.editingProduct = null;
             this.loadingProduct = false;
+            // Clear file inputs and previews
+            this.thumbnailFile = null;
+            this.thumbnailPreview = null;
+            this.galleryFiles = [];
+            this.galleryPreviews = [];
             this.resetForm();
         },
         onPerPageChange() {
