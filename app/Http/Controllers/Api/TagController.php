@@ -68,13 +68,18 @@ class TagController extends Controller
         return response()->json($tag, 201);
     }
 
-    public function show(Tag $tag)
+    public function show($id)
     {
+        // Support both id and slug for route model binding
+        $tag = Tag::where('id', $id)->orWhere('slug', $id)->firstOrFail();
         return response()->json($tag);
     }
 
-    public function update(Request $request, Tag $tag)
+    public function update(Request $request, $id)
     {
+        // Support both id and slug for route model binding
+        $tag = Tag::where('id', $id)->orWhere('slug', $id)->firstOrFail();
+        
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:tags,slug,' . $tag->id,
@@ -92,8 +97,11 @@ class TagController extends Controller
         return response()->json($tag);
     }
 
-    public function destroy(Tag $tag)
+    public function destroy($id)
     {
+        // Support both id and slug for route model binding
+        $tag = Tag::where('id', $id)->orWhere('slug', $id)->firstOrFail();
+        
         // Check if tag has products
         $productCount = $tag->products()->count();
         $serviceCount = $tag->services()->count();

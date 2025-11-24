@@ -40,6 +40,8 @@
                         :to="{ name: 'AdminProducts' }"></v-list-item>
                     <v-list-item prepend-icon="mdi-folder" title="Categories"
                         :to="{ name: 'AdminCategories' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-tag" title="Tags"
+                        :to="{ name: 'AdminTags' }"></v-list-item>
                 </v-list-group>
 
                 <!-- Leads Management - Requires 'view-leads' permission -->
