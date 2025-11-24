@@ -376,7 +376,7 @@ export default {
                 { value: '500+', label: 'Systems Installed' },
                 { value: '99.9%', label: 'Power Uptime' },
                 { value: '24/7', label: 'Support' },
-                { value: '10+', label: 'Years Experience' }
+                { value: '15+', label: 'Years Experience' }
             ],
             features: [
                 {

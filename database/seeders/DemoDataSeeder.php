@@ -79,18 +79,20 @@ class DemoDataSeeder extends Seeder
     private function seedSettings(): void
     {
         $settings = [
-            ['key' => 'site_name', 'value' => 'Business Pro Solutions', 'type' => 'text', 'group' => 'general'],
-            ['key' => 'site_tagline', 'value' => 'Your Partner in Success', 'type' => 'text', 'group' => 'general'],
-            ['key' => 'contact_email', 'value' => 'info@businesspro.com', 'type' => 'email', 'group' => 'general'],
-            ['key' => 'contact_phone', 'value' => '+1 (555) 123-4567', 'type' => 'text', 'group' => 'general'],
-            ['key' => 'address', 'value' => '123 Business Street, Suite 100, New York, NY 10001', 'type' => 'textarea', 'group' => 'general'],
-            ['key' => 'facebook_url', 'value' => 'https://facebook.com/businesspro', 'type' => 'url', 'group' => 'social'],
-            ['key' => 'twitter_url', 'value' => 'https://twitter.com/businesspro', 'type' => 'url', 'group' => 'social'],
-            ['key' => 'linkedin_url', 'value' => 'https://linkedin.com/company/businesspro', 'type' => 'url', 'group' => 'social'],
-            ['key' => 'instagram_url', 'value' => 'https://instagram.com/businesspro', 'type' => 'url', 'group' => 'social'],
-            ['key' => 'meta_title', 'value' => 'Business Pro Solutions - Your Trusted Business Partner', 'type' => 'text', 'group' => 'seo'],
-            ['key' => 'meta_description', 'value' => 'We provide comprehensive business solutions to help your company grow and succeed.', 'type' => 'textarea', 'group' => 'seo'],
-            ['key' => 'meta_keywords', 'value' => 'business solutions, consulting, services, products', 'type' => 'text', 'group' => 'seo'],
+            ['key' => 'site_name', 'value' => 'MICRO CONTROL TECHNOLOGY', 'type' => 'text', 'group' => 'general'],
+            ['key' => 'site_tagline', 'value' => 'TECHNOLOGY', 'type' => 'text', 'group' => 'general'],
+            ['key' => 'contact_email', 'value' => 'info@microcontrol.com', 'type' => 'email', 'group' => 'general'],
+            ['key' => 'contact_phone', 'value' => '+8801712258689', 'type' => 'text', 'group' => 'general'],
+            ['key' => 'whatsapp_number', 'value' => '+8801712258689', 'type' => 'text', 'group' => 'general'],
+            ['key' => 'address', 'value' => 'House 15, Road 13, Block D, Section 06, Mirpur, Dhaka.', 'type' => 'textarea', 'group' => 'general'],
+            ['key' => 'owner_name', 'value' => 'Md. Maniruzzaman', 'type' => 'text', 'group' => 'general'],
+            ['key' => 'facebook_url', 'value' => '', 'type' => 'url', 'group' => 'social'],
+            ['key' => 'twitter_url', 'value' => '', 'type' => 'url', 'group' => 'social'],
+            ['key' => 'linkedin_url', 'value' => '', 'type' => 'url', 'group' => 'social'],
+            ['key' => 'instagram_url', 'value' => '', 'type' => 'url', 'group' => 'social'],
+            ['key' => 'meta_title', 'value' => 'MICRO CONTROL TECHNOLOGY - UPS, Battery & Power Solutions in Dhaka', 'type' => 'text', 'group' => 'seo'],
+            ['key' => 'meta_description', 'value' => 'Leading provider of Offline and Online UPS systems, batteries, UPS motherboards, and power solutions in Mirpur, Dhaka. 15+ years of experience with 500+ systems installed.', 'type' => 'textarea', 'group' => 'seo'],
+            ['key' => 'meta_keywords', 'value' => 'UPS, offline UPS, online UPS, battery, UPS motherboard, power solutions, Mirpur Dhaka, uninterruptible power supply', 'type' => 'text', 'group' => 'seo'],
         ];
 
         foreach ($settings as $setting) {
@@ -105,29 +107,29 @@ class DemoDataSeeder extends Seeder
     {
         $pages = [
             [
-                'title' => 'Welcome to Business Pro Solutions',
+                'title' => 'Uninterrupted Power for Your Business & Home',
                 'slug' => 'home',
-                'content' => '<h1>Welcome to Business Pro Solutions</h1><p>We are a leading provider of comprehensive business solutions, dedicated to helping companies achieve their goals and drive growth. With years of experience and a team of experts, we deliver results that matter.</p><h2>Why Choose Us?</h2><p>Our commitment to excellence, innovation, and customer satisfaction sets us apart. We work closely with our clients to understand their unique needs and deliver tailored solutions.</p>',
+                'content' => '<h1>Welcome to MICRO CONTROL TECHNOLOGY</h1><p>We are a leading provider of technical power support solutions in Mirpur, Dhaka. With over 15 years of experience, we ensure your business stays powered with reliable UPS systems, backup generators, and professional maintenance services.</p><h2>Why Choose Us?</h2><p>Our commitment to excellence, quality products, and customer satisfaction sets us apart. We specialize in Offline and Online UPS systems, batteries, UPS motherboards, and comprehensive power solutions for homes and businesses.</p><h2>Our Expertise</h2><ul><li>500+ Systems Installed</li><li>99.9% Power Uptime</li><li>24/7 Support</li><li>15+ Years Experience</li></ul>',
                 'page_type' => 'home',
                 'published' => true,
                 'order' => 0,
-                'meta_title' => 'Business Pro Solutions - Home',
-                'meta_description' => 'Welcome to Business Pro Solutions. We provide comprehensive business solutions to help your company grow.',
+                'meta_title' => 'MICRO CONTROL TECHNOLOGY - UPS & Power Solutions in Dhaka',
+                'meta_description' => 'Leading provider of UPS systems, batteries, and power solutions in Mirpur, Dhaka. 15+ years experience with 500+ systems installed.',
             ],
             [
-                'title' => 'About Us',
+                'title' => 'About MICRO CONTROL TECHNOLOGY',
                 'slug' => 'about',
-                'content' => '<h1>About Business Pro Solutions</h1><p>Founded in 2015, Business Pro Solutions has been at the forefront of providing innovative business solutions to companies across various industries. Our mission is to empower businesses with the tools and expertise they need to succeed in today\'s competitive market.</p><h2>Our Mission</h2><p>To deliver exceptional value and innovative solutions that drive business growth and success.</p><h2>Our Vision</h2><p>To be the most trusted and preferred partner for businesses seeking comprehensive solutions.</p><h2>Our Values</h2><ul><li>Integrity</li><li>Innovation</li><li>Excellence</li><li>Customer Focus</li></ul>',
+                'content' => '<h1>About MICRO CONTROL TECHNOLOGY</h1><p>MICRO CONTROL TECHNOLOGY, owned by Md. Maniruzzaman, has been serving the power solutions market in Dhaka for over 15 years. Located in Mirpur, we specialize in providing reliable UPS systems, batteries, and power management solutions.</p><h2>Our Mission</h2><p>To provide reliable, high-quality power solutions that keep your business and home running smoothly, even during power outages.</p><h2>Our Vision</h2><p>To be the most trusted provider of UPS systems and power solutions in Dhaka, known for quality, reliability, and excellent customer service.</p><h2>Our Values</h2><ul><li>Quality Products</li><li>Reliable Service</li><li>Customer Satisfaction</li><li>Professional Excellence</li></ul><h2>Our Location</h2><p>House 15, Road 13, Block D, Section 06, Mirpur, Dhaka.</p><p><strong>Contact:</strong> +8801712258689</p>',
                 'page_type' => 'about',
                 'published' => true,
                 'order' => 1,
-                'meta_title' => 'About Us - Business Pro Solutions',
-                'meta_description' => 'Learn about Business Pro Solutions, our mission, vision, and values.',
+                'meta_title' => 'About Us - MICRO CONTROL TECHNOLOGY',
+                'meta_description' => 'Learn about MICRO CONTROL TECHNOLOGY, your trusted partner for UPS systems and power solutions in Mirpur, Dhaka.',
             ],
             [
                 'title' => 'Contact Us',
                 'slug' => 'contact',
-                'content' => '<h1>Get in Touch</h1><p>We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.</p><p><strong>Email:</strong> info@businesspro.com<br><strong>Phone:</strong> +1 (555) 123-4567<br><strong>Address:</strong> 123 Business Street, Suite 100, New York, NY 10001</p>',
+                'content' => '<h1>Get in Touch</h1><p>We\'d love to hear from you. Send us a message and we\'ll respond as soon as possible.</p><p><strong>Owner:</strong> Md. Maniruzzaman<br><strong>Phone:</strong> +8801712258689<br><strong>WhatsApp:</strong> +8801712258689<br><strong>Address:</strong> House 15, Road 13, Block D, Section 06, Mirpur, Dhaka.</p>',
                 'page_type' => 'page',
                 'published' => true,
                 'order' => 2,
@@ -135,7 +137,7 @@ class DemoDataSeeder extends Seeder
             [
                 'title' => 'Privacy Policy',
                 'slug' => 'privacy-policy',
-                'content' => '<h1>Privacy Policy</h1><p>Last updated: ' . date('F d, Y') . '</p><p>At Business Pro Solutions, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information.</p><h2>Information We Collect</h2><p>We collect information that you provide directly to us, including name, email address, phone number, and other contact details.</p><h2>How We Use Your Information</h2><p>We use your information to provide services, respond to inquiries, and improve our offerings.</p>',
+                'content' => '<h1>Privacy Policy</h1><p>Last updated: ' . date('F d, Y') . '</p><p>At MICRO CONTROL TECHNOLOGY, we take your privacy seriously. This policy describes how we collect, use, and protect your personal information.</p><h2>Information We Collect</h2><p>We collect information that you provide directly to us, including name, email address, phone number, and other contact details.</p><h2>How We Use Your Information</h2><p>We use your information to provide services, respond to inquiries, and improve our offerings.</p>',
                 'page_type' => 'page',
                 'published' => true,
                 'order' => 10,
@@ -196,32 +198,32 @@ class DemoDataSeeder extends Seeder
         // Service Categories
         $categories['service'] = [
             Category::updateOrCreate(
-                ['slug' => 'consulting', 'type' => 'service'],
-                ['name' => 'Consulting', 'slug' => 'consulting', 'type' => 'service', 'published' => true, 'order' => 1]
+                ['slug' => 'ups-installation', 'type' => 'service'],
+                ['name' => 'UPS Installation', 'slug' => 'ups-installation', 'type' => 'service', 'published' => true, 'order' => 1]
             ),
             Category::updateOrCreate(
-                ['slug' => 'technology', 'type' => 'service'],
-                ['name' => 'Technology', 'slug' => 'technology', 'type' => 'service', 'published' => true, 'order' => 2]
+                ['slug' => 'battery-replacement', 'type' => 'service'],
+                ['name' => 'Battery Replacement', 'slug' => 'battery-replacement', 'type' => 'service', 'published' => true, 'order' => 2]
             ),
             Category::updateOrCreate(
-                ['slug' => 'marketing', 'type' => 'service'],
-                ['name' => 'Marketing', 'slug' => 'marketing', 'type' => 'service', 'published' => true, 'order' => 3]
+                ['slug' => 'maintenance', 'type' => 'service'],
+                ['name' => 'Maintenance & Repair', 'slug' => 'maintenance', 'type' => 'service', 'published' => true, 'order' => 3]
             ),
         ];
 
         // Product Categories
         $categories['product'] = [
             Category::updateOrCreate(
-                ['slug' => 'software', 'type' => 'product'],
-                ['name' => 'Software', 'slug' => 'software', 'type' => 'product', 'published' => true, 'order' => 1]
+                ['slug' => 'ups-systems', 'type' => 'product'],
+                ['name' => 'UPS Systems', 'slug' => 'ups-systems', 'type' => 'product', 'published' => true, 'order' => 1]
             ),
             Category::updateOrCreate(
-                ['slug' => 'hardware', 'type' => 'product'],
-                ['name' => 'Hardware', 'slug' => 'hardware', 'type' => 'product', 'published' => true, 'order' => 2]
+                ['slug' => 'batteries', 'type' => 'product'],
+                ['name' => 'Batteries', 'slug' => 'batteries', 'type' => 'product', 'published' => true, 'order' => 2]
             ),
             Category::updateOrCreate(
-                ['slug' => 'solutions', 'type' => 'product'],
-                ['name' => 'Solutions', 'slug' => 'solutions', 'type' => 'product', 'published' => true, 'order' => 3]
+                ['slug' => 'ups-components', 'type' => 'product'],
+                ['name' => 'UPS Components', 'slug' => 'ups-components', 'type' => 'product', 'published' => true, 'order' => 3]
             ),
         ];
 
@@ -287,50 +289,50 @@ class DemoDataSeeder extends Seeder
     {
         $services = [
             [
-                'title' => 'Business Consulting',
-                'slug' => 'business-consulting',
-                'short_description' => 'Expert business consulting services to help your company grow and succeed.',
-                'description' => '<p>Our business consulting services provide you with strategic insights and actionable recommendations to drive growth and improve performance. Our experienced consultants work closely with you to understand your unique challenges and develop tailored solutions.</p><h3>What We Offer:</h3><ul><li>Strategic Planning</li><li>Process Improvement</li><li>Organizational Development</li><li>Performance Optimization</li></ul>',
-                'icon' => 'mdi-briefcase',
-                'price_range' => 'Starting from $2,500/month',
-                'features' => ['Expert Consultants', 'Custom Solutions', 'Ongoing Support', 'Proven Results'],
-                'benefits' => ['Increased Efficiency', 'Cost Savings', 'Competitive Advantage', 'Scalable Growth'],
+                'title' => 'UPS Installation',
+                'slug' => 'ups-installation',
+                'short_description' => 'Professional installation of offline and online UPS systems for homes and businesses.',
+                'description' => '<p>Our expert technicians provide professional UPS installation services for both offline and online systems. We ensure proper setup, configuration, and testing to guarantee optimal performance.</p><h3>What We Offer:</h3><ul><li>Site assessment and capacity planning</li><li>Professional installation</li><li>System configuration and testing</li><li>User training</li><li>Warranty support</li></ul>',
+                'icon' => 'mdi-battery-charging-high',
+                'price_range' => 'Contact for quote',
+                'features' => ['Expert Technicians', 'Quality Installation', 'Testing & Verification', 'Ongoing Support'],
+                'benefits' => ['Proper Setup', 'Optimal Performance', 'Extended Lifespan', 'Peace of Mind'],
                 'published' => true,
                 'order' => 1,
             ],
             [
-                'title' => 'Digital Marketing',
-                'slug' => 'digital-marketing',
-                'short_description' => 'Comprehensive digital marketing services to boost your online presence.',
-                'description' => '<p>Enhance your digital presence with our comprehensive marketing services. We help you reach your target audience, increase brand awareness, and drive conversions through proven digital marketing strategies.</p><h3>Services Include:</h3><ul><li>SEO Optimization</li><li>Social Media Marketing</li><li>Content Marketing</li><li>PPC Advertising</li><li>Email Marketing</li></ul>',
-                'icon' => 'mdi-bullhorn',
-                'price_range' => 'Starting from $1,500/month',
-                'features' => ['Multi-Channel Strategy', 'Analytics & Reporting', 'Content Creation', 'Campaign Management'],
-                'benefits' => ['Increased Visibility', 'Higher Engagement', 'More Leads', 'Better ROI'],
+                'title' => 'Battery Replacement',
+                'slug' => 'battery-replacement',
+                'short_description' => 'Quick and reliable battery replacement service for all UPS systems.',
+                'description' => '<p>Keep your UPS system running at peak performance with our professional battery replacement service. We stock quality batteries compatible with all major UPS brands.</p><h3>Services Include:</h3><ul><li>Battery testing and diagnosis</li><li>Quality replacement batteries</li><li>Professional installation</li><li>Old battery disposal</li><li>System testing after replacement</li></ul>',
+                'icon' => 'mdi-battery-sync',
+                'price_range' => 'Contact for pricing',
+                'features' => ['Quality Batteries', 'Quick Service', 'Proper Disposal', 'Warranty Included'],
+                'benefits' => ['Restored Performance', 'Extended UPS Life', 'Reliable Backup', 'Cost Effective'],
                 'published' => true,
                 'order' => 2,
             ],
             [
-                'title' => 'IT Solutions',
-                'slug' => 'it-solutions',
-                'short_description' => 'Complete IT solutions and support services for modern businesses.',
-                'description' => '<p>Keep your business running smoothly with our comprehensive IT solutions. From infrastructure setup to ongoing support, we ensure your technology works for you, not against you.</p><h3>Our IT Services:</h3><ul><li>Cloud Migration</li><li>Network Setup & Maintenance</li><li>Cybersecurity</li><li>IT Support & Helpdesk</li><li>Software Implementation</li></ul>',
-                'icon' => 'mdi-server',
-                'price_range' => 'Starting from $3,000/month',
-                'features' => ['24/7 Support', 'Proactive Monitoring', 'Security Updates', 'Scalable Infrastructure'],
-                'benefits' => ['Reduced Downtime', 'Enhanced Security', 'Improved Productivity', 'Cost Efficiency'],
+                'title' => 'UPS Maintenance & Repair',
+                'slug' => 'ups-maintenance-repair',
+                'short_description' => 'Comprehensive maintenance and repair services to keep your UPS systems running smoothly.',
+                'description' => '<p>Regular maintenance and timely repairs are essential for UPS reliability. Our experienced technicians provide comprehensive maintenance and repair services for all UPS systems.</p><h3>Our Services:</h3><ul><li>Regular maintenance checks</li><li>Component replacement</li><li>Motherboard repair/replacement</li><li>System diagnostics</li><li>Preventive maintenance programs</li></ul>',
+                'icon' => 'mdi-tools',
+                'price_range' => 'Contact for quote',
+                'features' => ['24/7 Support', 'Expert Technicians', 'Quality Parts', 'Fast Response'],
+                'benefits' => ['Reduced Downtime', 'Extended Lifespan', 'Cost Savings', 'Reliable Operation'],
                 'published' => true,
                 'order' => 3,
             ],
             [
-                'title' => 'Financial Planning',
-                'slug' => 'financial-planning',
-                'short_description' => 'Expert financial planning and advisory services for businesses.',
-                'description' => '<p>Navigate the complexities of business finance with our expert planning services. We help you make informed financial decisions, optimize cash flow, and plan for long-term success.</p><h3>Financial Services:</h3><ul><li>Financial Analysis</li><li>Budget Planning</li><li>Cash Flow Management</li><li>Investment Advisory</li><li>Tax Planning</li></ul>',
-                'icon' => 'mdi-chart-line',
-                'price_range' => 'Starting from $2,000/month',
-                'features' => ['Expert Analysts', 'Comprehensive Reports', 'Strategic Advice', 'Regular Reviews'],
-                'benefits' => ['Better Financial Health', 'Informed Decisions', 'Optimized Resources', 'Growth Planning'],
+                'title' => 'Power Solutions Consultation',
+                'slug' => 'power-solutions-consultation',
+                'short_description' => 'Expert consultation to help you choose the right power solution for your needs.',
+                'description' => '<p>Not sure which UPS system is right for you? Our experts provide comprehensive consultation to help you select the perfect power solution based on your specific requirements.</p><h3>Consultation Services:</h3><ul><li>Power requirement analysis</li><li>System recommendations</li><li>Cost-benefit analysis</li><li>Installation planning</li><li>Ongoing support planning</li></ul>',
+                'icon' => 'mdi-lightning-bolt',
+                'price_range' => 'Free consultation',
+                'features' => ['Expert Advice', 'Custom Solutions', 'Cost Analysis', 'Long-term Planning'],
+                'benefits' => ['Right Solution', 'Cost Optimization', 'Future-proofing', 'Informed Decisions'],
                 'published' => true,
                 'order' => 4,
             ],
@@ -359,46 +361,60 @@ class DemoDataSeeder extends Seeder
     {
         $products = [
             [
-                'title' => 'Business Management Suite',
-                'slug' => 'business-management-suite',
-                'sku' => 'BMS-001',
-                'short_description' => 'All-in-one business management software for small to medium enterprises.',
-                'description' => '<p>The Business Management Suite is a comprehensive solution designed to streamline your operations. Manage projects, track inventory, handle finances, and more - all from one platform.</p><h3>Key Features:</h3><ul><li>Project Management</li><li>Inventory Tracking</li><li>Financial Management</li><li>CRM Integration</li><li>Reporting & Analytics</li></ul>',
-                'price' => 2999.00,
-                'price_range' => '$2,999 - $4,999',
-                'show_price' => true,
-                'specifications' => ['Cloud-Based', 'Mobile App Available', 'Multi-User Support', 'API Integration'],
+                'title' => 'Offline UPS System',
+                'slug' => 'offline-ups-system',
+                'sku' => 'UPS-OFF-001',
+                'short_description' => 'Reliable offline UPS systems for home and office use. Provides backup power during outages.',
+                'description' => '<p>Our offline UPS systems are designed to provide reliable backup power for your essential equipment. Perfect for home offices, small businesses, and personal computers.</p><h3>Key Features:</h3><ul><li>Automatic voltage regulation</li><li>Battery backup during power outages</li><li>Surge protection</li><li>Compact design</li><li>Easy installation</li></ul><h3>Applications:</h3><ul><li>Home computers</li><li>Small office equipment</li><li>Networking devices</li><li>Security systems</li></ul>',
+                'price' => null,
+                'price_range' => 'Contact for pricing',
+                'show_price' => false,
+                'specifications' => ['Multiple capacity options', 'LED status indicators', 'Audible alarm', 'Warranty included'],
                 'published' => true,
                 'featured' => true,
                 'order' => 1,
             ],
             [
-                'title' => 'Marketing Automation Platform',
-                'slug' => 'marketing-automation-platform',
-                'sku' => 'MAP-002',
-                'short_description' => 'Automate your marketing campaigns and boost conversions.',
-                'description' => '<p>Streamline your marketing efforts with our automation platform. Create, manage, and optimize campaigns across multiple channels with ease.</p><h3>Features:</h3><ul><li>Email Automation</li><li>Social Media Scheduling</li><li>Lead Nurturing</li><li>A/B Testing</li><li>Analytics Dashboard</li></ul>',
-                'price' => 1999.00,
-                'price_range' => '$1,999 - $3,499',
-                'show_price' => true,
-                'specifications' => ['Unlimited Contacts', 'Advanced Segmentation', 'Integration Hub', '24/7 Support'],
+                'title' => 'Online UPS System',
+                'slug' => 'online-ups-system',
+                'sku' => 'UPS-ON-001',
+                'short_description' => 'Professional online UPS systems for critical applications. Zero transfer time with continuous power protection.',
+                'description' => '<p>Enterprise-grade online UPS systems providing continuous power protection for critical equipment. Ideal for servers, data centers, and mission-critical applications.</p><h3>Key Features:</h3><ul><li>Zero transfer time</li><li>Double conversion technology</li><li>High efficiency</li><li>Remote monitoring capability</li><li>Scalable power capacity</li></ul><h3>Applications:</h3><ul><li>Server rooms</li><li>Data centers</li><li>Medical equipment</li><li>Industrial automation</li><li>Telecommunications</li></ul>',
+                'price' => null,
+                'price_range' => 'Contact for pricing',
+                'show_price' => false,
+                'specifications' => ['High power factor', 'LCD display', 'Network management card', 'Extended runtime options'],
                 'published' => true,
                 'featured' => true,
                 'order' => 2,
             ],
             [
-                'title' => 'Enterprise Security Package',
-                'slug' => 'enterprise-security-package',
-                'sku' => 'ESP-003',
-                'short_description' => 'Comprehensive cybersecurity solution for enterprise businesses.',
-                'description' => '<p>Protect your business with our enterprise-grade security package. Advanced threat detection, firewall protection, and compliance management all in one.</p><h3>Protection Includes:</h3><ul><li>Firewall Protection</li><li>Malware Detection</li><li>Intrusion Prevention</li><li>Compliance Tools</li><li>Security Monitoring</li></ul>',
-                'price' => 4999.00,
-                'price_range' => '$4,999 - $9,999',
-                'show_price' => true,
-                'specifications' => ['Real-Time Monitoring', 'Automated Updates', 'Compliance Reporting', 'Dedicated Support'],
+                'title' => 'UPS Battery',
+                'slug' => 'ups-battery',
+                'sku' => 'BAT-UPS-001',
+                'short_description' => 'High-quality replacement batteries for all UPS systems. Long-lasting and reliable performance.',
+                'description' => '<p>Premium quality sealed lead-acid batteries designed specifically for UPS systems. Available in various capacities to match your UPS requirements.</p><h3>Key Features:</h3><ul><li>Sealed maintenance-free design</li><li>Long service life</li><li>High discharge rate</li><li>Wide temperature range</li><li>Compatible with major UPS brands</li></ul><h3>Specifications:</h3><ul><li>Multiple voltage options (12V, 24V, 48V)</li><li>Various capacity ratings</li><li>AGM technology</li><li>UL certified</li></ul>',
+                'price' => null,
+                'price_range' => 'Contact for pricing',
+                'show_price' => false,
+                'specifications' => ['Maintenance-free', 'Spill-proof design', 'Fast recharge', 'Deep cycle capable'],
+                'published' => true,
+                'featured' => true,
+                'order' => 3,
+            ],
+            [
+                'title' => 'UPS Motherboard',
+                'slug' => 'ups-motherboard',
+                'sku' => 'MB-UPS-001',
+                'short_description' => 'Replacement motherboards for UPS systems. Compatible with various UPS models and brands.',
+                'description' => '<p>Professional-grade replacement motherboards for UPS systems. Restore your UPS to full functionality with our quality replacement boards.</p><h3>Key Features:</h3><ul><li>Compatible with multiple UPS models</li><li>Quality components</li><li>Easy installation</li><li>Tested and verified</li><li>Warranty included</li></ul><h3>Applications:</h3><ul><li>UPS repair and maintenance</li><li>UPS upgrade projects</li><li>Replacement for damaged boards</li></ul>',
+                'price' => null,
+                'price_range' => 'Contact for pricing',
+                'show_price' => false,
+                'specifications' => ['Original specifications', 'Quality tested', 'Compatible models listed', 'Installation support'],
                 'published' => true,
                 'featured' => false,
-                'order' => 3,
+                'order' => 4,
             ],
         ];
 
@@ -408,9 +424,16 @@ class DemoDataSeeder extends Seeder
                 $product
             );
 
-            // Attach categories
-            if (isset($categories[$index % count($categories)])) {
-                $createdProduct->categories()->syncWithoutDetaching([$categories[$index % count($categories)]->id]);
+            // Attach categories - map products to appropriate categories
+            $categoryMap = [
+                0 => 0, // Offline UPS -> UPS Systems
+                1 => 0, // Online UPS -> UPS Systems
+                2 => 1, // Battery -> Batteries
+                3 => 2, // UPS Motherboard -> UPS Components
+            ];
+            
+            if (isset($categoryMap[$index]) && isset($categories[$categoryMap[$index]])) {
+                $createdProduct->categories()->syncWithoutDetaching([$categories[$categoryMap[$index]]->id]);
             }
 
             // Attach random tags
@@ -579,48 +602,26 @@ class DemoDataSeeder extends Seeder
     {
         $branches = [
             [
-                'name' => 'New York Office',
-                'slug' => 'new-york-office',
-                'address' => '123 Business Street, Suite 100',
-                'city' => 'New York',
-                'state' => 'NY',
-                'postal_code' => '10001',
-                'country' => 'USA',
-                'phone' => '+1 (555) 123-4567',
-                'email' => 'ny@businesspro.com',
+                'name' => 'Mirpur Office',
+                'slug' => 'mirpur-office',
+                'address' => 'House 15, Road 13, Block D, Section 06',
+                'city' => 'Mirpur',
+                'state' => 'Dhaka',
+                'postal_code' => '1216',
+                'country' => 'Bangladesh',
+                'phone' => '+8801712258689',
+                'email' => 'info@microcontrol.com',
                 'opening_hours' => [
-                    'monday' => '9:00 AM - 6:00 PM',
-                    'tuesday' => '9:00 AM - 6:00 PM',
-                    'wednesday' => '9:00 AM - 6:00 PM',
-                    'thursday' => '9:00 AM - 6:00 PM',
-                    'friday' => '9:00 AM - 5:00 PM',
-                    'saturday' => 'Closed',
+                    'monday' => '9:00 AM - 7:00 PM',
+                    'tuesday' => '9:00 AM - 7:00 PM',
+                    'wednesday' => '9:00 AM - 7:00 PM',
+                    'thursday' => '9:00 AM - 7:00 PM',
+                    'friday' => '9:00 AM - 7:00 PM',
+                    'saturday' => '9:00 AM - 5:00 PM',
                     'sunday' => 'Closed',
                 ],
                 'published' => true,
                 'order' => 1,
-            ],
-            [
-                'name' => 'Los Angeles Office',
-                'slug' => 'los-angeles-office',
-                'address' => '456 Corporate Boulevard, Floor 5',
-                'city' => 'Los Angeles',
-                'state' => 'CA',
-                'postal_code' => '90001',
-                'country' => 'USA',
-                'phone' => '+1 (555) 987-6543',
-                'email' => 'la@businesspro.com',
-                'opening_hours' => [
-                    'monday' => '8:00 AM - 6:00 PM',
-                    'tuesday' => '8:00 AM - 6:00 PM',
-                    'wednesday' => '8:00 AM - 6:00 PM',
-                    'thursday' => '8:00 AM - 6:00 PM',
-                    'friday' => '8:00 AM - 5:00 PM',
-                    'saturday' => '10:00 AM - 2:00 PM',
-                    'sunday' => 'Closed',
-                ],
-                'published' => true,
-                'order' => 2,
             ],
         ];
 
@@ -684,7 +685,7 @@ class DemoDataSeeder extends Seeder
                 'venue' => 'Grand Conference Center',
                 'address' => '789 Event Avenue, New York, NY 10001',
                 'speakers' => [
-                    ['name' => 'John Smith', 'title' => 'CEO, Business Pro'],
+                    ['name' => 'Md. Maniruzzaman', 'title' => 'Owner, MICRO CONTROL TECHNOLOGY'],
                     ['name' => 'Jane Doe', 'title' => 'Marketing Expert'],
                 ],
                 'allow_registration' => true,
