@@ -1,23 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\content;
 
 use App\Http\Controllers\Controller;
-use App\Models\Page;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
-class PageController extends Controller
+class ServiceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Page::query();
+        $query = Service::query();
 
         // Search functionality
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%");
+                  ->orWhere('slug', 'like', "%{$search}%")
+                  ->orWhere('short_description', 'like', "%{$search}%");
             });
         }
 
@@ -30,40 +31,40 @@ class PageController extends Controller
         $sortBy = $request->get('sort_by', 'order');
         $sortDirection = $request->get('sort_direction', 'asc');
         
-        // Validate sort_by field to prevent SQL injection
-        $allowedSortFields = ['id', 'title', 'slug', 'page_type', 'published', 'order', 'created_at', 'updated_at'];
+        $allowedSortFields = ['id', 'title', 'slug', 'published', 'order', 'created_at', 'updated_at'];
         if (!in_array($sortBy, $allowedSortFields)) {
             $sortBy = 'order';
         }
         
-        // Validate sort direction
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
         
-        // Apply sorting
         $query->orderBy($sortBy, $sortDirection);
         
-        // If sorting by order, add title as secondary sort
         if ($sortBy !== 'title' && $sortBy !== 'order') {
             $query->orderBy('title', 'asc');
         }
 
         // Paginate results
         $perPage = $request->get('per_page', 10);
-        $pages = $query->paginate($perPage);
+        $services = $query->paginate($perPage);
         
-        return response()->json($pages);
+        return response()->json($services);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:pages',
-            'content' => 'nullable|string',
-            'page_type' => 'nullable|string',
-            'featured_image' => 'nullable|string',
+            'slug' => 'required|string|max:255|unique:services',
+            'short_description' => 'nullable|string',
+            'description' => 'nullable|string',
+            'icon' => 'nullable|string',
+            'image' => 'nullable|string',
+            'price_range' => 'nullable|string',
+            'features' => 'nullable|array',
+            'benefits' => 'nullable|array',
             'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
@@ -72,23 +73,27 @@ class PageController extends Controller
             'order' => 'integer',
         ]);
 
-        $page = Page::create($validated);
-        return response()->json($page, 201);
+        $service = Service::create($validated);
+        return response()->json($service, 201);
     }
 
-    public function show(Page $page)
+    public function show(Service $service)
     {
-        return response()->json($page);
+        return response()->json($service->load(['categories', 'tags']));
     }
 
-    public function update(Request $request, Page $page)
+    public function update(Request $request, Service $service)
     {
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
-            'slug' => 'sometimes|required|string|max:255|unique:pages,slug,' . $page->id,
-            'content' => 'nullable|string',
-            'page_type' => 'nullable|string',
-            'featured_image' => 'nullable|string',
+            'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
+            'short_description' => 'nullable|string',
+            'description' => 'nullable|string',
+            'icon' => 'nullable|string',
+            'image' => 'nullable|string',
+            'price_range' => 'nullable|string',
+            'features' => 'nullable|array',
+            'benefits' => 'nullable|array',
             'meta_title' => 'nullable|string',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string',
@@ -97,13 +102,13 @@ class PageController extends Controller
             'order' => 'integer',
         ]);
 
-        $page->update($validated);
-        return response()->json($page);
+        $service->update($validated);
+        return response()->json($service);
     }
 
-    public function destroy(Page $page)
+    public function destroy(Service $service)
     {
-        $page->delete();
-        return response()->json(['message' => 'Page deleted successfully']);
+        $service->delete();
+        return response()->json(['message' => 'Service deleted successfully']);
     }
 }

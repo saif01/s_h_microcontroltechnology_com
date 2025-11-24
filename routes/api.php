@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\LeadController;
-use App\Http\Controllers\Api\LoginLogController;
-use App\Http\Controllers\Api\PageController;
-use App\Http\Controllers\Api\PermissionController;
-use App\Http\Controllers\Api\ProductController;
-use App\Http\Controllers\Api\RoleController;
-use App\Http\Controllers\Api\ServiceController;
-use App\Http\Controllers\Api\SettingController;
-use App\Http\Controllers\Api\TagController;
-use App\Http\Controllers\Api\UploadController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\VisitorLogController;
+use App\Http\Controllers\Api\auth\AuthController;
+use App\Http\Controllers\Api\products\CategoryController;
+use App\Http\Controllers\Api\leads\LeadController;
+use App\Http\Controllers\Api\logs\LoginLogController;
+use App\Http\Controllers\Api\content\PageController;
+use App\Http\Controllers\Api\users\PermissionController;
+use App\Http\Controllers\Api\products\ProductController;
+use App\Http\Controllers\Api\users\RoleController;
+use App\Http\Controllers\Api\content\ServiceController;
+use App\Http\Controllers\Api\settings\SettingController;
+use App\Http\Controllers\Api\products\TagController;
+use App\Http\Controllers\Api\upload\UploadController;
+use App\Http\Controllers\Api\users\UserController;
+use App\Http\Controllers\Api\logs\VisitorLogController;
 use App\Http\Controllers\Public\ContactController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\PageController as PublicPageController;
