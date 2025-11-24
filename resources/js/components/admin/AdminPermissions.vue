@@ -68,7 +68,15 @@
 
         <!-- Permissions List -->
         <v-card>
-            <v-card-title>Permissions</v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
+                <span>Permissions</span>
+                <span class="text-caption text-grey">
+                    Total Records: <strong>{{ pagination.total || 0 }}</strong>
+                    <span v-if="permissions.length > 0 && viewMode === 'flat'">
+                        | Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, pagination.total) }} of {{ pagination.total }}
+                    </span>
+                </span>
+            </v-card-title>
             <v-card-text>
                 <!-- Grouped View -->
                 <div v-if="viewMode === 'grouped'">
@@ -195,9 +203,19 @@
                     </tbody>
                 </v-table>
 
-                <!-- Pagination (only for flat view) -->
-                <v-pagination v-if="viewMode === 'flat' && pagination.last_page > 1" v-model="currentPage"
-                    :length="pagination.last_page" @update:model-value="loadPermissions" class="mt-4"></v-pagination>
+                <!-- Pagination and Records Info (only for flat view) -->
+                <div v-if="viewMode === 'flat'" class="d-flex justify-space-between align-center mt-4">
+                    <div class="text-caption text-grey">
+                        <span v-if="permissions.length > 0">
+                            Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, pagination.total) }} of {{ pagination.total }} records
+                        </span>
+                        <span v-else>
+                            No records found
+                        </span>
+                    </div>
+                    <v-pagination v-if="pagination.last_page > 1" v-model="currentPage"
+                        :length="pagination.last_page" @update:model-value="loadPermissions"></v-pagination>
+                </div>
             </v-card-text>
         </v-card>
 

@@ -58,6 +58,19 @@
                     </v-card-text>
                 </v-card>
             </v-col>
+            <v-col cols="12" md="3">
+                <v-card>
+                    <v-card-text>
+                        <div class="d-flex align-center">
+                            <v-icon color="purple" size="40" class="mr-3">mdi-database</v-icon>
+                            <div>
+                                <div class="text-h6">{{ pagination.total || 0 }}</div>
+                                <div class="text-caption text-grey">Total Records</div>
+                            </div>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
         </v-row>
 
         <!-- Search and Filter -->
@@ -85,7 +98,15 @@
 
         <!-- Login Logs Table -->
         <v-card>
-            <v-card-title>Login Logs</v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
+                <span>Login Logs</span>
+                <span class="text-caption text-grey">
+                    Total Records: <strong>{{ pagination.total || 0 }}</strong>
+                    <span v-if="logs.length > 0">
+                        | Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, pagination.total) }} of {{ pagination.total }}
+                    </span>
+                </span>
+            </v-card-title>
             <v-card-text>
                 <v-table>
                     <thead>
@@ -160,9 +181,19 @@
                     </tbody>
                 </v-table>
 
-                <!-- Pagination -->
-                <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
-                    @update:model-value="loadLogs" class="mt-4"></v-pagination>
+                <!-- Pagination and Records Info -->
+                <div class="d-flex justify-space-between align-center mt-4">
+                    <div class="text-caption text-grey">
+                        <span v-if="logs.length > 0">
+                            Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, pagination.total) }} of {{ pagination.total }} records
+                        </span>
+                        <span v-else>
+                            No records found
+                        </span>
+                    </div>
+                    <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
+                        @update:model-value="loadLogs"></v-pagination>
+                </div>
             </v-card-text>
         </v-card>
 

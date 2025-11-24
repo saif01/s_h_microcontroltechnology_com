@@ -30,7 +30,15 @@
 
         <!-- Products Table -->
         <v-card>
-            <v-card-title>Products</v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
+                <span>Products</span>
+                <span class="text-caption text-grey">
+                    Total Records: <strong>{{ pagination.total || 0 }}</strong>
+                    <span v-if="products.length > 0">
+                        | Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, pagination.total) }} of {{ pagination.total }}
+                    </span>
+                </span>
+            </v-card-title>
             <v-card-text>
                 <v-table>
                     <thead>
@@ -87,9 +95,19 @@
                     </tbody>
                 </v-table>
 
-                <!-- Pagination -->
-                <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
-                    @update:model-value="loadProducts" class="mt-4"></v-pagination>
+                <!-- Pagination and Records Info -->
+                <div class="d-flex justify-space-between align-center mt-4">
+                    <div class="text-caption text-grey">
+                        <span v-if="products.length > 0">
+                            Showing {{ ((currentPage - 1) * perPage) + 1 }} to {{ Math.min(currentPage * perPage, pagination.total) }} of {{ pagination.total }} records
+                        </span>
+                        <span v-else>
+                            No records found
+                        </span>
+                    </div>
+                    <v-pagination v-if="pagination.last_page > 1" v-model="currentPage" :length="pagination.last_page"
+                        @update:model-value="loadProducts"></v-pagination>
+                </div>
             </v-card-text>
         </v-card>
     </div>
