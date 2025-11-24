@@ -18,7 +18,7 @@
                                     <span class="text-subtitle-2 font-weight-bold tracking-wide">POWERING YOUR
                                         SUCCESS</span>
                                 </div>
-                                <h1 class="text-h2 text-lg-h1 font-weight-black mb-6 lh-tight text-shadow-sm">
+                                <h1 class="text-h4 text-lg-h3 font-weight-black mb-6 lh-tight text-shadow-sm">
                                     {{ heroTitle }}
                                 </h1>
                                 <p class="text-h6 text-lg-h5 font-weight-light mb-8 opacity-90 mw-600 lh-relaxed">
@@ -378,6 +378,7 @@ export default {
                 { value: '24/7', label: 'Support' },
                 { value: '15+', label: 'Years Experience' }
             ],
+            homePageSettings: {},
             features: [
                 {
                     title: 'Uninterrupted Operations',
@@ -434,14 +435,39 @@ export default {
                 const response = await axios.get('/api/openapi/home');
                 const data = response.data;
 
+                // Store home page settings if available
+                if (data.homePageSettings) {
+                    this.homePageSettings = data.homePageSettings;
+                }
+
                 // Handle homePage data
                 if (data.homePage) {
-                    this.heroTitle = data.homePage.title || this.heroTitle;
+                    // Use settings if available, otherwise use page data
+                    this.heroTitle = this.homePageSettings.home_hero_title || data.homePage.title || this.heroTitle;
                     // Use content or short description from homePage, or keep default
-                    if (data.homePage.content) {
+                    const subtitle = this.homePageSettings.home_hero_subtitle || data.homePage.content;
+                    if (subtitle) {
                         // If content is HTML, extract text or use as is
-                        this.heroSubtitle = data.homePage.content.replace(/<[^>]*>/g, '').substring(0, 200) || this.heroSubtitle;
+                        this.heroSubtitle = subtitle.replace(/<[^>]*>/g, '').substring(0, 200) || this.heroSubtitle;
                     }
+                } else if (this.homePageSettings.home_hero_title) {
+                    // Use settings if no page exists
+                    this.heroTitle = this.homePageSettings.home_hero_title;
+                    this.heroSubtitle = this.homePageSettings.home_hero_subtitle || this.heroSubtitle;
+                }
+
+                // Update stats from settings if available
+                if (this.homePageSettings.stat_1_value && this.homePageSettings.stat_1_label) {
+                    this.stats[0] = { value: this.homePageSettings.stat_1_value, label: this.homePageSettings.stat_1_label };
+                }
+                if (this.homePageSettings.stat_2_value && this.homePageSettings.stat_2_label) {
+                    this.stats[1] = { value: this.homePageSettings.stat_2_value, label: this.homePageSettings.stat_2_label };
+                }
+                if (this.homePageSettings.stat_3_value && this.homePageSettings.stat_3_label) {
+                    this.stats[2] = { value: this.homePageSettings.stat_3_value, label: this.homePageSettings.stat_3_label };
+                }
+                if (this.homePageSettings.stat_4_value && this.homePageSettings.stat_4_label) {
+                    this.stats[3] = { value: this.homePageSettings.stat_4_value, label: this.homePageSettings.stat_4_label };
                 }
 
                 // Handle services - map API response to component format
