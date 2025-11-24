@@ -14,8 +14,8 @@ class ContactController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:255',
             'subject' => 'nullable|string|max:255',
             'message' => 'required|string',
             'type' => 'nullable|string|in:contact,quote',
@@ -24,8 +24,8 @@ class ContactController extends Controller
         $lead = Lead::create([
             'type' => $validated['type'] ?? 'contact',
             'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'phone' => $validated['phone'],
             'subject' => $validated['subject'] ?? null,
             'message' => $validated['message'],
             'status' => 'new',

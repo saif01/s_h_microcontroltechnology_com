@@ -92,6 +92,7 @@
                                         <v-text-field v-model="form.name" label="Your Name" variant="outlined"
                                             color="primary" bg-color="white" density="comfortable"
                                             class="form-field-modern" prepend-inner-icon="mdi-account-outline" required
+                                            placeholder="Enter your full name"
                                             :rules="[v => !!v || 'Name is required']">
                                             <template v-slot:label>
                                                 <span>Your Name <span class="text-red">*</span></span>
@@ -99,25 +100,38 @@
                                         </v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field v-model="form.email" label="Email Address" variant="outlined"
+                                        <v-text-field v-model="form.phone" label="Contact Number" variant="outlined"
                                             color="primary" bg-color="white" density="comfortable"
-                                            class="form-field-modern" prepend-inner-icon="mdi-email-outline" required
-                                            :rules="[v => !!v || 'Email is required', v => /.+@.+\..+/.test(v) || 'E-mail must be valid']">
+                                            class="form-field-modern" prepend-inner-icon="mdi-phone-outline" required
+                                            placeholder="01707080401 or +8801707080401"
+                                            :rules="[v => !!v || 'Contact number is required', v => this.validateBangladeshPhone(v) || 'Please enter a valid Bangladesh phone number (e.g., 01707080401 or +8801707080401)']">
                                             <template v-slot:label>
-                                                <span>Email Address <span class="text-red">*</span></span>
+                                                <span>Contact Number <span class="text-red">*</span></span>
                                             </template>
                                         </v-text-field>
                                     </v-col>
-                                    <v-col cols="12">
+                                    <v-col cols="12" md="6">
                                         <v-text-field v-model="form.subject" label="Subject" variant="outlined"
                                             color="primary" bg-color="white" density="comfortable"
-                                            class="form-field-modern" prepend-inner-icon="mdi-text-box-outline">
+                                            class="form-field-modern" prepend-inner-icon="mdi-text-box-outline"
+                                            placeholder="Enter message subject">
                                         </v-text-field>
                                     </v-col>
+                                    <v-col cols="12" md="6">
+                                        <v-text-field v-model="form.email" label="Email Address" variant="outlined"
+                                            color="primary" bg-color="white" density="comfortable"
+                                            class="form-field-modern" prepend-inner-icon="mdi-email-outline"
+                                            placeholder="your.email@example.com"
+                                            :rules="[v => !v || /.+@.+\..+/.test(v) || 'E-mail must be valid']">
+                                        </v-text-field>
+                                    </v-col>
+
+
                                     <v-col cols="12">
                                         <v-textarea v-model="form.message" label="Your Message" variant="outlined"
                                             color="primary" bg-color="white" rows="5" class="form-field-modern"
                                             prepend-inner-icon="mdi-message-outline" required
+                                            placeholder="Enter your message here..."
                                             :rules="[v => !!v || 'Message is required']">
                                             <template v-slot:label>
                                                 <span>Your Message <span class="text-red">*</span></span>
@@ -199,6 +213,7 @@ export default {
             form: {
                 name: '',
                 email: '',
+                phone: '',
                 subject: '',
                 message: ''
             }
@@ -247,6 +262,22 @@ export default {
         this.loadContactInfo();
     },
     methods: {
+        validateBangladeshPhone(phone) {
+            if (!phone) return false;
+
+            // Remove spaces, dashes, and other formatting characters
+            const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+
+            // Check for local format: 01707080401 (11 digits starting with 0)
+            // Pattern: 0 followed by 1, then 9 more digits (total 11 digits)
+            const localFormat = /^01[3-9]\d{8}$/;
+
+            // Check for international format: +8801707080401 (14 characters including +)
+            // Pattern: +880 followed by 1, then 9 more digits (total 14 characters)
+            const internationalFormat = /^\+8801[3-9]\d{8}$/;
+
+            return localFormat.test(cleaned) || internationalFormat.test(cleaned);
+        },
         formatPhoneNumber(phone) {
             if (!phone) return '+880 17 070-80401';
 
@@ -398,13 +429,14 @@ export default {
                 const response = await axios.post('/api/openapi/contact', {
                     name: this.form.name,
                     email: this.form.email,
+                    phone: this.form.phone,
                     subject: this.form.subject,
                     message: this.form.message,
                     type: 'contact'
                 });
 
                 // Reset form on success
-                this.form = { name: '', email: '', subject: '', message: '' };
+                this.form = { name: '', email: '', phone: '', subject: '', message: '' };
                 this.valid = false;
                 if (this.$refs.form) {
                     this.$refs.form.resetValidation();

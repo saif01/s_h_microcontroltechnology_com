@@ -56,40 +56,42 @@
     "src": "node_modules/@mdi/font/fonts/materialdesignicons-webfont.woff2"
   },
   "resources/js/app.js": {
-    "file": "assets/app-JEOr28RX.js",
+    "file": "assets/app-DEFCgX4U.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/components/public/PublicLayout.vue",
-      "resources/js/components/public/HomePage.vue",
-      "resources/js/components/public/AboutPage.vue",
-      "resources/js/components/public/ServicesPage.vue",
-      "resources/js/components/public/ServiceDetailPage.vue",
-      "resources/js/components/public/ProductsPage.vue",
-      "resources/js/components/public/ProductDetailPage.vue",
-      "resources/js/components/public/ContactPage.vue",
+      "resources/js/components/public/pages/HomePage.vue",
+      "resources/js/components/public/pages/AboutPage.vue",
+      "resources/js/components/public/services/ServicesPage.vue",
+      "resources/js/components/public/services/ServiceDetailPage.vue",
+      "resources/js/components/public/products/ProductsPage.vue",
+      "resources/js/components/public/products/ProductDetailPage.vue",
+      "resources/js/components/public/pages/ContactPage.vue",
       "resources/js/components/admin/AdminLayout.vue",
       "resources/js/components/admin/AdminDashboard.vue",
-      "resources/js/components/admin/AdminPages.vue",
-      "resources/js/components/admin/AdminServices.vue",
-      "resources/js/components/admin/AdminProducts.vue",
-      "resources/js/components/admin/AdminLeads.vue",
-      "resources/js/components/admin/AdminUsers.vue",
-      "resources/js/components/admin/AdminRoles.vue",
-      "resources/js/components/admin/AdminPermissions.vue",
-      "resources/js/components/admin/AdminSettings.vue",
-      "resources/js/components/admin/AdminLoginLogs.vue",
-      "resources/js/components/admin/AdminVisitorLogs.vue",
-      "resources/js/components/admin/AdminLogin.vue",
-      "resources/js/components/public/HomePage.vue"
+      "resources/js/components/admin/content/AdminPages.vue",
+      "resources/js/components/admin/content/AdminServices.vue",
+      "resources/js/components/admin/products/AdminProducts.vue",
+      "resources/js/components/admin/products/AdminCategories.vue",
+      "resources/js/components/admin/products/AdminTags.vue",
+      "resources/js/components/admin/leads/AdminLeads.vue",
+      "resources/js/components/admin/users/AdminUsers.vue",
+      "resources/js/components/admin/users/AdminRoles.vue",
+      "resources/js/components/admin/users/AdminPermissions.vue",
+      "resources/js/components/admin/settings/AdminSettings.vue",
+      "resources/js/components/admin/logs/AdminLoginLogs.vue",
+      "resources/js/components/admin/logs/AdminVisitorLogs.vue",
+      "resources/js/components/admin/auth/AdminLogin.vue",
+      "resources/js/components/public/pages/HomePage.vue"
     ],
     "css": [
       "assets/app-BCLan9k3.css"
     ]
   },
   "resources/js/components/admin/AdminDashboard.vue": {
-    "file": "assets/AdminDashboard-CWRL9AT3.js",
+    "file": "assets/AdminDashboard-DDZhsUKY.js",
     "name": "AdminDashboard",
     "src": "resources/js/components/admin/AdminDashboard.vue",
     "isDynamicEntry": true,
@@ -98,7 +100,7 @@
     ]
   },
   "resources/js/components/admin/AdminLayout.vue": {
-    "file": "assets/AdminLayout-D9i8vvWz.js",
+    "file": "assets/AdminLayout-B1Ka9RU0.js",
     "name": "AdminLayout",
     "src": "resources/js/components/admin/AdminLayout.vue",
     "isDynamicEntry": true,
@@ -107,127 +109,58 @@
       "_moment-C5S46NFB.js"
     ],
     "css": [
-      "assets/AdminLayout-DrBrvNPd.css"
+      "assets/AdminLayout-CiyYJccW.css"
     ]
   },
-  "resources/js/components/admin/AdminLeads.vue": {
-    "file": "assets/AdminLeads-V7-_NAlc.js",
-    "name": "AdminLeads",
-    "src": "resources/js/components/admin/AdminLeads.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js",
-      "_adminPaginationMixin-DN7Wb3ng.js"
-    ]
-  },
-  "resources/js/components/admin/AdminLogin.vue": {
-    "file": "assets/AdminLogin-0L9NJcNk.js",
+  "resources/js/components/admin/auth/AdminLogin.vue": {
+    "file": "assets/AdminLogin-CZwxiwWH.js",
     "name": "AdminLogin",
-    "src": "resources/js/components/admin/AdminLogin.vue",
+    "src": "resources/js/components/admin/auth/AdminLogin.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ],
     "css": [
-      "assets/AdminLogin-DwRsmqwr.css"
+      "assets/AdminLogin-WkbHrf6u.css"
     ]
   },
-  "resources/js/components/admin/AdminLoginLogs.vue": {
-    "file": "assets/AdminLoginLogs-C0Qc4RVt.js",
-    "name": "AdminLoginLogs",
-    "src": "resources/js/components/admin/AdminLoginLogs.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js",
-      "_adminPaginationMixin-DN7Wb3ng.js",
-      "_moment-C5S46NFB.js"
-    ],
-    "css": [
-      "assets/AdminLoginLogs-BFTxtyGa.css"
-    ]
-  },
-  "resources/js/components/admin/AdminPages.vue": {
-    "file": "assets/AdminPages-Co84bnG7.js",
+  "resources/js/components/admin/content/AdminPages.vue": {
+    "file": "assets/AdminPages-Tn0swJCt.js",
     "name": "AdminPages",
-    "src": "resources/js/components/admin/AdminPages.vue",
+    "src": "resources/js/components/admin/content/AdminPages.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
       "_adminPaginationMixin-DN7Wb3ng.js"
     ]
   },
-  "resources/js/components/admin/AdminPermissions.vue": {
-    "file": "assets/AdminPermissions-tWp1omWo.js",
-    "name": "AdminPermissions",
-    "src": "resources/js/components/admin/AdminPermissions.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js",
-      "_adminPaginationMixin-DN7Wb3ng.js"
-    ]
-  },
-  "resources/js/components/admin/AdminProducts.vue": {
-    "file": "assets/AdminProducts-BRFZ3Oy_.js",
-    "name": "AdminProducts",
-    "src": "resources/js/components/admin/AdminProducts.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js",
-      "_adminPaginationMixin-DN7Wb3ng.js"
-    ]
-  },
-  "resources/js/components/admin/AdminRoles.vue": {
-    "file": "assets/AdminRoles-CKamzPA_.js",
-    "name": "AdminRoles",
-    "src": "resources/js/components/admin/AdminRoles.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js",
-      "_adminPaginationMixin-DN7Wb3ng.js"
-    ],
-    "css": [
-      "assets/AdminRoles-B80i2R2C.css"
-    ]
-  },
-  "resources/js/components/admin/AdminServices.vue": {
-    "file": "assets/AdminServices-CzFGn2qE.js",
+  "resources/js/components/admin/content/AdminServices.vue": {
+    "file": "assets/AdminServices-nBB7sPgV.js",
     "name": "AdminServices",
-    "src": "resources/js/components/admin/AdminServices.vue",
+    "src": "resources/js/components/admin/content/AdminServices.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
       "_adminPaginationMixin-DN7Wb3ng.js"
     ]
   },
-  "resources/js/components/admin/AdminSettings.vue": {
-    "file": "assets/AdminSettings-DiyIp7Hy.js",
-    "name": "AdminSettings",
-    "src": "resources/js/components/admin/AdminSettings.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js"
-    ],
-    "css": [
-      "assets/AdminSettings-BwsCsOPO.css"
-    ]
-  },
-  "resources/js/components/admin/AdminUsers.vue": {
-    "file": "assets/AdminUsers-CCcnLfUG.js",
-    "name": "AdminUsers",
-    "src": "resources/js/components/admin/AdminUsers.vue",
+  "resources/js/components/admin/leads/AdminLeads.vue": {
+    "file": "assets/AdminLeads-ncNKSilG.js",
+    "name": "AdminLeads",
+    "src": "resources/js/components/admin/leads/AdminLeads.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
       "_adminPaginationMixin-DN7Wb3ng.js"
     ],
     "css": [
-      "assets/AdminUsers-CWhBKeVA.css"
+      "assets/AdminLeads-D4BhUnOe.css"
     ]
   },
-  "resources/js/components/admin/AdminVisitorLogs.vue": {
-    "file": "assets/AdminVisitorLogs-NTNkT019.js",
-    "name": "AdminVisitorLogs",
-    "src": "resources/js/components/admin/AdminVisitorLogs.vue",
+  "resources/js/components/admin/logs/AdminLoginLogs.vue": {
+    "file": "assets/AdminLoginLogs-DEwYTjkM.js",
+    "name": "AdminLoginLogs",
+    "src": "resources/js/components/admin/logs/AdminLoginLogs.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
@@ -235,71 +168,112 @@
       "_moment-C5S46NFB.js"
     ],
     "css": [
-      "assets/AdminVisitorLogs-BDegCTRw.css"
+      "assets/AdminLoginLogs-B-xvQcj5.css"
     ]
   },
-  "resources/js/components/public/AboutPage.vue": {
-    "file": "assets/AboutPage-CTAeVGQC.js",
-    "name": "AboutPage",
-    "src": "resources/js/components/public/AboutPage.vue",
+  "resources/js/components/admin/logs/AdminVisitorLogs.vue": {
+    "file": "assets/AdminVisitorLogs-CNdetuUD.js",
+    "name": "AdminVisitorLogs",
+    "src": "resources/js/components/admin/logs/AdminVisitorLogs.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js",
+      "_moment-C5S46NFB.js"
+    ],
+    "css": [
+      "assets/AdminVisitorLogs-D5_tcMRP.css"
+    ]
+  },
+  "resources/js/components/admin/products/AdminCategories.vue": {
+    "file": "assets/AdminCategories-DiR40GUU.js",
+    "name": "AdminCategories",
+    "src": "resources/js/components/admin/products/AdminCategories.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js"
+    ],
+    "css": [
+      "assets/AdminCategories-DuNmwWKW.css"
+    ]
+  },
+  "resources/js/components/admin/products/AdminProducts.vue": {
+    "file": "assets/AdminProducts-CeCZiHNv.js",
+    "name": "AdminProducts",
+    "src": "resources/js/components/admin/products/AdminProducts.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js"
+    ],
+    "css": [
+      "assets/AdminProducts-C2xKL2pF.css"
+    ]
+  },
+  "resources/js/components/admin/products/AdminTags.vue": {
+    "file": "assets/AdminTags-2aN-u5GB.js",
+    "name": "AdminTags",
+    "src": "resources/js/components/admin/products/AdminTags.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js"
+    ],
+    "css": [
+      "assets/AdminTags-_y4gIhja.css"
+    ]
+  },
+  "resources/js/components/admin/settings/AdminSettings.vue": {
+    "file": "assets/AdminSettings-bzaBAP9-.js",
+    "name": "AdminSettings",
+    "src": "resources/js/components/admin/settings/AdminSettings.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ],
     "css": [
-      "assets/AboutPage-B1-4xW34.css"
+      "assets/AdminSettings-spcPrXqA.css"
     ]
   },
-  "resources/js/components/public/ContactPage.vue": {
-    "file": "assets/ContactPage-BaS0KTO6.js",
-    "name": "ContactPage",
-    "src": "resources/js/components/public/ContactPage.vue",
+  "resources/js/components/admin/users/AdminPermissions.vue": {
+    "file": "assets/AdminPermissions-Cg1ILYLA.js",
+    "name": "AdminPermissions",
+    "src": "resources/js/components/admin/users/AdminPermissions.vue",
     "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.js"
-    ],
-    "css": [
-      "assets/ContactPage-VSNCyDbz.css"
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js"
     ]
   },
-  "resources/js/components/public/HomePage.vue": {
-    "file": "assets/HomePage-D9Q7G4j0.js",
-    "name": "HomePage",
-    "src": "resources/js/components/public/HomePage.vue",
+  "resources/js/components/admin/users/AdminRoles.vue": {
+    "file": "assets/AdminRoles-D69XHbcH.js",
+    "name": "AdminRoles",
+    "src": "resources/js/components/admin/users/AdminRoles.vue",
     "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js"
     ],
     "css": [
-      "assets/HomePage-D4wTHzDx.css"
+      "assets/AdminRoles-Chf0_TDq.css"
     ]
   },
-  "resources/js/components/public/ProductDetailPage.vue": {
-    "file": "assets/ProductDetailPage-8jnNkye3.js",
-    "name": "ProductDetailPage",
-    "src": "resources/js/components/public/ProductDetailPage.vue",
+  "resources/js/components/admin/users/AdminUsers.vue": {
+    "file": "assets/AdminUsers-DpK07fKd.js",
+    "name": "AdminUsers",
+    "src": "resources/js/components/admin/users/AdminUsers.vue",
     "isDynamicEntry": true,
     "imports": [
-      "resources/js/app.js"
+      "resources/js/app.js",
+      "_adminPaginationMixin-DN7Wb3ng.js"
     ],
     "css": [
-      "assets/ProductDetailPage-i41fzahP.css"
-    ]
-  },
-  "resources/js/components/public/ProductsPage.vue": {
-    "file": "assets/ProductsPage-D57_xjGR.js",
-    "name": "ProductsPage",
-    "src": "resources/js/components/public/ProductsPage.vue",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js"
-    ],
-    "css": [
-      "assets/ProductsPage-CYzLjMdq.css"
+      "assets/AdminUsers-Bl8wHGZQ.css"
     ]
   },
   "resources/js/components/public/PublicLayout.vue": {
-    "file": "assets/PublicLayout-CTQgZXuT.js",
+    "file": "assets/PublicLayout-CPkvjp1g.js",
     "name": "PublicLayout",
     "src": "resources/js/components/public/PublicLayout.vue",
     "isDynamicEntry": true,
@@ -307,35 +281,95 @@
       "resources/js/app.js"
     ],
     "css": [
-      "assets/PublicLayout-wyytUOKG.css"
+      "assets/PublicLayout-BONL6FbJ.css"
     ]
   },
-  "resources/js/components/public/ServiceDetailPage.vue": {
-    "file": "assets/ServiceDetailPage-w_rrBmS6.js",
+  "resources/js/components/public/pages/AboutPage.vue": {
+    "file": "assets/AboutPage-Bj8hatYM.js",
+    "name": "AboutPage",
+    "src": "resources/js/components/public/pages/AboutPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/AboutPage-D1ptCYa8.css"
+    ]
+  },
+  "resources/js/components/public/pages/ContactPage.vue": {
+    "file": "assets/ContactPage-pX-p_7wc.js",
+    "name": "ContactPage",
+    "src": "resources/js/components/public/pages/ContactPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/ContactPage-Dk3Add58.css"
+    ]
+  },
+  "resources/js/components/public/pages/HomePage.vue": {
+    "file": "assets/HomePage-DjyOt1u_.js",
+    "name": "HomePage",
+    "src": "resources/js/components/public/pages/HomePage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/HomePage-BWSllNpd.css"
+    ]
+  },
+  "resources/js/components/public/products/ProductDetailPage.vue": {
+    "file": "assets/ProductDetailPage-BagkqisF.js",
+    "name": "ProductDetailPage",
+    "src": "resources/js/components/public/products/ProductDetailPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/ProductDetailPage-vBrBxqoF.css"
+    ]
+  },
+  "resources/js/components/public/products/ProductsPage.vue": {
+    "file": "assets/ProductsPage-CucuiQ8V.js",
+    "name": "ProductsPage",
+    "src": "resources/js/components/public/products/ProductsPage.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "css": [
+      "assets/ProductsPage-DpUHpL16.css"
+    ]
+  },
+  "resources/js/components/public/services/ServiceDetailPage.vue": {
+    "file": "assets/ServiceDetailPage-CfaLgJcD.js",
     "name": "ServiceDetailPage",
-    "src": "resources/js/components/public/ServiceDetailPage.vue",
+    "src": "resources/js/components/public/services/ServiceDetailPage.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ],
     "css": [
-      "assets/ServiceDetailPage-D-13nP0I.css"
+      "assets/ServiceDetailPage-CdlbltI-.css"
     ]
   },
-  "resources/js/components/public/ServicesPage.vue": {
-    "file": "assets/ServicesPage-BLzcNZ9Q.js",
+  "resources/js/components/public/services/ServicesPage.vue": {
+    "file": "assets/ServicesPage-DaDV_ggu.js",
     "name": "ServicesPage",
-    "src": "resources/js/components/public/ServicesPage.vue",
+    "src": "resources/js/components/public/services/ServicesPage.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js"
     ],
     "css": [
-      "assets/ServicesPage-Bqw6pWaI.css"
+      "assets/ServicesPage-DucgHJRh.css"
     ]
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-DD79VI-8.css",
+    "file": "assets/app-CTZNPbaW.css",
     "src": "resources/sass/app.scss",
     "isEntry": true
   }
