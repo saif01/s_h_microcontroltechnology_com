@@ -91,15 +91,21 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field v-model="form.name" label="Your Name" variant="outlined"
                                             color="primary" bg-color="white" density="comfortable"
-                                            class="form-field-modern" prepend-inner-icon="mdi-account-outline"
+                                            class="form-field-modern" prepend-inner-icon="mdi-account-outline" required
                                             :rules="[v => !!v || 'Name is required']">
+                                            <template v-slot:label>
+                                                <span>Your Name <span class="text-red">*</span></span>
+                                            </template>
                                         </v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field v-model="form.email" label="Email Address" variant="outlined"
                                             color="primary" bg-color="white" density="comfortable"
-                                            class="form-field-modern" prepend-inner-icon="mdi-email-outline"
+                                            class="form-field-modern" prepend-inner-icon="mdi-email-outline" required
                                             :rules="[v => !!v || 'Email is required', v => /.+@.+\..+/.test(v) || 'E-mail must be valid']">
+                                            <template v-slot:label>
+                                                <span>Email Address <span class="text-red">*</span></span>
+                                            </template>
                                         </v-text-field>
                                     </v-col>
                                     <v-col cols="12">
@@ -111,13 +117,16 @@
                                     <v-col cols="12">
                                         <v-textarea v-model="form.message" label="Your Message" variant="outlined"
                                             color="primary" bg-color="white" rows="5" class="form-field-modern"
-                                            prepend-inner-icon="mdi-message-outline"
+                                            prepend-inner-icon="mdi-message-outline" required
                                             :rules="[v => !!v || 'Message is required']">
+                                            <template v-slot:label>
+                                                <span>Your Message <span class="text-red">*</span></span>
+                                            </template>
                                         </v-textarea>
                                     </v-col>
                                 </v-row>
                                 <v-btn type="submit" size="x-large" color="primary" rounded="pill"
-                                    class="mt-4 px-10 py-6 font-weight-bold text-h6 btn-modern elevation-8"
+                                    class="mt-4 px-10 py-6 font-weight-bold text-h6 btn-modern elevation-8 d-flex align-center justify-center"
                                     :loading="loading">
                                     <span>Send Message</span>
                                     <v-icon end icon="mdi-send" size="24" class="ml-2"></v-icon>
@@ -151,6 +160,17 @@
                 </div>
             </div>
         </v-snackbar>
+
+        <!-- Error Snackbar -->
+        <v-snackbar v-model="showError" :timeout="5000" color="error" location="top" class="error-snackbar">
+            <div class="d-flex align-center">
+                <v-icon icon="mdi-alert-circle" class="mr-3" size="24"></v-icon>
+                <div>
+                    <div class="font-weight-bold">Error Sending Message</div>
+                    <div class="text-caption">{{ errorMessage }}</div>
+                </div>
+            </div>
+        </v-snackbar>
     </div>
 </template>
 
@@ -164,6 +184,8 @@ export default {
             valid: false,
             loading: false,
             showSuccess: false,
+            showError: false,
+            errorMessage: '',
             defaultTitle: "Let's Start a Conversation",
             defaultSubtitle: "We're here to help and answer any questions you might have",
             contactInfo: {
@@ -364,22 +386,48 @@ export default {
             }
         },
         async submitForm() {
-            if (!this.valid) return;
+            // Validate form first
+            const { valid } = await this.$refs.form.validate();
+            if (!valid) {
+                return;
+            }
 
             this.loading = true;
             try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Submit form to API
+                const response = await axios.post('/api/openapi/contact', {
+                    name: this.form.name,
+                    email: this.form.email,
+                    subject: this.form.subject,
+                    message: this.form.message,
+                    type: 'contact'
+                });
 
-                // Reset form
+                // Reset form on success
                 this.form = { name: '', email: '', subject: '', message: '' };
-                this.$refs.form.resetValidation();
+                this.valid = false;
+                if (this.$refs.form) {
+                    this.$refs.form.resetValidation();
+                    this.$refs.form.reset();
+                }
 
                 // Show success message
                 this.showSuccess = true;
             } catch (error) {
                 console.error('Error submitting form:', error);
-                // You can add error handling here
+
+                // Show error message to user
+                if (error.response && error.response.data) {
+                    this.errorMessage = error.response.data.message || 'Failed to send message. Please try again.';
+                } else if (error.response && error.response.data && error.response.data.errors) {
+                    // Handle validation errors
+                    const errors = error.response.data.errors;
+                    const errorMessages = Object.values(errors).flat();
+                    this.errorMessage = errorMessages.join(', ') || 'Please check your form and try again.';
+                } else {
+                    this.errorMessage = 'An error occurred. Please try again later.';
+                }
+                this.showError = true;
             } finally {
                 this.loading = false;
             }
@@ -616,6 +664,11 @@ export default {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
 }
 
+.btn-modern :deep(.v-btn__content) {
+    justify-content: center !important;
+    align-items: center !important;
+}
+
 .btn-modern::before {
     content: '';
     position: absolute;
@@ -742,6 +795,19 @@ export default {
 }
 
 .success-snackbar :deep(.v-snackbar__content) {
+    padding: 20px 24px !important;
+}
+
+/* ============================================
+   ERROR SNACKBAR
+   ============================================ */
+
+.error-snackbar :deep(.v-snackbar__wrapper) {
+    border-radius: 12px !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.error-snackbar :deep(.v-snackbar__content) {
     padding: 20px 24px !important;
 }
 </style>
