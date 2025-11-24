@@ -74,73 +74,73 @@ const routes = [
             },
             {
                 path: 'pages',
-                component: () => import('./components/admin/AdminPages.vue'),
+                component: () => import('./components/admin/content/AdminPages.vue'),
                 name: 'AdminPages',
                 meta: { title: 'Pages Management' }
             },
             {
                 path: 'services',
-                component: () => import('./components/admin/AdminServices.vue'),
+                component: () => import('./components/admin/content/AdminServices.vue'),
                 name: 'AdminServices',
                 meta: { title: 'Services Management' }
             },
             {
                 path: 'products',
-                component: () => import('./components/admin/AdminProducts.vue'),
+                component: () => import('./components/admin/products/AdminProducts.vue'),
                 name: 'AdminProducts',
                 meta: { title: 'Products Management' }
             },
             {
                 path: 'categories',
-                component: () => import('./components/admin/AdminCategories.vue'),
+                component: () => import('./components/admin/products/AdminCategories.vue'),
                 name: 'AdminCategories',
                 meta: { title: 'Categories Management' }
             },
             {
                 path: 'tags',
-                component: () => import('./components/admin/AdminTags.vue'),
+                component: () => import('./components/admin/products/AdminTags.vue'),
                 name: 'AdminTags',
                 meta: { title: 'Tags Management' }
             },
             {
                 path: 'leads',
-                component: () => import('./components/admin/AdminLeads.vue'),
+                component: () => import('./components/admin/leads/AdminLeads.vue'),
                 name: 'AdminLeads',
                 meta: { title: 'Leads Management' }
             },
             {
                 path: 'users',
-                component: () => import('./components/admin/AdminUsers.vue'),
+                component: () => import('./components/admin/users/AdminUsers.vue'),
                 name: 'AdminUsers',
                 meta: { title: 'User Management' }
             },
             {
                 path: 'roles',
-                component: () => import('./components/admin/AdminRoles.vue'),
+                component: () => import('./components/admin/users/AdminRoles.vue'),
                 name: 'AdminRoles',
                 meta: { title: 'Role Management' }
             },
             {
                 path: 'permissions',
-                component: () => import('./components/admin/AdminPermissions.vue'),
+                component: () => import('./components/admin/users/AdminPermissions.vue'),
                 name: 'AdminPermissions',
                 meta: { title: 'Permission Management' }
             },
             {
                 path: 'settings',
-                component: () => import('./components/admin/AdminSettings.vue'),
+                component: () => import('./components/admin/settings/AdminSettings.vue'),
                 name: 'AdminSettings',
                 meta: { title: 'Settings' }
             },
             {
                 path: 'login-logs',
-                component: () => import('./components/admin/AdminLoginLogs.vue'),
+                component: () => import('./components/admin/logs/AdminLoginLogs.vue'),
                 name: 'AdminLoginLogs',
                 meta: { title: 'Login Logs Management' }
             },
             {
                 path: 'visitor-logs',
-                component: () => import('./components/admin/AdminVisitorLogs.vue'),
+                component: () => import('./components/admin/logs/AdminVisitorLogs.vue'),
                 name: 'AdminVisitorLogs',
                 meta: { title: 'Visitor Logs Management' }
             },
@@ -150,7 +150,7 @@ const routes = [
     // Admin Login
     {
         path: '/admin/login',
-        component: () => import('./components/admin/AdminLogin.vue'),
+        component: () => import('./components/admin/auth/AdminLogin.vue'),
         name: 'AdminLogin',
         meta: { title: 'Admin Login' }
     },

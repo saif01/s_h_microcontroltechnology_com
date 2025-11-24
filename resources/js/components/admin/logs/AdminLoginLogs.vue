@@ -260,7 +260,7 @@
 
 <script>
 import axios from 'axios';
-import adminPaginationMixin from '../../mixins/adminPaginationMixin';
+import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import moment from 'moment';
 
 export default {

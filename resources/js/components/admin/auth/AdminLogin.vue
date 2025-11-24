@@ -13,7 +13,8 @@
                     <v-card class="login-card glass-effect" elevation="24">
                         <v-row no-gutters>
                             <!-- Left Side: Welcome/Branding (Hidden on small screens) -->
-                            <v-col cols="12" md="6" class="d-none d-md-flex flex-column align-center justify-center branding-section pa-8">
+                            <v-col cols="12" md="6"
+                                class="d-none d-md-flex flex-column align-center justify-center branding-section pa-8">
                                 <div class="brand-logo mb-6">
                                     <v-img src="https://it.cpbangladesh.com/all-assets/common/logo/cpb/cpbit.png"
                                         alt="CPB-IT Logo" width="120" class="drop-shadow"></v-img>
@@ -31,47 +32,26 @@
                                         alt="CPB-IT Logo" width="80"></v-img>
                                 </div>
 
-                                <h3 class="text-h5 font-weight-bold text-primary mb-1 text-center text-md-left">Admin Login</h3>
-                                <p class="text-caption text-grey mb-8 text-center text-md-left">Please enter your credentials to continue</p>
+                                <h3 class="text-h5 font-weight-bold text-primary mb-1 text-center text-md-left">Admin
+                                    Login</h3>
+                                <p class="text-caption text-grey mb-8 text-center text-md-left">Please enter your
+                                    credentials to continue</p>
 
                                 <v-form @submit.prevent="handleLogin" ref="form">
-                                    <v-text-field
-                                        v-model="form.email"
-                                        label="Email Address"
-                                        placeholder="admin@example.com"
-                                        type="email"
-                                        variant="outlined"
-                                        color="primary"
-                                        prepend-inner-icon="mdi-email-outline"
-                                        :rules="[rules.required, rules.email]"
-                                        class="mb-2"
-                                        density="comfortable"
-                                    ></v-text-field>
+                                    <v-text-field v-model="form.email" label="Email Address"
+                                        placeholder="admin@example.com" type="email" variant="outlined" color="primary"
+                                        prepend-inner-icon="mdi-email-outline" :rules="[rules.required, rules.email]"
+                                        class="mb-2" density="comfortable"></v-text-field>
 
-                                    <v-text-field
-                                        v-model="form.password"
-                                        label="Password"
-                                        placeholder="••••••••"
-                                        :type="showPassword ? 'text' : 'password'"
-                                        variant="outlined"
-                                        color="primary"
+                                    <v-text-field v-model="form.password" label="Password" placeholder="••••••••"
+                                        :type="showPassword ? 'text' : 'password'" variant="outlined" color="primary"
                                         prepend-inner-icon="mdi-lock-outline"
                                         :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                                        @click:append-inner="showPassword = !showPassword"
-                                        :rules="[rules.required]"
-                                        class="mb-6"
-                                        density="comfortable"
-                                    ></v-text-field>
+                                        @click:append-inner="showPassword = !showPassword" :rules="[rules.required]"
+                                        class="mb-6" density="comfortable"></v-text-field>
 
-                                    <v-btn
-                                        type="submit"
-                                        color="primary"
-                                        block
-                                        size="large"
-                                        :loading="loading"
-                                        class="login-btn text-capitalize font-weight-bold mb-4"
-                                        elevation="4"
-                                    >
+                                    <v-btn type="submit" color="primary" block size="large" :loading="loading"
+                                        class="login-btn text-capitalize font-weight-bold mb-4" elevation="4">
                                         Sign In
                                         <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
                                     </v-btn>
@@ -92,7 +72,7 @@
 </template>
 
 <script>
-import { useAuthStore } from '../../stores/auth';
+import { useAuthStore } from '../../../stores/auth';
 import { mapActions } from 'pinia';
 
 export default {
@@ -130,7 +110,7 @@ export default {
                         message = Object.values(errors).flat().join(', ');
                     }
                 }
-                
+
                 // Use SweetAlert if available, otherwise use alert
                 if (window.Swal) {
                     window.Swal.fire({
@@ -198,10 +178,21 @@ export default {
 }
 
 @keyframes float {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    33% { transform: translate(30px, -50px) rotate(10deg); }
-    66% { transform: translate(-20px, 20px) rotate(-5deg); }
-    100% { transform: translate(0, 0) rotate(0deg); }
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    33% {
+        transform: translate(30px, -50px) rotate(10deg);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) rotate(-5deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
 }
 
 .login-card {
@@ -234,7 +225,7 @@ export default {
 }
 
 .drop-shadow {
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
 .form-section {
@@ -268,4 +259,3 @@ export default {
     font-size: 0.9rem;
 }
 </style>
-
