@@ -44,8 +44,17 @@
                 </v-list-group>
 
                 <!-- Leads Management - Requires 'view-leads' permission -->
-                <v-list-item link router prepend-icon="mdi-email" title="Leads" :to="{ name: 'AdminLeads' }"
-                    value="Leads" exact v-if="hasPermission('view-leads')"></v-list-item>
+                <v-list-item link router prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }" value="Leads" exact
+                    v-if="hasPermission('view-leads')" class="leads-menu-item">
+                    <template v-slot:title>
+                        <div class="d-flex align-center justify-space-between w-100">
+                            <span>Leads</span>
+                            <span v-if="unreadCount > 0" class="unread-badge">
+                                {{ unreadCount > 99 ? '99+' : unreadCount }}
+                            </span>
+                        </div>
+                    </template>
+                </v-list-item>
 
                 <!-- Users Management - Requires 'manage-users' permission -->
                 <v-list-item link router prepend-icon="mdi-account-group" title="Users" :to="{ name: 'AdminUsers' }"
@@ -100,15 +109,6 @@
             <v-chip prepend-icon="mdi-shield-account"
                 v-if="currentUser && (currentUser.role === 'admin' || (userRoles && userRoles.some(r => r.slug === 'administrator')))">Administrator</v-chip>
             <v-spacer></v-spacer>
-
-            <!-- Unread Messages Notification -->
-            <div class="d-flex align-center mr-4" v-if="hasPermission('view-leads')">
-                <v-badge :content="unreadCount" :model-value="unreadCount > 0" color="error" overlap>
-                    <v-btn icon="mdi-email" variant="text" :to="{ name: 'AdminLeads' }" class="mr-2">
-                        <v-icon>mdi-email</v-icon>
-                    </v-btn>
-                </v-badge>
-            </div>
 
             <div class="d-flex align-center mr-4" v-if="currentUser">
                 <v-menu open-on-hover>
@@ -434,6 +434,32 @@ export default {
         transform: translateY(-40px) translateX(-10px) rotate(270deg);
         opacity: 0.6;
     }
+}
+
+/* Unread badge in sidebar - Red background with white text */
+.leads-menu-item .unread-badge {
+    background-color: #f44336 !important;
+    color: white !important;
+    min-width: 22px !important;
+    height: 22px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 0 6px !important;
+    border-radius: 11px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 4px rgba(244, 67, 54, 0.4) !important;
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+    line-height: 22px !important;
+}
+
+.leads-menu-item :deep(.v-list-item-title) {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
 }
 
 :deep(.v-navigation-drawer) {
