@@ -11,7 +11,7 @@
                             <v-icon icon="mdi-cogs" color="amber-accent-4" size="small" class="mr-2"></v-icon>
                             <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">SERVICE DETAILS</span>
                         </div>
-                        <h1 class="text-h3 text-md-h2 font-weight-black text-white mb-6">{{ service.title }}</h1>
+                        <h1 class="text-h4 text-lg-h3 font-weight-black text-white mb-6 lh-tight text-shadow-sm">{{ service.title }}</h1>
                         <p class="text-h6 text-white opacity-80 mw-800 mx-auto font-weight-light">
                             {{ service.short_description }}
                         </p>
@@ -149,6 +149,8 @@ export default {
 }
 
 .lh-relaxed { line-height: 1.8; }
+.lh-tight { line-height: 1.2; }
 .mw-800 { max-width: 800px; }
+.text-shadow-sm { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
 .z-index-2 { z-index: 2; }
 </style>

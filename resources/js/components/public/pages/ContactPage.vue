@@ -12,7 +12,7 @@
                                 class="mr-2"></v-icon>
                             <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">GET IN TOUCH</span>
                         </div>
-                        <h1 class="text-h3 text-md-h2 font-weight-black text-white mb-6">
+                        <h1 class="text-h4 text-lg-h3 font-weight-black text-white mb-6 lh-tight text-shadow-sm">
                             {{ contactInfo.contact_hero_title || 'Contact Us' }}
                         </h1>
                         <p class="text-h6 text-white opacity-80 mw-600 mx-auto font-weight-light">
@@ -283,12 +283,20 @@ export default {
     max-width: 600px;
 }
 
+.lh-tight {
+    line-height: 1.2;
+}
+
 .tracking-wide {
     letter-spacing: 0.05em;
 }
 
 .tracking-widest {
     letter-spacing: 0.15em;
+}
+
+.text-shadow-sm {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .z-index-2 {

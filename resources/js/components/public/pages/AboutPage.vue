@@ -11,7 +11,7 @@
                             <v-icon icon="mdi-information-outline" color="amber-accent-4" size="small" class="mr-2"></v-icon>
                             <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">WHO WE ARE</span>
                         </div>
-                        <h1 class="text-h3 text-md-h2 font-weight-black text-white mb-6">Empowering Your World</h1>
+                        <h1 class="text-h4 text-lg-h3 font-weight-black text-white mb-6 lh-tight text-shadow-sm">Empowering Your World</h1>
                         <p class="text-h6 text-white opacity-80 mw-800 mx-auto font-weight-light">
                             We are dedicated to providing reliable, efficient, and sustainable power solutions for businesses and homes across the globe.
                         </p>
@@ -268,8 +268,10 @@ export default {
 .mw-600 { max-width: 600px; }
 .mw-800 { max-width: 800px; }
 .lh-relaxed { line-height: 1.6; }
+.lh-tight { line-height: 1.2; }
 .tracking-wide { letter-spacing: 0.05em; }
 .tracking-widest { letter-spacing: 0.15em; }
+.text-shadow-sm { text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
 .gap-8 { gap: 32px; }
 .gap-2 { gap: 8px; }
 .z-index-1 { z-index: 1; }
