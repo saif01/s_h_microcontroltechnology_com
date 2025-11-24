@@ -12,10 +12,13 @@ A comprehensive, generic business website platform built according to SRS specif
 - ✅ Module system (enable/disable features)
 - ✅ Admin authentication (Laravel Sanctum)
 - ✅ SEO support (meta tags, OG tags)
+- ✅ Role-based access control (RBAC)
+- ✅ User management with permissions
+- ✅ Login & Visitor logs tracking
 
 ### Optional Modules
-- ✅ Services catalog
-- ✅ Products catalog
+- ✅ Services catalog with categories
+- ✅ Products catalog with categories, tags, and specifications
 - ✅ Portfolio/Projects
 - ✅ Blog/News
 - ✅ FAQ
@@ -28,14 +31,36 @@ A comprehensive, generic business website platform built according to SRS specif
 ### Admin Panel
 - ✅ Dashboard with statistics
 - ✅ Content management (CRUD)
-- ✅ Leads management and export
+- ✅ Product management with:
+  - Multi-tab form (Basic Info, Media, Pricing, Categories & Tags, Specifications, Features, Downloads, FAQs, Warranty & Service, SEO, Settings)
+  - Image upload with preview
+  - File upload for downloads
+  - Category and Tag management
+  - Product details view
+- ✅ Category management (hierarchical)
+- ✅ Tag management
+- ✅ Leads management and export (CSV)
 - ✅ Settings management
-- ✅ Role-based access control
+- ✅ User, Role, and Permission management
+- ✅ Login logs and Visitor logs
+- ✅ Modern UI with Vuetify 3
 
 ### Public Website
-- ✅ Responsive design (Vuetify)
+- ✅ Responsive design (Vuetify 3)
 - ✅ Dynamic homepage
-- ✅ Services/Products display
+- ✅ Services/Products display with:
+  - Category filtering
+  - Search functionality
+  - Sorting options
+  - Product comparison tool (compare up to 3 products)
+- ✅ Product detail pages with:
+  - Hero section
+  - Product gallery with zoom
+  - Key features
+  - Technical specifications
+  - Downloadable datasheets
+  - Customer FAQs
+  - Warranty & service information
 - ✅ Contact forms
 - ✅ SEO optimized
 
@@ -118,17 +143,64 @@ All admin endpoints require authentication via Bearer token.
 - `POST /api/v1/auth/logout` - Logout
 - `GET /api/v1/auth/user` - Get current user
 
-**Resources (CRUD):**
+**Content Management:**
 - `GET /api/v1/pages` - List pages
 - `POST /api/v1/pages` - Create page
 - `GET /api/v1/pages/{id}` - Get page
 - `PUT /api/v1/pages/{id}` - Update page
 - `DELETE /api/v1/pages/{id}` - Delete page
 
-Similar endpoints for: `services`, `products`, `leads`, etc.
+Similar CRUD for: `services`, `products`, `categories`, `tags`, etc.
+
+**Product Management:**
+- `GET /api/v1/products` - List products (with pagination, filtering, sorting)
+- `POST /api/v1/products` - Create product
+- `GET /api/v1/products/{id}` - Get product (by ID or slug)
+- `PUT /api/v1/products/{id}` - Update product
+- `DELETE /api/v1/products/{id}` - Delete product
+
+**Category Management:**
+- `GET /api/v1/categories` - List categories (supports filtering by type, parent_id, published)
+- `POST /api/v1/categories` - Create category
+- `GET /api/v1/categories/{id}` - Get category
+- `PUT /api/v1/categories/{id}` - Update category
+- `DELETE /api/v1/categories/{id}` - Delete category
+
+**Tag Management:**
+- `GET /api/v1/tags` - List tags (supports filtering by type, search)
+- `POST /api/v1/tags` - Create tag
+- `GET /api/v1/tags/{id}` - Get tag (by ID or slug)
+- `PUT /api/v1/tags/{id}` - Update tag
+- `DELETE /api/v1/tags/{id}` - Delete tag
+
+**File Upload:**
+- `POST /api/v1/upload/image` - Upload single image
+- `POST /api/v1/upload/images` - Upload multiple images
+- `POST /api/v1/upload/file` - Upload file (PDF, DOC, ZIP, etc.)
+- `DELETE /api/v1/upload/image` - Delete image
 
 **Leads Export:**
 - `GET /api/v1/leads/export/csv` - Export leads to CSV
+
+**User Management:**
+- `GET /api/v1/users` - List users
+- `POST /api/v1/users` - Create user
+- `GET /api/v1/users/{id}` - Get user
+- `PUT /api/v1/users/{id}` - Update user
+- `DELETE /api/v1/users/{id}` - Delete user
+
+**Role & Permission Management:**
+- `GET /api/v1/roles` - List roles
+- `POST /api/v1/roles` - Create role
+- `PUT /api/v1/roles/{id}/permissions` - Sync role permissions
+- `GET /api/v1/permissions` - List permissions
+- `GET /api/v1/permissions/groups` - Get permission groups
+
+**Logs:**
+- `GET /api/v1/login-logs` - List login logs
+- `GET /api/v1/login-logs/statistics` - Get login statistics
+- `GET /api/v1/visitor-logs` - List visitor logs
+- `GET /api/v1/visitor-logs/statistics` - Get visitor statistics
 
 ### Public API (`/api/openapi/`)
 
@@ -138,6 +210,7 @@ Similar endpoints for: `services`, `products`, `leads`, etc.
 - `GET /api/openapi/services/{slug}` - Get service by slug
 - `GET /api/openapi/products` - List products (supports category filter, search, sorting)
 - `GET /api/openapi/products/{slug}` - Get product by slug (includes categories, tags, specifications, downloads)
+- `GET /api/openapi/categories` - List categories (supports type filter, pagination)
 - `GET /api/openapi/settings` - Get public settings
 - `POST /api/openapi/contact` - Submit contact form
 
@@ -174,27 +247,56 @@ UPDATE modules SET enabled = 1 WHERE name = 'services';
 app/
 ├── Http/
 │   ├── Controllers/
-│   │   ├── Api/          # Admin API controllers
-│   │   └── Public/       # Public website controllers
-│   └── Middleware/       # Authentication & authorization
-├── Models/               # Eloquent models
+│   │   ├── Api/              # Admin API controllers
+│   │   │   ├── auth/
+│   │   │   ├── content/
+│   │   │   ├── leads/
+│   │   │   ├── logs/
+│   │   │   ├── products/
+│   │   │   ├── settings/
+│   │   │   ├── upload/
+│   │   │   └── users/
+│   │   └── Public/            # Public website controllers
+│   │       ├── pages/
+│   │       ├── products/
+│   │       └── services/
+│   └── Middleware/            # Authentication & authorization
+├── Models/                    # Eloquent models
 
 database/
-├── migrations/           # Database migrations
-└── seeders/             # Database seeders
+├── migrations/               # Database migrations
+└── seeders/                  # Database seeders
 
 resources/
 ├── js/
 │   ├── components/
-│   │   ├── admin/       # Admin panel components
-│   │   └── public/      # Public website components
-│   └── routes.js        # Vue Router configuration
-└── views/
-    └── welcome.blade.php
+│   │   ├── admin/            # Admin panel components
+│   │   │   ├── auth/
+│   │   │   ├── content/
+│   │   │   ├── leads/
+│   │   │   ├── logs/
+│   │   │   ├── products/
+│   │   │   ├── settings/
+│   │   │   └── users/
+│   │   └── public/           # Public website components
+│   │       ├── pages/
+│   │       ├── products/
+│   │       └── services/
+│   ├── mixins/               # Vue mixins
+│   ├── plugins/              # Vue plugins (Vuetify, SweetAlert, ProgressBar)
+│   ├── routes.js             # Vue Router configuration
+│   └── utils/                # Utility functions
+└── sass/
+    └── app.scss              # Main stylesheet
 
 routes/
-├── api.php              # API routes
-└── web.php              # Web routes (includes public API)
+├── api.php                   # API routes
+└── web.php                   # Web routes (includes public API)
+
+public/
+└── uploads/                  # Uploaded files (images, documents)
+    ├── products/
+    └── ...
 ```
 
 ## 🔒 Security
@@ -204,7 +306,8 @@ routes/
 - CSRF protection
 - XSS protection
 - SQL injection protection (Eloquent ORM)
-- Role-based access control
+- Role-based access control (RBAC)
+- Permission-based route protection
 
 ## 📝 Notes
 
@@ -212,6 +315,8 @@ routes/
 - All core models and relationships are set up
 - Additional features can be added incrementally
 - The platform is designed to be modular and configurable
+- Product management includes comprehensive features for industrial/tech product websites
+- File uploads are stored in `public/uploads/{folder}/` for easy access
 
 ## 🛠️ Development
 
