@@ -183,6 +183,15 @@ export default {
         };
     },
     computed: {
+        formattedPhone() {
+            return this.formatPhoneNumber(this.contactInfo.contact_phone || '+8801707080401');
+        },
+        phoneHref() {
+            const phone = this.contactInfo.contact_phone || '+8801707080401';
+            // Clean phone for tel: link (keep only digits and +)
+            const cleaned = phone.replace(/[^\d+]/g, '');
+            return `tel:${cleaned}`;
+        },
         contactCards() {
             return [
                 {
@@ -190,8 +199,8 @@ export default {
                     iconClass: 'icon-blue',
                     title: 'Call Us',
                     subtitle: 'Available 24/7 for support',
-                    value: this.contactInfo.contact_phone || '+1 (234) 567-890',
-                    href: `tel:${this.contactInfo.contact_phone}`
+                    value: this.formattedPhone,
+                    href: this.phoneHref
                 },
                 {
                     icon: 'mdi-email-outline',
@@ -216,6 +225,130 @@ export default {
         this.loadContactInfo();
     },
     methods: {
+        formatPhoneNumber(phone) {
+            if (!phone) return '+880 17 070-80401';
+
+            // Remove all non-digit characters except +
+            let cleaned = phone.replace(/[^\d+]/g, '');
+
+            // If it starts with +, handle international format
+            if (cleaned.startsWith('+')) {
+                // For US/Canada numbers starting with +1
+                if (cleaned.startsWith('+1') && cleaned.length === 12) {
+                    const area = cleaned.substring(2, 5);
+                    const first = cleaned.substring(5, 8);
+                    const second = cleaned.substring(8, 12);
+                    return `+1 (${area}) ${first}-${second}`;
+                }
+
+                // For Bangladesh numbers starting with +880 (mobile format: +880 1X XXX-XXXXX)
+                if (cleaned.startsWith('+880') && cleaned.length === 14) {
+                    // Format: +880 17 070-80401
+                    const mobilePrefix = cleaned.substring(4, 6); // First 2 digits after country code (e.g., "17")
+                    const part1 = cleaned.substring(6, 9); // Next 3 digits (e.g., "070")
+                    const part2 = cleaned.substring(9, 14); // Last 5 digits (e.g., "80401")
+                    return `+880 ${mobilePrefix} ${part1}-${part2}`;
+                }
+
+                // For Bangladesh numbers starting with +880 (alternative format: +880 1XXX-XXXXXX)
+                if (cleaned.startsWith('+880') && cleaned.length === 13) {
+                    const mobilePrefix = cleaned.substring(4, 5); // First digit after country code
+                    const part1 = cleaned.substring(5, 8); // Next 3 digits
+                    const part2 = cleaned.substring(8, 13); // Last 5 digits
+                    return `+880 ${mobilePrefix} ${part1}-${part2}`;
+                }
+
+                // For other international numbers with 3-digit country codes
+                if (cleaned.length >= 13 && cleaned.startsWith('+880')) {
+                    // Bangladesh format: +880 1XXX-XXXXXX
+                    const mobile = cleaned.substring(4, 7); // First 3 digits after country code
+                    const part1 = cleaned.substring(7, 10); // Next 3 digits
+                    const part2 = cleaned.substring(10); // Remaining digits
+                    return `+880 ${mobile} ${part1}-${part2}`;
+                }
+
+                // For other international numbers, try to format intelligently
+                if (cleaned.length >= 11) {
+                    // Try to detect country code length (1-3 digits)
+                    let countryCode = '';
+                    let rest = '';
+
+                    // Common country codes
+                    if (cleaned.startsWith('+880')) {
+                        countryCode = '+880';
+                        rest = cleaned.substring(4);
+                    } else if (cleaned.startsWith('+44')) {
+                        countryCode = '+44';
+                        rest = cleaned.substring(3);
+                    } else if (cleaned.startsWith('+91')) {
+                        countryCode = '+91';
+                        rest = cleaned.substring(3);
+                    } else if (cleaned.startsWith('+86')) {
+                        countryCode = '+86';
+                        rest = cleaned.substring(3);
+                    } else if (cleaned.startsWith('+1')) {
+                        countryCode = '+1';
+                        rest = cleaned.substring(2);
+                    } else {
+                        // Try 2-digit country code
+                        countryCode = cleaned.substring(0, 3);
+                        rest = cleaned.substring(3);
+                    }
+
+                    // Format the rest based on length
+                    if (rest.length === 10) {
+                        // Standard 10-digit format: (XXX) XXX-XXXX
+                        const area = rest.substring(0, 3);
+                        const first = rest.substring(3, 6);
+                        const second = rest.substring(6, 10);
+                        return `${countryCode} (${area}) ${first}-${second}`;
+                    } else if (rest.length === 9) {
+                        // 9-digit format: XXX-XXX-XXX
+                        const part1 = rest.substring(0, 3);
+                        const part2 = rest.substring(3, 6);
+                        const part3 = rest.substring(6, 9);
+                        return `${countryCode} ${part1}-${part2}-${part3}`;
+                    } else if (rest.length === 11) {
+                        // 11-digit format: X XXX-XXX-XXXX
+                        const first = rest.substring(0, 1);
+                        const part1 = rest.substring(1, 4);
+                        const part2 = rest.substring(4, 7);
+                        const part3 = rest.substring(7, 11);
+                        return `${countryCode} ${first} ${part1}-${part2}-${part3}`;
+                    } else {
+                        // Group digits in chunks of 3-4
+                        let formatted = countryCode + ' ';
+                        for (let i = 0; i < rest.length; i += 3) {
+                            if (i > 0) formatted += '-';
+                            formatted += rest.substring(i, Math.min(i + 3, rest.length));
+                        }
+                        return formatted;
+                    }
+                }
+
+                // Return as is if can't format
+                return phone;
+            }
+
+            // Handle US format without country code
+            if (cleaned.length === 10) {
+                const area = cleaned.substring(0, 3);
+                const first = cleaned.substring(3, 6);
+                const second = cleaned.substring(6, 10);
+                return `(${area}) ${first}-${second}`;
+            }
+
+            // Handle US format with country code (11 digits starting with 1)
+            if (cleaned.length === 11 && cleaned.startsWith('1')) {
+                const area = cleaned.substring(1, 4);
+                const first = cleaned.substring(4, 7);
+                const second = cleaned.substring(7, 11);
+                return `+1 (${area}) ${first}-${second}`;
+            }
+
+            // If can't format, return original
+            return phone;
+        },
         async loadContactInfo() {
             try {
                 const response = await axios.get('/api/openapi/settings', {
