@@ -104,7 +104,14 @@ This is a comprehensive business website platform built according to the SRS doc
 - `users/AdminUsers.vue` - User management
 - `users/AdminRoles.vue` - Role management
 - `users/AdminPermissions.vue` - Permission management
-- `settings/AdminSettings.vue` - Settings management
+- `settings/AdminSettings.vue` - Settings management (main container)
+  - `settings/sections/GeneralSettings.vue` - General site settings
+  - `settings/sections/HomePageSettings.vue` - Home page settings with tabs
+  - `settings/sections/ContactPageSettings.vue` - Contact page settings
+  - `settings/sections/BrandingSettings.vue` - Branding settings
+  - `settings/sections/SocialSettings.vue` - Social media links
+  - `settings/sections/SEOSettings.vue` - SEO settings
+  - `settings/sections/EmailSettings.vue` - Email/SMTP settings
 - `logs/AdminLoginLogs.vue` - Login logs
 - `logs/AdminVisitorLogs.vue` - Visitor logs
 
@@ -256,6 +263,14 @@ npm run dev
 - Leads management and export
 - Role-based permissions system
 - User management
+- Settings management with modular section components:
+  - General settings (site name, tagline, contact info)
+  - Home page settings with tabs (hero, stats, visibility, trusted by, services, why choose us, testimonials, products, CTA)
+  - Contact page settings
+  - Branding settings (logo, favicon, colors)
+  - Social media links
+  - SEO settings
+  - Email/SMTP settings
 - Login and Visitor logs
 - Modern UI with gradient design
 - Progress bar for route navigation
@@ -280,6 +295,7 @@ npm run dev
 - Modular plugin system (Vuetify, ProgressBar, SweetAlert)
 - Utility functions for axios configuration
 - Organized component structure (admin and public folders organized by feature)
+- Component-based architecture with split settings sections for better maintainability
 - Mixins for shared functionality
 - Centralized CSS variables for theming
 - Responsive design with compact tables
@@ -335,7 +351,15 @@ resources/js/
     │   │   └── AdminPermissions.vue # Permission management
     │   │
     │   ├── settings/              # Settings
-    │   │   └── AdminSettings.vue # Settings management
+    │   │   ├── AdminSettings.vue # Settings management (main container)
+    │   │   └── sections/          # Settings section components
+    │   │       ├── GeneralSettings.vue      # General site settings
+    │   │       ├── HomePageSettings.vue     # Home page settings (with tabs)
+    │   │       ├── ContactPageSettings.vue   # Contact page settings
+    │   │       ├── BrandingSettings.vue     # Branding settings
+    │   │       ├── SocialSettings.vue        # Social media links
+    │   │       ├── SEOSettings.vue           # SEO settings
+    │   │       └── EmailSettings.vue        # Email/SMTP settings
     │   │
     │   └── logs/                   # Logs
     │       ├── AdminLoginLogs.vue # Login logs
