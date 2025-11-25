@@ -9,7 +9,7 @@
             </div>
 
             <v-list-item v-if="currentUser" class="user-profile-header"
-                :prepend-avatar="brandingLogo || currentUser.avatar || '/assets/logo/logo.png'"
+                :prepend-avatar="resolvedBrandingLogo || resolvedUserAvatar || '/assets/logo/logo.png'"
                 :title="siteName || 'Admin Panel'"
                 :subtitle="userRoles && userRoles.length > 0 ? userRoles.map(r => r.name).join(', ') : 'No roles assigned'">
             </v-list-item>
@@ -115,7 +115,7 @@
                 <v-menu open-on-hover>
                     <template v-slot:activator="{ props }">
                         <v-avatar v-bind="props" size="42" class="fill-image mr-2" :title="currentUser.name">
-                            <v-img cover v-if="currentUser.avatar" :src="currentUser.avatar" :alt="currentUser.name" />
+                            <v-img cover v-if="currentUser.avatar" :src="resolvedUserAvatar" :alt="currentUser.name" />
                             <v-img cover v-else src="/assets/logo/logo.png" alt="image" />
                         </v-avatar>
                     </template>
@@ -163,6 +163,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import { useAuthStore } from '../../stores/auth';
+import { resolveUploadUrl } from '../../utils/uploads';
 
 export default {
     data() {
@@ -175,9 +176,19 @@ export default {
             currentYear: new Date().getFullYear(), // Current year for copyright
             unreadCount: 0, // Count of unread leads/messages
             unreadCountInterval: null, // Interval for polling unread count
-            brandingLogo: null, // Logo from branding settings
+            brandingLogo: null, // Logo from branding settings (normalized path)
             siteName: null, // Site name from general settings
         };
+    },
+    computed: {
+        resolvedBrandingLogo() {
+            if (!this.brandingLogo) return null;
+            return this.resolveImageUrl(this.brandingLogo);
+        },
+        resolvedUserAvatar() {
+            if (!this.currentUser || !this.currentUser.avatar) return null;
+            return this.resolveImageUrl(this.currentUser.avatar);
+        }
     },
     methods: {
         /**
@@ -251,8 +262,9 @@ export default {
                     this.siteName = response.data.general.site_name.value;
                 }
 
-                // Extract logo from branding settings
+                // Extract logo from branding settings (store normalized path)
                 if (response.data.branding && response.data.branding.logo && response.data.branding.logo.value) {
+                    // Store the normalized path - it will be resolved in computed property
                     this.brandingLogo = response.data.branding.logo.value;
                 }
             } catch (error) {
@@ -352,6 +364,9 @@ export default {
                 clearInterval(this.unreadCountInterval);
                 this.unreadCountInterval = null;
             }
+        },
+        resolveImageUrl(imageValue) {
+            return resolveUploadUrl(imageValue);
         }
     },
     /**
