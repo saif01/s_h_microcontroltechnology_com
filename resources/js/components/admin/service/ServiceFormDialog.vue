@@ -32,10 +32,9 @@
                             <div class="pa-6">
                                 <v-row>
                                     <v-col cols="12">
-                                        <v-text-field v-model="form.title" label="Service Title *"
-                                            variant="outlined" :rules="[v => !!v || 'Title is required']"
-                                            hint="Enter the service title" @blur="generateSlug"
-                                            persistent-hint></v-text-field>
+                                        <v-text-field v-model="form.title" label="Service Title *" variant="outlined"
+                                            :rules="[v => !!v || 'Title is required']" hint="Enter the service title"
+                                            @blur="generateSlug" persistent-hint></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field v-model="form.slug" label="Slug *" variant="outlined"
@@ -68,9 +67,8 @@
                                         </v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field v-model="form.price_range" label="Price Range"
-                                            variant="outlined" hint="e.g., $100 - $500"
-                                            persistent-hint></v-text-field>
+                                        <v-text-field v-model="form.price_range" label="Price Range" variant="outlined"
+                                            hint="e.g., $100 - $500" persistent-hint></v-text-field>
                                     </v-col>
                                     <v-col cols="12">
                                         <v-switch v-model="form.published" label="Published" color="success"
@@ -110,9 +108,8 @@
                                                 <!-- Upload Section -->
                                                 <div class="flex-grow-1">
                                                     <v-file-input v-model="imageFile" accept="image/*"
-                                                        label="Select Service Image" variant="outlined"
-                                                        prepend-icon="" prepend-inner-icon="mdi-image" show-size
-                                                        clearable
+                                                        label="Select Service Image" variant="outlined" prepend-icon=""
+                                                        prepend-inner-icon="mdi-image" show-size clearable
                                                         hint="Recommended size: 1200x800px or larger. Max file size: 5MB"
                                                         persistent-hint @update:model-value="handleImageSelect">
                                                         <template v-slot:append>
@@ -122,9 +119,8 @@
                                                         </template>
                                                     </v-file-input>
 
-                                                    <v-alert v-if="imageFile && imageFile.size > 5242880"
-                                                        type="warning" variant="tonal" density="compact"
-                                                        class="mt-2">
+                                                    <v-alert v-if="imageFile && imageFile.size > 5242880" type="warning"
+                                                        variant="tonal" density="compact" class="mt-2">
                                                         File size is larger than 5MB. Please choose a smaller image.
                                                     </v-alert>
 
@@ -143,8 +139,8 @@
                                             hint="Enter one feature per line" persistent-hint
                                             @blur="updateFeaturesFromText"></v-textarea>
                                         <div v-if="form.features && form.features.length > 0" class="mt-2">
-                                            <v-chip v-for="(feature, i) in form.features" :key="i" class="ma-1"
-                                                closable @click:close="removeFeature(i)">
+                                            <v-chip v-for="(feature, i) in form.features" :key="i" class="ma-1" closable
+                                                @click:close="removeFeature(i)">
                                                 {{ feature }}
                                             </v-chip>
                                         </div>
@@ -155,9 +151,8 @@
                                             hint="Enter one benefit per line" persistent-hint
                                             @blur="updateBenefitsFromText"></v-textarea>
                                         <div v-if="form.benefits && form.benefits.length > 0" class="mt-2">
-                                            <v-chip v-for="(benefit, i) in form.benefits" :key="i" class="ma-1"
-                                                closable @click:close="removeBenefit(i)" color="success"
-                                                variant="flat">
+                                            <v-chip v-for="(benefit, i) in form.benefits" :key="i" class="ma-1" closable
+                                                @click:close="removeBenefit(i)" color="success" variant="flat">
                                                 {{ benefit }}
                                             </v-chip>
                                         </div>
@@ -181,8 +176,7 @@
 
                                 <v-row>
                                     <v-col cols="12">
-                                        <v-text-field v-model="form.meta_title" label="Meta Title"
-                                            variant="outlined"
+                                        <v-text-field v-model="form.meta_title" label="Meta Title" variant="outlined"
                                             hint="SEO title for search engines (recommended: 50-60 characters)"
                                             persistent-hint :counter="60" :color="getMetaTitleColor()"
                                             prepend-inner-icon="mdi-format-title">
@@ -193,6 +187,19 @@
                                                 </v-btn>
                                             </template>
                                         </v-text-field>
+                                        <!-- Suggestion for Meta Title -->
+                                        <v-alert v-if="!form.meta_title && suggestedMetaTitle" type="info"
+                                            variant="tonal" density="compact" class="mt-2" closable>
+                                            <div class="d-flex align-center justify-space-between">
+                                                <span class="text-body-2">
+                                                    <strong>Suggested:</strong> {{ suggestedMetaTitle }}
+                                                </span>
+                                                <v-btn size="small" color="primary" variant="text"
+                                                    @click="applySuggestedMetaTitle" class="ml-2">
+                                                    Apply
+                                                </v-btn>
+                                            </div>
+                                        </v-alert>
                                         <div class="text-caption" :class="getMetaTitleColor() + '--text'">
                                             {{ form.meta_title.length }}/60 characters
                                             <span v-if="form.meta_title.length < 50" class="ml-2">
@@ -213,12 +220,24 @@
                                             prepend-inner-icon="mdi-text">
                                             <template v-slot:append>
                                                 <v-btn icon="mdi-refresh" size="small" variant="text"
-                                                    @click="generateMetaDescription"
-                                                    :disabled="!form.short_description"
+                                                    @click="generateMetaDescription" :disabled="!form.short_description"
                                                     title="Auto-generate from short description">
                                                 </v-btn>
                                             </template>
                                         </v-textarea>
+                                        <!-- Suggestion for Meta Description -->
+                                        <v-alert v-if="!form.meta_description && suggestedMetaDescription" type="info"
+                                            variant="tonal" density="compact" class="mt-2" closable>
+                                            <div class="d-flex align-center justify-space-between flex-wrap">
+                                                <span class="text-body-2 mb-2">
+                                                    <strong>Suggested:</strong> {{ suggestedMetaDescription }}
+                                                </span>
+                                                <v-btn size="small" color="primary" variant="text"
+                                                    @click="applySuggestedMetaDescription">
+                                                    Apply
+                                                </v-btn>
+                                            </div>
+                                        </v-alert>
                                         <div class="text-caption" :class="getMetaDescriptionColor() + '--text'">
                                             {{ form.meta_description.length }}/160 characters
                                             <span v-if="form.meta_description.length < 120" class="ml-2">
@@ -236,7 +255,27 @@
                                             variant="outlined"
                                             hint="Comma-separated keywords for SEO (e.g., power backup, UPS systems, battery)"
                                             persistent-hint prepend-inner-icon="mdi-tag-multiple">
+                                            <template v-slot:append>
+                                                <v-btn icon="mdi-auto-fix" size="small" variant="text"
+                                                    @click="generateMetaKeywords"
+                                                    :disabled="!form.title && !form.short_description && form.features.length === 0"
+                                                    title="Auto-generate from title, description, and features">
+                                                </v-btn>
+                                            </template>
                                         </v-text-field>
+                                        <!-- Suggestion for Meta Keywords -->
+                                        <v-alert v-if="!form.meta_keywords && suggestedMetaKeywords" type="info"
+                                            variant="tonal" density="compact" class="mt-2" closable>
+                                            <div class="d-flex align-center justify-space-between flex-wrap">
+                                                <span class="text-body-2 mb-2">
+                                                    <strong>Suggested:</strong> {{ suggestedMetaKeywords }}
+                                                </span>
+                                                <v-btn size="small" color="primary" variant="text"
+                                                    @click="applySuggestedMetaKeywords">
+                                                    Apply
+                                                </v-btn>
+                                            </div>
+                                        </v-alert>
                                         <div class="text-caption text-medium-emphasis">
                                             {{(form.meta_keywords || '').split(',').filter(k => k.trim()).length}}
                                             keywords entered
@@ -281,15 +320,14 @@
                                                         hint="Recommended size: 1200x630px. Max file size: 5MB"
                                                         persistent-hint @update:model-value="handleOgImageSelect">
                                                         <template v-slot:append>
-                                                            <v-progress-circular v-if="uploadingOgImage"
-                                                                indeterminate color="primary" size="24">
+                                                            <v-progress-circular v-if="uploadingOgImage" indeterminate
+                                                                color="primary" size="24">
                                                             </v-progress-circular>
                                                         </template>
                                                     </v-file-input>
 
                                                     <v-alert v-if="ogImageFile && ogImageFile.size > 5242880"
-                                                        type="warning" variant="tonal" density="compact"
-                                                        class="mt-2">
+                                                        type="warning" variant="tonal" density="compact" class="mt-2">
                                                         File size is larger than 5MB. Please choose a smaller image.
                                                     </v-alert>
 
@@ -405,6 +443,31 @@ export default {
             set(value) {
                 this.$emit('update:modelValue', value);
             }
+        },
+        suggestedMetaTitle() {
+            if (this.form.meta_title || !this.form.title) return null;
+            return this.form.title.length > 60
+                ? this.form.title.substring(0, 57) + '...'
+                : this.form.title;
+        },
+        suggestedMetaDescription() {
+            if (this.form.meta_description || !this.form.short_description) return null;
+            let suggestion = this.form.short_description;
+            if (suggestion.length > 160) {
+                // Try to cut at a word boundary
+                suggestion = suggestion.substring(0, 157);
+                const lastSpace = suggestion.lastIndexOf(' ');
+                if (lastSpace > 120) {
+                    suggestion = suggestion.substring(0, lastSpace) + '...';
+                } else {
+                    suggestion += '...';
+                }
+            }
+            return suggestion;
+        },
+        suggestedMetaKeywords() {
+            if (this.form.meta_keywords) return null;
+            return this.generateSuggestedKeywords();
         }
     },
     watch: {
@@ -701,9 +764,89 @@ export default {
         },
         generateMetaDescription() {
             if (this.form.short_description) {
-                this.form.meta_description = this.form.short_description.length > 160
-                    ? this.form.short_description.substring(0, 157) + '...'
-                    : this.form.short_description;
+                let description = this.form.short_description;
+                if (description.length > 160) {
+                    // Try to cut at a word boundary
+                    description = description.substring(0, 157);
+                    const lastSpace = description.lastIndexOf(' ');
+                    if (lastSpace > 120) {
+                        description = description.substring(0, lastSpace) + '...';
+                    } else {
+                        description += '...';
+                    }
+                }
+                this.form.meta_description = description;
+            }
+        },
+        generateMetaKeywords() {
+            const keywords = this.generateSuggestedKeywords();
+            if (keywords) {
+                this.form.meta_keywords = keywords;
+            }
+        },
+        generateSuggestedKeywords() {
+            const keywords = [];
+
+            // Extract keywords from title
+            if (this.form.title) {
+                const titleWords = this.form.title
+                    .toLowerCase()
+                    .replace(/[^\w\s]/g, ' ')
+                    .split(/\s+/)
+                    .filter(word => word.length > 3)
+                    .slice(0, 5);
+                keywords.push(...titleWords);
+            }
+
+            // Extract keywords from short description
+            if (this.form.short_description) {
+                const descWords = this.form.short_description
+                    .toLowerCase()
+                    .replace(/[^\w\s]/g, ' ')
+                    .split(/\s+/)
+                    .filter(word => word.length > 4)
+                    .slice(0, 5);
+                keywords.push(...descWords);
+            }
+
+            // Add features as keywords
+            if (this.form.features && this.form.features.length > 0) {
+                this.form.features.forEach(feature => {
+                    const featureWords = feature
+                        .toLowerCase()
+                        .replace(/[^\w\s]/g, ' ')
+                        .split(/\s+/)
+                        .filter(word => word.length > 3)
+                        .slice(0, 2);
+                    keywords.push(...featureWords);
+                });
+            }
+
+            // Remove duplicates and common words
+            const commonWords = ['the', 'and', 'for', 'with', 'from', 'this', 'that', 'your', 'our', 'service', 'services'];
+            const uniqueKeywords = [...new Set(keywords)]
+                .filter(word => !commonWords.includes(word))
+                .slice(0, 10);
+
+            return uniqueKeywords.length > 0 ? uniqueKeywords.join(', ') : null;
+        },
+        suggestMetaFields() {
+            // This method is called when basic info changes to suggest meta fields
+            // It's called asynchronously via watchers
+        },
+        applySuggestedMetaTitle() {
+            if (this.suggestedMetaTitle) {
+                this.form.meta_title = this.suggestedMetaTitle;
+            }
+        },
+        applySuggestedMetaDescription() {
+            if (this.suggestedMetaDescription) {
+                this.form.meta_description = this.suggestedMetaDescription;
+            }
+        },
+        applySuggestedMetaKeywords() {
+            if (this.suggestedMetaKeywords) {
+                this.form.meta_keywords = this.suggestedMetaKeywords;
             }
         },
         getMetaTitleColor() {
@@ -994,4 +1137,3 @@ export default {
     word-wrap: break-word;
 }
 </style>
-
