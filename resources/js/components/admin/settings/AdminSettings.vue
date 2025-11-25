@@ -288,11 +288,81 @@
                                                         persistent-hint></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12">
-                                                    <v-textarea v-model="settings.home_page.trusted_by_clients.value"
-                                                        label="Client Logos (JSON)" variant="outlined"
-                                                        density="comfortable" color="primary"
-                                                        hint='Format: [{"logo": "url1"}, {"logo": "url2"}]'
-                                                        persistent-hint rows="4" auto-grow></v-textarea>
+                                                    <v-divider class="my-4"></v-divider>
+                                                    <div class="d-flex justify-space-between align-center mb-4">
+                                                        <div class="text-subtitle-1 font-weight-bold">Client Logos</div>
+                                                        <v-btn color="primary" prepend-icon="mdi-plus"
+                                                            @click="addTrustedByClient" size="small">
+                                                            Add Client Logo
+                                                        </v-btn>
+                                                    </div>
+                                                    <div v-if="trustedByClients.length === 0"
+                                                        class="text-center py-8 text-medium-emphasis">
+                                                        No client logos added. Click "Add Client Logo" to get started.
+                                                    </div>
+                                                    <v-row>
+                                                        <v-col v-for="(client, index) in trustedByClients" :key="index"
+                                                            cols="12" md="6" lg="4">
+                                                            <v-card variant="outlined" class="h-100">
+                                                                <v-card-text>
+                                                                    <div
+                                                                        class="d-flex justify-space-between align-start mb-3">
+                                                                        <div class="text-subtitle-2 font-weight-bold">
+                                                                            Client {{
+                                                                                index + 1 }}</div>
+                                                                        <v-btn icon="mdi-delete" variant="text"
+                                                                            color="error" size="small"
+                                                                            @click="removeTrustedByClient(index)"></v-btn>
+                                                                    </div>
+
+                                                                    <!-- Logo Preview -->
+                                                                    <div v-if="client.logo" class="mb-3 text-center">
+                                                                        <v-img :src="client.logo" max-height="120"
+                                                                            max-width="200" class="mx-auto mb-2"
+                                                                            contain>
+                                                                            <template v-slot:placeholder>
+                                                                                <div
+                                                                                    class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
+                                                                                    <v-progress-circular indeterminate
+                                                                                        color="primary"></v-progress-circular>
+                                                                                </div>
+                                                                            </template>
+                                                                        </v-img>
+                                                                    </div>
+
+                                                                    <!-- File Upload -->
+                                                                    <v-file-input v-model="client.file"
+                                                                        label="Upload Logo" variant="outlined"
+                                                                        density="comfortable" color="primary"
+                                                                        accept="image/*" prepend-icon="mdi-image"
+                                                                        hint="Upload a logo image (JPG, PNG, GIF, WebP - Max 5MB)"
+                                                                        persistent-hint show-size
+                                                                        @update:model-value="handleClientLogoChange(index)">
+                                                                        <template v-slot:append-inner
+                                                                            v-if="client.uploading">
+                                                                            <v-progress-circular indeterminate size="20"
+                                                                                color="primary"></v-progress-circular>
+                                                                        </template>
+                                                                    </v-file-input>
+
+                                                                    <!-- Or Enter URL -->
+                                                                    <v-text-field v-model="client.logo"
+                                                                        label="Or Enter Logo URL" variant="outlined"
+                                                                        density="comfortable" color="primary"
+                                                                        hint="Enter a direct URL to the logo image"
+                                                                        persistent-hint prepend-inner-icon="mdi-link"
+                                                                        @input="updateTrustedByClients">
+                                                                        <template v-slot:append-inner
+                                                                            v-if="client.logo && !client.file">
+                                                                            <v-btn icon="mdi-open-in-new" variant="text"
+                                                                                size="small"
+                                                                                @click="window.open(client.logo, '_blank')"></v-btn>
+                                                                        </template>
+                                                                    </v-text-field>
+                                                                </v-card-text>
+                                                            </v-card>
+                                                        </v-col>
+                                                    </v-row>
                                                 </v-col>
                                             </v-row>
                                         </v-window-item>
@@ -353,12 +423,64 @@
                                                         persistent-hint></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12">
-                                                    <v-textarea
-                                                        v-model="settings.home_page.why_choose_us_features.value"
-                                                        label="Features (JSON)" variant="outlined" density="comfortable"
-                                                        color="primary"
-                                                        hint='Format: [{"title": "...", "desc": "...", "icon": "..."}]'
-                                                        persistent-hint rows="6" auto-grow></v-textarea>
+                                                    <v-divider class="my-4"></v-divider>
+                                                    <div class="d-flex justify-space-between align-center mb-4">
+                                                        <div class="text-subtitle-1 font-weight-bold">Features</div>
+                                                        <v-btn color="primary" prepend-icon="mdi-plus"
+                                                            @click="addWhyChooseUsFeature" size="small">
+                                                            Add Feature
+                                                        </v-btn>
+                                                    </div>
+                                                    <div v-if="whyChooseUsFeatures.length === 0"
+                                                        class="text-center py-8 text-medium-emphasis">
+                                                        No features added. Click "Add Feature" to get started.
+                                                    </div>
+                                                    <v-card v-for="(feature, index) in whyChooseUsFeatures" :key="index"
+                                                        class="mb-4" variant="outlined">
+                                                        <v-card-text>
+                                                            <div class="d-flex justify-space-between align-start mb-2">
+                                                                <div class="text-subtitle-2 font-weight-bold">Feature {{
+                                                                    index + 1
+                                                                }}</div>
+                                                                <v-btn icon="mdi-delete" variant="text" color="error"
+                                                                    size="small"
+                                                                    @click="removeWhyChooseUsFeature(index)"></v-btn>
+                                                            </div>
+                                                            <v-row>
+                                                                <v-col cols="12" md="6">
+                                                                    <v-text-field v-model="feature.title" label="Title"
+                                                                        variant="outlined" density="comfortable"
+                                                                        color="primary"
+                                                                        hint="e.g., Uninterrupted Operations"
+                                                                        persistent-hint
+                                                                        @input="updateWhyChooseUsFeatures"></v-text-field>
+                                                                </v-col>
+                                                                <v-col cols="12" md="6">
+                                                                    <v-text-field v-model="feature.icon"
+                                                                        label="Icon (Material Design)"
+                                                                        variant="outlined" density="comfortable"
+                                                                        color="primary"
+                                                                        hint="e.g., mdi-lightning-bolt-circle"
+                                                                        persistent-hint
+                                                                        prepend-inner-icon="mdi-information"
+                                                                        @input="updateWhyChooseUsFeatures">
+                                                                        <template v-slot:append-inner
+                                                                            v-if="feature.icon">
+                                                                            <v-icon :icon="feature.icon"
+                                                                                size="small"></v-icon>
+                                                                        </template>
+                                                                    </v-text-field>
+                                                                </v-col>
+                                                                <v-col cols="12">
+                                                                    <v-textarea v-model="feature.desc"
+                                                                        label="Description" variant="outlined"
+                                                                        density="comfortable" color="primary"
+                                                                        persistent-hint rows="2" auto-grow
+                                                                        @input="updateWhyChooseUsFeatures"></v-textarea>
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-card-text>
+                                                    </v-card>
                                                 </v-col>
                                             </v-row>
                                         </v-window-item>
@@ -749,6 +871,8 @@ export default {
         return {
             activeTab: 'general',
             homePageTab: 'hero',
+            whyChooseUsFeatures: [],
+            trustedByClients: [],
             settings: {
                 home_page: {
                     home_hero_title: { value: 'Uninterrupted Power for Your Business & Home', type: 'text', group: 'home_page' },
@@ -886,6 +1010,10 @@ export default {
                         });
                     }
                 });
+
+                // Initialize dynamic data after settings are loaded
+                this.initializeWhyChooseUsFeatures();
+                this.initializeTrustedByClients();
             } catch (error) {
                 console.error('Error loading settings:', error);
                 this.showError('Failed to load settings');
@@ -943,6 +1071,143 @@ export default {
             } else {
                 alert(message);
             }
+        },
+        initializeWhyChooseUsFeatures() {
+            const featuresJson = this.settings.home_page.why_choose_us_features.value;
+            if (featuresJson) {
+                try {
+                    const parsed = typeof featuresJson === 'string' ? JSON.parse(featuresJson) : featuresJson;
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        this.whyChooseUsFeatures = parsed;
+                    } else {
+                        this.whyChooseUsFeatures = this.getDefaultFeatures();
+                    }
+                } catch (e) {
+                    console.warn('Error parsing features:', e);
+                    this.whyChooseUsFeatures = this.getDefaultFeatures();
+                }
+            } else {
+                this.whyChooseUsFeatures = this.getDefaultFeatures();
+            }
+        },
+        getDefaultFeatures() {
+            return [
+                {
+                    title: 'Uninterrupted Operations',
+                    desc: 'We ensure your business never stops with our reliable backup power solutions and UPS systems.',
+                    icon: 'mdi-lightning-bolt-circle'
+                },
+                {
+                    title: 'High-Quality Products',
+                    desc: 'We supply top-tier batteries, inverters, and power management systems built for long-term performance.',
+                    icon: 'mdi-shield-star'
+                },
+                {
+                    title: 'Responsive Support',
+                    desc: 'Our professional maintenance team is available 24/7 to handle installation and repairs.',
+                    icon: 'mdi-headset'
+                }
+            ];
+        },
+        addWhyChooseUsFeature() {
+            this.whyChooseUsFeatures.push({
+                title: '',
+                desc: '',
+                icon: 'mdi-star'
+            });
+            this.updateWhyChooseUsFeatures();
+        },
+        removeWhyChooseUsFeature(index) {
+            this.whyChooseUsFeatures.splice(index, 1);
+            this.updateWhyChooseUsFeatures();
+        },
+        updateWhyChooseUsFeatures() {
+            // Update the JSON string in settings
+            this.settings.home_page.why_choose_us_features.value = JSON.stringify(this.whyChooseUsFeatures);
+        },
+        initializeTrustedByClients() {
+            const clientsJson = this.settings.home_page.trusted_by_clients.value;
+            if (clientsJson) {
+                try {
+                    const parsed = typeof clientsJson === 'string' ? JSON.parse(clientsJson) : clientsJson;
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        this.trustedByClients = parsed.map(client => ({
+                            logo: client.logo || '',
+                            file: null,
+                            uploading: false
+                        }));
+                    } else {
+                        this.trustedByClients = [];
+                    }
+                } catch (e) {
+                    console.warn('Error parsing trusted_by_clients:', e);
+                    this.trustedByClients = [];
+                }
+            } else {
+                this.trustedByClients = [];
+            }
+        },
+        addTrustedByClient() {
+            this.trustedByClients.push({
+                logo: '',
+                file: null,
+                uploading: false
+            });
+        },
+        removeTrustedByClient(index) {
+            this.trustedByClients.splice(index, 1);
+            this.updateTrustedByClients();
+        },
+        async handleClientLogoChange(index) {
+            const client = this.trustedByClients[index];
+            if (!client.file) {
+                this.updateTrustedByClients();
+                return;
+            }
+
+            // Handle file array (v-file-input can return array)
+            const fileToUpload = Array.isArray(client.file) ? client.file[0] : client.file;
+            if (!fileToUpload) {
+                this.updateTrustedByClients();
+                return;
+            }
+
+            client.uploading = true;
+            try {
+                const formData = new FormData();
+                formData.append('image', fileToUpload);
+                formData.append('folder', 'clients');
+
+                const token = localStorage.getItem('admin_token');
+                const response = await axios.post('/api/v1/upload/image', formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.success) {
+                    client.logo = response.data.url;
+                    client.file = null; // Clear file input after successful upload
+                    this.updateTrustedByClients();
+                    this.showSuccess('Logo uploaded successfully');
+                } else {
+                    throw new Error(response.data.message || 'Failed to upload logo');
+                }
+            } catch (error) {
+                console.error('Error uploading logo:', error);
+                this.showError(error.response?.data?.message || error.message || 'Failed to upload logo');
+                client.file = null; // Clear file input on error
+            } finally {
+                client.uploading = false;
+            }
+        },
+        updateTrustedByClients() {
+            // Update the JSON string in settings (only include logo URLs, not file objects)
+            const clientsData = this.trustedByClients.map(client => ({
+                logo: client.logo || ''
+            })).filter(client => client.logo); // Remove empty entries
+            this.settings.home_page.trusted_by_clients.value = JSON.stringify(clientsData);
         }
     }
 };
