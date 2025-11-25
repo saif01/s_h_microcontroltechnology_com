@@ -77,13 +77,18 @@ class ServiceController extends Controller
         return response()->json($service, 201);
     }
 
-    public function show(Service $service)
+    public function show($id)
     {
+        // Support both id and slug for route model binding
+        $service = Service::where('id', $id)->orWhere('slug', $id)->firstOrFail();
         return response()->json($service->load(['categories', 'tags']));
     }
 
-    public function update(Request $request, Service $service)
+    public function update(Request $request, $id)
     {
+        // Support both id and slug for route model binding
+        $service = Service::where('id', $id)->orWhere('slug', $id)->firstOrFail();
+        
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'slug' => 'sometimes|required|string|max:255|unique:services,slug,' . $service->id,
@@ -106,8 +111,10 @@ class ServiceController extends Controller
         return response()->json($service);
     }
 
-    public function destroy(Service $service)
+    public function destroy($id)
     {
+        // Support both id and slug for route model binding
+        $service = Service::where('id', $id)->orWhere('slug', $id)->firstOrFail();
         $service->delete();
         return response()->json(['message' => 'Service deleted successfully']);
     }
