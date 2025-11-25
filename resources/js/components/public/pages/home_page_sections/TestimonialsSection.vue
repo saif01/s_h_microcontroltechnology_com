@@ -9,7 +9,7 @@
             <div class="text-center mb-16">
                 <div class="glass-pill-sm d-inline-flex align-center px-4 py-1 rounded-pill mb-4">
                     <span class="text-caption font-weight-bold text-white tracking-widest">{{ overline || 'TESTIMONIALS'
-                    }}</span>
+                        }}</span>
                 </div>
                 <h2 class="text-h3 font-weight-bold mb-6 text-white">{{ title || 'Client Success Stories' }}</h2>
                 <p class="text-h6 text-white opacity-70 mx-auto mw-600 font-weight-light" v-if="subtitle">
