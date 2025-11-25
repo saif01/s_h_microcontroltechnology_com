@@ -10,7 +10,7 @@
 
             <v-list-item v-if="currentUser" class="user-profile-header"
                 :prepend-avatar="brandingLogo || currentUser.avatar || '/assets/logo/logo.png'"
-                :title="currentUser.name || 'Admin Panel'"
+                :title="siteName || 'Admin Panel'"
                 :subtitle="userRoles && userRoles.length > 0 ? userRoles.map(r => r.name).join(', ') : 'No roles assigned'">
             </v-list-item>
 
@@ -176,6 +176,7 @@ export default {
             unreadCount: 0, // Count of unread leads/messages
             unreadCountInterval: null, // Interval for polling unread count
             brandingLogo: null, // Logo from branding settings
+            siteName: null, // Site name from general settings
         };
     },
     methods: {
@@ -230,7 +231,7 @@ export default {
             }
         },
         /**
-         * Load branding settings to get the logo
+         * Load branding settings to get the logo and site name
          */
         async loadBrandingSettings() {
             try {
@@ -244,6 +245,11 @@ export default {
                         Authorization: `Bearer ${token}`
                     }
                 });
+
+                // Extract site name from general settings
+                if (response.data.general && response.data.general.site_name && response.data.general.site_name.value) {
+                    this.siteName = response.data.general.site_name.value;
+                }
 
                 // Extract logo from branding settings
                 if (response.data.branding && response.data.branding.logo && response.data.branding.logo.value) {
