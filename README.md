@@ -9,6 +9,7 @@ A comprehensive, generic business website platform built according to SRS specif
 - ✅ Menu/Navigation management
 - ✅ Settings management
 - ✅ Leads/Contact form management
+- ✅ Newsletter subscriptions management
 - ✅ Module system (enable/disable features)
 - ✅ Admin authentication (Laravel Sanctum)
 - ✅ SEO support (meta tags, OG tags)
@@ -40,6 +41,7 @@ A comprehensive, generic business website platform built according to SRS specif
 - ✅ Category management (hierarchical)
 - ✅ Tag management
 - ✅ Leads management and export (CSV)
+- ✅ Newsletter subscriptions management and export (CSV)
 - ✅ Settings management
 - ✅ User, Role, and Permission management
 - ✅ Login logs and Visitor logs
@@ -62,6 +64,7 @@ A comprehensive, generic business website platform built according to SRS specif
   - Customer FAQs
   - Warranty & service information
 - ✅ Contact forms
+- ✅ Newsletter subscription (footer)
 - ✅ SEO optimized
 
 ## 📋 Prerequisites
@@ -182,6 +185,13 @@ Similar CRUD for: `services`, `products`, `categories`, `tags`, etc.
 **Leads Export:**
 - `GET /api/v1/leads/export/csv` - Export leads to CSV
 
+**Newsletter Subscriptions:**
+- `GET /api/v1/newsletters` - List newsletter subscriptions (requires `view-leads` permission)
+- `GET /api/v1/newsletters/{id}` - Get subscription details
+- `PUT /api/v1/newsletters/{id}` - Update subscription status (requires `manage-leads` permission)
+- `DELETE /api/v1/newsletters/{id}` - Delete subscription (requires `manage-leads` permission)
+- `GET /api/v1/newsletters/export/csv` - Export subscriptions to CSV (requires `manage-leads` permission)
+
 **User Management:**
 - `GET /api/v1/users` - List users
 - `POST /api/v1/users` - Create user
@@ -213,6 +223,7 @@ Similar CRUD for: `services`, `products`, `categories`, `tags`, etc.
 - `GET /api/openapi/categories` - List categories (supports type filter, pagination)
 - `GET /api/openapi/settings` - Get public settings
 - `POST /api/openapi/contact` - Submit contact form
+- `POST /api/openapi/newsletter/subscribe` - Subscribe to newsletter
 
 ## 🎨 Module Configuration
 
@@ -251,6 +262,7 @@ app/
 │   │   │   ├── auth/
 │   │   │   ├── content/
 │   │   │   ├── leads/
+│   │   │   ├── NewsletterController.php
 │   │   │   ├── logs/
 │   │   │   ├── products/
 │   │   │   ├── settings/
@@ -258,6 +270,7 @@ app/
 │   │   │   └── users/
 │   │   └── Public/            # Public website controllers
 │   │       ├── pages/
+│   │       ├── NewsletterController.php
 │   │       ├── products/
 │   │       └── services/
 │   └── Middleware/            # Authentication & authorization
@@ -274,6 +287,7 @@ resources/
 │   │   │   ├── auth/
 │   │   │   ├── content/
 │   │   │   ├── leads/
+│   │   │   ├── newsletters/
 │   │   │   ├── logs/
 │   │   │   ├── products/
 │   │   │   ├── settings/

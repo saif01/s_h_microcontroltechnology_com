@@ -14,7 +14,7 @@
 
         <!-- Footer -->
         <Footer :site-name="siteName" :footer-description="footerDescription" :menu-items="menuItems"
-            :settings="settings" :logo="brandingLogo" />
+            :settings="settings" :logo="brandingLogo" :newsletter-description="newsletterDescription" />
 
         <!-- Floating WhatsApp Button -->
         <WhatsAppFloat />
@@ -48,6 +48,7 @@ export default {
             siteName: 'Micro Control Technology',
             siteTagline: 'TECHNOLOGY',
             footerDescription: 'Leading provider of technical power support solutions. We ensure your business stays powered with reliable UPS systems, backup generators, and professional maintenance.',
+            newsletterDescription: 'Subscribe to get the latest power tips and updates.',
             brandingLogo: null,
             settings: {
                 // General settings
@@ -107,6 +108,11 @@ export default {
                     this.footerDescription = data.footer_description;
                 } else if (data.about_description) {
                     this.footerDescription = data.about_description;
+                }
+
+                // Update newsletter description if available
+                if (data.newsletter_description) {
+                    this.newsletterDescription = data.newsletter_description;
                 }
             } catch (error) {
                 console.error('Error loading settings:', error);

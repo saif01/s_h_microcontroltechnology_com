@@ -56,6 +56,10 @@
                     </template>
                 </v-list-item>
 
+                <!-- Newsletter Subscriptions - Requires 'view-leads' permission -->
+                <v-list-item link router prepend-icon="mdi-email-newsletter" :to="{ name: 'AdminNewsletters' }"
+                    value="Newsletters" exact v-if="hasPermission('view-leads')" title="Newsletters"></v-list-item>
+
                 <!-- Users Management - Requires 'manage-users' permission -->
                 <v-list-item link router prepend-icon="mdi-account-group" title="Users" :to="{ name: 'AdminUsers' }"
                     value="Users" exact v-if="hasPermission('manage-users')"></v-list-item>

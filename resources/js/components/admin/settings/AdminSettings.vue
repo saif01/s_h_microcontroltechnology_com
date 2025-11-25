@@ -209,6 +209,7 @@ export default {
                     contact_phone: { value: '', type: 'text', group: 'general' },
                     whatsapp_number: { value: '', type: 'text', group: 'general' },
                     address: { value: '', type: 'textarea', group: 'general' },
+                    newsletter_description: { value: 'Subscribe to get the latest power tips and updates.', type: 'textarea', group: 'general' },
                 },
                 contact_page: {
                     contact_email: { value: '', type: 'email', group: 'contact_page' },

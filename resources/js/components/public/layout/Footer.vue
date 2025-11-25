@@ -16,7 +16,7 @@
                             <v-icon icon="mdi-flash" color="amber-accent-4" size="24"></v-icon>
                         </div>
                         <span class="text-h5 font-weight-black text-white tracking-tight">{{ siteName.toUpperCase()
-                            }}</span>
+                        }}</span>
                     </div>
                     <p class="text-body-2 text-grey-lighten-1 mb-8 lh-relaxed opacity-80">
                         {{ footerDescription }}
@@ -75,16 +75,24 @@
                         Newsletter
                         <div class="heading-underline"></div>
                     </h4>
-                    <p class="text-body-2 text-grey-lighten-1 mb-6 opacity-80">Subscribe to get the latest power
-                        tips and updates.</p>
-                    <v-text-field placeholder="Enter your email" variant="outlined" density="comfortable"
-                        bg-color="rgba(255,255,255,0.05)" color="amber-accent-4" hide-details
-                        class="mb-3 footer-input rounded-lg">
-                        <template v-slot:append-inner>
-                            <v-btn icon="mdi-send" size="small" color="amber-accent-4" variant="text"
-                                class="mr-n2"></v-btn>
-                        </template>
-                    </v-text-field>
+                    <p class="text-body-2 text-grey-lighten-1 mb-6 opacity-80">{{ newsletterDescription }}</p>
+                    <v-form ref="newsletterForm" @submit.prevent="subscribeNewsletter">
+                        <v-text-field v-model="newsletterEmail" placeholder="Enter your email" variant="outlined"
+                            density="comfortable" bg-color="rgba(255,255,255,0.05)" color="amber-accent-4"
+                            :rules="emailRules" :loading="newsletterLoading" :disabled="newsletterLoading"
+                            class="mb-3 footer-input rounded-lg" hide-details="auto" @keyup.enter="subscribeNewsletter">
+                            <template v-slot:append-inner>
+                                <v-btn icon="mdi-send" size="small" color="amber-accent-4" variant="text" class="mr-n2"
+                                    :loading="newsletterLoading" :disabled="newsletterLoading"
+                                    @click="subscribeNewsletter"></v-btn>
+                            </template>
+                        </v-text-field>
+                    </v-form>
+                    <v-alert v-if="newsletterMessage" :type="newsletterMessageType" density="compact"
+                        class="mt-2 newsletter-alert" variant="tonal" :closable="true"
+                        @click:close="newsletterMessage = ''">
+                        {{ newsletterMessage }}
+                    </v-alert>
                 </v-col>
             </v-row>
 
@@ -106,6 +114,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
     name: 'Footer',
     props: {
@@ -128,11 +138,97 @@ export default {
         logo: {
             type: String,
             default: null
+        },
+        newsletterDescription: {
+            type: String,
+            default: 'Subscribe to get the latest power tips and updates.'
         }
+    },
+    data() {
+        return {
+            newsletterEmail: '',
+            newsletterLoading: false,
+            newsletterMessage: '',
+            newsletterMessageType: 'success',
+            emailRules: [
+                v => !!v || 'Email is required',
+                v => /.+@.+\..+/.test(v) || 'Email must be valid'
+            ]
+        };
     },
     methods: {
         hasSocialLink(platform) {
             return this.settings[`${platform}_url`] && this.settings[`${platform}_url`].trim() !== '';
+        },
+        async subscribeNewsletter(event) {
+            // Prevent default form submission if called from form
+            if (event) {
+                event.preventDefault();
+            }
+
+            // Validate email manually if form ref is not available
+            if (!this.newsletterEmail || !this.newsletterEmail.trim()) {
+                this.newsletterMessage = 'Email is required';
+                this.newsletterMessageType = 'error';
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /.+@.+\..+/;
+            if (!emailRegex.test(this.newsletterEmail)) {
+                this.newsletterMessage = 'Please enter a valid email address';
+                this.newsletterMessageType = 'error';
+                return;
+            }
+
+            // If form ref exists, validate it
+            if (this.$refs.newsletterForm) {
+                const { valid } = await this.$refs.newsletterForm.validate();
+                if (!valid) {
+                    return;
+                }
+            }
+
+            this.newsletterLoading = true;
+            this.newsletterMessage = '';
+
+            try {
+                const response = await axios.post('/api/openapi/newsletter/subscribe', {
+                    email: this.newsletterEmail.trim()
+                });
+
+                this.newsletterMessage = response.data.message || 'Thank you for subscribing!';
+                this.newsletterMessageType = 'success';
+                this.newsletterEmail = '';
+
+                // Reset form if ref exists
+                if (this.$refs.newsletterForm) {
+                    this.$refs.newsletterForm.reset();
+                }
+
+                // Clear message after 5 seconds
+                setTimeout(() => {
+                    this.newsletterMessage = '';
+                }, 5000);
+            } catch (error) {
+                console.error('Error subscribing to newsletter:', error);
+                if (error.response && error.response.data) {
+                    if (error.response.data.message) {
+                        this.newsletterMessage = error.response.data.message;
+                    } else if (error.response.data.errors) {
+                        const errors = error.response.data.errors;
+                        const errorMessages = Object.values(errors).flat();
+                        this.newsletterMessage = errorMessages.join(', ') || 'Failed to subscribe. Please try again.';
+                    } else {
+                        this.newsletterMessage = 'Failed to subscribe. Please try again.';
+                    }
+                } else {
+                    this.newsletterMessage = 'An error occurred. Please try again later.';
+                }
+                this.newsletterMessageType = 'error';
+            } finally {
+                this.newsletterLoading = false;
+            }
         }
     }
 };
@@ -181,6 +277,19 @@ export default {
 .rounded-logo {
     border-radius: 8px !important;
     overflow: hidden;
+}
+
+.newsletter-alert {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+}
+
+.newsletter-alert.v-alert--success {
+    border-left: 3px solid #4caf50;
+}
+
+.newsletter-alert.v-alert--error {
+    border-left: 3px solid #f44336;
 }
 
 /* Responsive Styles */
@@ -253,4 +362,3 @@ export default {
     }
 }
 </style>
-

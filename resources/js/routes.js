@@ -109,6 +109,12 @@ const routes = [
                 meta: { title: 'Leads Management' }
             },
             {
+                path: 'newsletters',
+                component: () => import('./components/admin/newsletters/AdminNewsletters.vue'),
+                name: 'AdminNewsletters',
+                meta: { title: 'Newsletter Subscriptions' }
+            },
+            {
                 path: 'users',
                 component: () => import('./components/admin/users/AdminUsers.vue'),
                 name: 'AdminUsers',

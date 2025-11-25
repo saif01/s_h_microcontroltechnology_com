@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\products\TagController;
 use App\Http\Controllers\Api\upload\UploadController;
 use App\Http\Controllers\Api\users\UserController;
 use App\Http\Controllers\Api\logs\VisitorLogController;
+use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\Public\NewsletterController as PublicNewsletterController;
 use App\Http\Controllers\Public\pages\ContactController;
 use App\Http\Controllers\Public\pages\HomeController;
 use App\Http\Controllers\Public\pages\PageController as PublicPageController;
@@ -36,6 +38,7 @@ Route::prefix('openapi')->group(function () {
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::post('/contact', [ContactController::class, 'submit']);
+    Route::post('/newsletter/subscribe', [PublicNewsletterController::class, 'subscribe']);
 
     Route::get('test2', function () {
         return response()->json(['message' => 'Hello World 2']);
@@ -91,6 +94,17 @@ Route::prefix('v1')->group(function () {
         });
         Route::middleware('permission:export-leads')->group(function () {
             Route::get('leads/export/csv', [LeadController::class, 'exportCsv']);
+        });
+
+        // Newsletter Subscriptions - requires view-leads permission (reusing leads permission)
+        Route::middleware('permission:view-leads')->group(function () {
+            Route::get('newsletters', [NewsletterController::class, 'index']);
+            Route::get('newsletters/{newsletterSubscription}', [NewsletterController::class, 'show']);
+        });
+        Route::middleware('permission:manage-leads')->group(function () {
+            Route::put('newsletters/{newsletterSubscription}', [NewsletterController::class, 'update']);
+            Route::delete('newsletters/{newsletterSubscription}', [NewsletterController::class, 'destroy']);
+            Route::get('newsletters/export/csv', [NewsletterController::class, 'exportCsv']);
         });
 
         // Settings - requires manage-settings permission

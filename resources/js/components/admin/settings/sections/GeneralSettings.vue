@@ -21,6 +21,11 @@
                     density="comfortable" color="primary" prepend-inner-icon="mdi-whatsapp"
                     hint="WhatsApp number for floating button (e.g., +8801712258689)" persistent-hint></v-text-field>
             </v-col>
+            <v-col cols="12">
+                <v-textarea v-model="settings.newsletter_description.value" label="Newsletter Description" variant="outlined"
+                    density="comfortable" color="primary" rows="2"
+                    hint="Description text shown in the newsletter section of the footer" persistent-hint></v-textarea>
+            </v-col>
         </v-row>
     </div>
 </template>

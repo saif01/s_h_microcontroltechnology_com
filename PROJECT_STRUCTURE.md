@@ -21,6 +21,7 @@ This is a comprehensive business website platform built according to the SRS doc
 - **Optional Modules**: Service, Product, Portfolio, BlogPost, Faq
 - **Extended Modules**: Career, JobApplication, Booking, Event, EventRegistration, Branch
 - **Supporting**: Category, Tag, Media
+- **Newsletter**: NewsletterSubscription
 - **Logging**: LoginLog, VisitorLog
 - **RBAC**: Role, Permission
 
@@ -34,6 +35,7 @@ This is a comprehensive business website platform built according to the SRS doc
 - `products/CategoryController.php` - Categories management
 - `products/TagController.php` - Tags management
 - `leads/LeadController.php` - Leads management and export
+- `NewsletterController.php` - Newsletter subscriptions management
 - `settings/SettingController.php` - Settings management
 - `upload/UploadController.php` - File and image uploads
 - `users/UserController.php` - User management
@@ -46,6 +48,7 @@ This is a comprehensive business website platform built according to the SRS doc
 - `pages/HomeController.php` - Homepage data
 - `pages/PageController.php` - Public pages
 - `pages/ContactController.php` - Contact form submission
+- `NewsletterController.php` - Newsletter subscription (public)
 - `products/ProductController.php` - Public products listing and details
 - `services/ServiceController.php` - Public services listing and details
 
@@ -101,6 +104,7 @@ This is a comprehensive business website platform built according to the SRS doc
 - `products/AdminCategories.vue` - Categories management
 - `products/AdminTags.vue` - Tags management
 - `leads/AdminLeads.vue` - Leads management
+- `newsletters/AdminNewsletters.vue` - Newsletter subscriptions management
 - `users/AdminUsers.vue` - User management
 - `users/AdminRoles.vue` - Role management
 - `users/AdminPermissions.vue` - Permission management
@@ -217,6 +221,13 @@ npm run dev
 **Leads Export:**
 - `GET /api/v1/leads/export/csv` - Export leads to CSV
 
+**Newsletter Subscriptions:**
+- `GET /api/v1/newsletters` - List newsletter subscriptions
+- `GET /api/v1/newsletters/{id}` - Get subscription details
+- `PUT /api/v1/newsletters/{id}` - Update subscription status
+- `DELETE /api/v1/newsletters/{id}` - Delete subscription
+- `GET /api/v1/newsletters/export/csv` - Export subscriptions to CSV
+
 **Logs:**
 - `GET /api/v1/login-logs` - List login logs
 - `GET /api/v1/login-logs/statistics` - Get login statistics
@@ -234,6 +245,7 @@ npm run dev
 - `GET /api/openapi/categories` - List categories (supports type filter, pagination)
 - `GET /api/openapi/settings` - Get public settings
 - `POST /api/openapi/contact` - Submit contact form
+- `POST /api/openapi/newsletter/subscribe` - Subscribe to newsletter
 
 ## Features Implemented
 
@@ -242,6 +254,7 @@ npm run dev
 - Menus management
 - Settings management
 - Leads management
+- Newsletter subscriptions management
 - Module system (enable/disable modules)
 - Role-based access control (RBAC)
 - User management
@@ -270,6 +283,7 @@ npm run dev
 - Tag management
 - Image and file upload with preview
 - Leads management and export
+- Newsletter subscriptions management and export
 - Role-based permissions system
 - User management
 - Settings management with modular section components:
@@ -307,6 +321,7 @@ npm run dev
   - Customer FAQs section
   - Warranty & service information
 - Contact forms
+- Newsletter subscription (footer)
 - Responsive design
 
 ✅ **Frontend Architecture:**
@@ -366,6 +381,9 @@ resources/js/
     │   ├── leads/                  # Leads management
     │   │   └── AdminLeads.vue     # Leads management
     │   │
+    │   ├── newsletters/            # Newsletter management
+    │   │   └── AdminNewsletters.vue # Newsletter subscriptions management
+    │   │
     │   ├── users/                  # User management
     │   │   ├── AdminUsers.vue     # User management
     │   │   ├── AdminRoles.vue     # Role management
@@ -399,6 +417,13 @@ resources/js/
     └── public/                     # Public website components
         ├── PublicLayout.vue       # Public layout
         │
+        ├── layout/                 # Layout components
+        │   ├── AppBar.vue         # Navigation bar
+        │   ├── Footer.vue         # Footer with newsletter subscription form
+        │   ├── MobileDrawer.vue   # Mobile navigation
+        │   ├── WhatsAppFloat.vue  # WhatsApp floating button
+        │   └── GoToTopButton.vue  # Scroll to top button
+        │
         ├── pages/                  # Page components
         │   ├── HomePage.vue       # Homepage
         │   ├── AboutPage.vue      # About page
@@ -425,6 +450,7 @@ app/Http/Controllers/
 │   │   └── ServiceController.php
 │   ├── leads/
 │   │   └── LeadController.php
+│   ├── NewsletterController.php
 │   ├── logs/
 │   │   ├── LoginLogController.php
 │   │   └── VisitorLogController.php
@@ -446,6 +472,7 @@ app/Http/Controllers/
     │   ├── HomeController.php
     │   ├── PageController.php
     │   └── ContactController.php
+    ├── NewsletterController.php
     ├── products/
     │   └── ProductController.php
     └── services/
