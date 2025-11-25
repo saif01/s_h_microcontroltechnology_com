@@ -27,6 +27,10 @@
                 <v-list-item link router prepend-icon="mdi-wrench" title="Services" :to="{ name: 'AdminServices' }"
                     value="Services" exact v-if="hasPermission('manage-services')"></v-list-item>
 
+                <!-- About Page Management - Requires 'manage-pages' permission -->
+                <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
+                    value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
+
                 <!-- Products Management - Requires 'manage-products' permission -->
                 <v-list-group value="products" prepend-icon="mdi-package-variant" no-action
                     v-if="hasPermission('manage-products')">

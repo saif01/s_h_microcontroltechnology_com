@@ -21,6 +21,8 @@ use App\Http\Controllers\Public\pages\HomeController;
 use App\Http\Controllers\Public\pages\PageController as PublicPageController;
 use App\Http\Controllers\Public\products\ProductController as PublicProductController;
 use App\Http\Controllers\Public\services\ServiceController as PublicServiceController;
+use App\Http\Controllers\Public\about\AboutController as PublicAboutController;
+use App\Http\Controllers\Api\about\AboutController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('test', function () {
@@ -37,6 +39,7 @@ Route::prefix('openapi')->group(function () {
     Route::get('/products/{slug}', [PublicProductController::class, 'show']);
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/settings', [SettingController::class, 'publicIndex']);
+    Route::get('/about', [PublicAboutController::class, 'index']);
     Route::post('/contact', [ContactController::class, 'submit']);
     Route::post('/newsletter/subscribe', [PublicNewsletterController::class, 'subscribe']);
 
@@ -58,6 +61,10 @@ Route::prefix('v1')->group(function () {
         // Pages - requires manage-pages permission
         Route::middleware('permission:manage-pages')->group(function () {
             Route::apiResource('pages', PageController::class);
+            // About page management (singleton - only one record)
+            Route::get('about', [AboutController::class, 'index']);
+            Route::post('about', [AboutController::class, 'store']);
+            Route::put('about', [AboutController::class, 'update']);
         });
 
         // Services - requires manage-services permission

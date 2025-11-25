@@ -79,6 +79,12 @@ const routes = [
                 meta: { title: 'Services Management' }
             },
             {
+                path: 'about',
+                component: () => import('./components/admin/about/AdminAbout.vue'),
+                name: 'AdminAbout',
+                meta: { title: 'About Page Management' }
+            },
+            {
                 path: 'products',
                 component: () => import('./components/admin/products/AdminProducts.vue'),
                 name: 'AdminProducts',
