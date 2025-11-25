@@ -36,7 +36,7 @@
                                 <div class="d-flex flex-column align-center position-relative z-index-2">
                                     <div class="avatar-glow mb-8">
                                         <v-avatar size="90" class="elevation-4 border-2-white">
-                                            <v-img :src="testimonial.avatar" cover></v-img>
+                                            <v-img :src="testimonial.avatar ? resolveImageUrl(testimonial.avatar) : ''" cover></v-img>
                                         </v-avatar>
                                     </div>
 
@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import { resolveUploadUrl } from '../../../../utils/uploads';
+
 export default {
     name: 'TestimonialsSection',
     props: {
@@ -105,6 +107,11 @@ export default {
                     avatar: "https://i.pravatar.cc/150?img=3"
                 }
             ]
+        }
+    },
+    methods: {
+        resolveImageUrl(url) {
+            return resolveUploadUrl(url);
         }
     }
 };

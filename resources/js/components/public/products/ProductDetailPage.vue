@@ -515,6 +515,7 @@
 <script>
 import axios from 'axios';
 import ShareDialog from './ShareDialog.vue';
+import { resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
     name: 'ProductDetailPage',
@@ -804,8 +805,8 @@ export default {
             return 'Uncategorized';
         },
         getProductImage(product) {
-            if (product.thumbnail) return product.thumbnail;
-            if (product.images && product.images.length > 0) return product.images[0];
+            if (product.thumbnail) return resolveUploadUrl(product.thumbnail);
+            if (product.images && product.images.length > 0) return resolveUploadUrl(product.images[0]);
             return 'https://via.placeholder.com/300x300?text=Product';
         },
         getFileIcon(type) {

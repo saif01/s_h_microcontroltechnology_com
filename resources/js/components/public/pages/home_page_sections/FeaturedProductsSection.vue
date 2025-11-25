@@ -20,7 +20,7 @@
                             class="h-100 product-card-modern bg-white rounded-xl overflow-hidden border-thin"
                             :to="`/products/${product.slug}`">
                             <div class="img-wrapper overflow-hidden position-relative" style="height: 260px;">
-                                <v-img :src="product.thumbnail || 'https://via.placeholder.com/400x300?text=Product'"
+                                <v-img :src="getProductImage(product)"
                                     height="100%" cover class="product-img transition-transform"
                                     :class="{ 'scale-110': isHovering }">
                                     <template v-slot:placeholder>
@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import { resolveUploadUrl } from '../../../../utils/uploads';
+
 export default {
     name: 'FeaturedProductsSection',
     props: {
@@ -93,6 +95,13 @@ export default {
     computed: {
         limitedProducts() {
             return this.products.slice(0, 3);
+        }
+    },
+    methods: {
+        getProductImage(product) {
+            if (product.thumbnail) return resolveUploadUrl(product.thumbnail);
+            if (product.images && product.images.length > 0) return resolveUploadUrl(product.images[0]);
+            return 'https://via.placeholder.com/400x300?text=Product';
         }
     }
 };

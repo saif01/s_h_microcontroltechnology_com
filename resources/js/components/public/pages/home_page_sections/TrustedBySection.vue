@@ -20,13 +20,13 @@
             <div class="logo-belt">
                 <div class="belt-track belt-track-1">
                     <div v-for="(client, i) in doubledClients" :key="'a-' + i" class="logo-chip elevation-2">
-                        <v-img :src="client.logo || defaultLogo" :alt="client.name || 'Client logo'" cover
+                        <v-img :src="client.logo ? resolveImageUrl(client.logo) : defaultLogo" :alt="client.name || 'Client logo'" cover
                             class="client-logo"></v-img>
                     </div>
                 </div>
                 <div class="belt-track belt-track-2">
                     <div v-for="(client, i) in doubledClients" :key="'b-' + i" class="logo-chip elevation-2">
-                        <v-img :src="client.logo || defaultLogo" :alt="client.name || 'Client logo'" cover
+                        <v-img :src="client.logo ? resolveImageUrl(client.logo) : defaultLogo" :alt="client.name || 'Client logo'" cover
                             class="client-logo"></v-img>
                     </div>
                 </div>
@@ -36,6 +36,8 @@
 </template>
 
 <script>
+import { resolveUploadUrl } from '../../../../utils/uploads';
+
 export default {
     name: 'TrustedBySection',
     props: {
@@ -67,6 +69,11 @@ export default {
         },
         defaultLogo() {
             return 'https://via.placeholder.com/200x80?text=Client';
+        }
+    },
+    methods: {
+        resolveImageUrl(url) {
+            return resolveUploadUrl(url);
         }
     }
 };

@@ -97,6 +97,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import ShareDialog from './ShareDialog.vue';
+import { resolveUploadUrl } from '../../../utils/uploads';
 
 const props = defineProps({
     product: {
@@ -114,25 +115,10 @@ defineEmits(['toggle-comparison']);
 // Share menu state
 const showShareMenu = ref(false);
 
-// Helper function to normalize image URLs
-const normalizeImageUrl = (url) => {
+// Helper function to resolve image URLs using the standard utility
+const resolveImageUrl = (url) => {
     if (!url || typeof url !== 'string') return null;
-
-    const trimmedUrl = url.trim();
-    if (!trimmedUrl) return null;
-
-    // If it's already a full URL (http:// or https://), return as is
-    if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
-        return trimmedUrl;
-    }
-
-    // If it starts with /, it's already a path from root
-    if (trimmedUrl.startsWith('/')) {
-        return trimmedUrl;
-    }
-
-    // Otherwise, it's a relative path, prepend with /
-    return '/' + trimmedUrl.replace(/^\/+/, '');
+    return resolveUploadUrl(url);
 };
 
 // Helper function to extract first image from images field
@@ -166,14 +152,14 @@ const productImage = computed(() => {
 
     // Try thumbnail first
     if (props.product?.thumbnail) {
-        imageUrl = normalizeImageUrl(props.product.thumbnail);
+        imageUrl = resolveImageUrl(props.product.thumbnail);
     }
 
     // If no thumbnail, try images array
     if (!imageUrl && props.product?.images) {
         const firstImage = getFirstImage(props.product.images);
         if (firstImage) {
-            imageUrl = normalizeImageUrl(firstImage);
+            imageUrl = resolveImageUrl(firstImage);
         }
     }
 

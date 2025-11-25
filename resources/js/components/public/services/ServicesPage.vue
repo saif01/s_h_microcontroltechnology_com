@@ -66,7 +66,7 @@
                                     <!-- Service Image or Icon -->
                                     <div
                                         class="service-icon-side bg-primary-darken-1 d-flex align-center justify-center pa-6 position-relative overflow-hidden">
-                                        <v-img v-if="service.image" :src="service.image" cover
+                                        <v-img v-if="service.image" :src="resolveImageUrl(service.image)" cover
                                             class="service-image position-absolute w-100 h-100">
                                             <template v-slot:placeholder>
                                                 <div class="d-flex align-center justify-center fill-height">
@@ -143,6 +143,7 @@
 
 <script>
 import axios from 'axios';
+import { resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
     name: 'ServicesPage',
@@ -258,6 +259,9 @@ export default {
         getServiceIcon(index) {
             const icons = ['mdi-battery-charging-high', 'mdi-factory', 'mdi-home-lightning', 'mdi-battery-sync', 'mdi-lightning-bolt', 'mdi-tools'];
             return icons[index % icons.length];
+        },
+        resolveImageUrl(imageValue) {
+            return resolveUploadUrl(imageValue);
         }
     }
 };

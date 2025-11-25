@@ -51,7 +51,7 @@
                         <div class="text-body-1 text-grey-darken-3 lh-relaxed mb-8">
                             <!-- Service Image -->
                             <div v-if="service.image" class="mb-8">
-                                <v-img :src="service.image" max-width="100%" height="400" cover
+                                <v-img :src="resolveImageUrl(service.image)" max-width="100%" height="400" cover
                                     class="rounded-xl elevation-4"></v-img>
                             </div>
                             
@@ -133,6 +133,7 @@
 
 <script>
 import axios from 'axios';
+import { resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
     name: 'ServiceDetailPage',
@@ -285,6 +286,9 @@ export default {
             } finally {
                 this.loadingOtherServices = false;
             }
+        },
+        resolveImageUrl(imageValue) {
+            return resolveUploadUrl(imageValue);
         }
     }
 };

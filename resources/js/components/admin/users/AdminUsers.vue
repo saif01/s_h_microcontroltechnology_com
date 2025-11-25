@@ -71,8 +71,7 @@
                             <td>
                                 <div class="d-flex align-center gap-2">
                                     <v-avatar size="32" color="primary">
-                                        <v-img v-if="user.avatar" :src="resolveImageUrl(user.avatar)"
-                                            :alt="user.name"></v-img>
+                                        <v-img v-if="user.avatar" :src="user.avatar" :alt="user.name"></v-img>
                                         <span v-else class="text-white">{{ user.name.charAt(0).toUpperCase() }}</span>
                                     </v-avatar>
                                     {{ user.name }}
@@ -188,7 +187,8 @@
                             <!-- Avatar Preview -->
                             <div v-if="form.avatar" class="mb-3 text-center">
                                 <v-avatar size="80" class="mb-2">
-                                    <v-img :src="resolveImageUrl(form.avatar)" alt="Avatar Preview"></v-img>
+                                    <v-img :src="form.avatar ? resolveImageUrl(form.avatar) : ''"
+                                        alt="Avatar Preview"></v-img>
                                 </v-avatar>
                                 <div>
                                     <v-btn size="small" variant="text" color="error" prepend-icon="mdi-delete"
@@ -302,10 +302,8 @@ export default {
                 });
 
                 const users = response.data.data || [];
-                this.users = users.map(user => ({
-                    ...user,
-                    avatar: this.resolveImageUrl(user.avatar)
-                }));
+                // Backend already returns full URLs via transformUserAvatar, so we keep them as-is
+                this.users = users;
                 this.updatePagination(response.data);
             } catch (error) {
                 this.handleApiError(error, 'Failed to load users');
@@ -347,13 +345,16 @@ export default {
                 this.editingUser = user;
                 // Extract role IDs from user.roles array
                 const roleIds = user.roles ? user.roles.map(role => role.id) : [];
+                // Normalize the avatar URL back to a path for editing
+                // Backend returns full URLs, but we need normalized paths for storage
+                const avatarPath = this.normalizeImageInput(user.avatar || '');
                 this.form = {
                     name: user.name,
                     email: user.email,
                     role_ids: roleIds,
                     password: '',
                     password_confirmation: '',
-                    avatar: this.normalizeImageInput(user.avatar || '')
+                    avatar: avatarPath
                 };
             } else {
                 this.editingUser = null;
