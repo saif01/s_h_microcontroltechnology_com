@@ -49,6 +49,14 @@
                                 <v-icon icon="mdi-barcode" size="small" class="mr-2"></v-icon>
                                 <span class="text-body-2">SKU: {{ product.sku || 'N/A' }}</span>
                             </div>
+                            <v-tooltip text="Share Product" location="top">
+                                <template v-slot:activator="{ props: tooltipProps }">
+                                    <v-btn icon="mdi-share-variant" variant="text" color="white" size="small"
+                                        class="ml-2" v-bind="tooltipProps" @click="openShareMenu">
+                                        <v-icon icon="mdi-share-variant"></v-icon>
+                                    </v-btn>
+                                </template>
+                            </v-tooltip>
                         </div>
                     </v-col>
                     <v-col cols="12" md="4" class="text-center">
@@ -57,13 +65,23 @@
                             <div class="text-h3 font-weight-black text-primary mb-4">
                                 {{ formatPrice(product) }}
                             </div>
-                            <v-btn color="primary" size="large" rounded="lg" class="w-100 font-weight-bold elevation-2"
-                                prepend-icon="mdi-file-document-edit-outline">
-                                Request Quote
-                            </v-btn>
-                            <v-btn variant="text" color="primary" class="w-100 mt-2" prepend-icon="mdi-download">
-                                Download Datasheet
-                            </v-btn>
+                            <v-tooltip text="Request a custom quote for this product" location="top">
+                                <template v-slot:activator="{ props: tooltipProps }">
+                                    <v-btn color="primary" size="large" rounded="lg"
+                                        class="w-100 font-weight-bold elevation-2"
+                                        prepend-icon="mdi-file-document-edit-outline" v-bind="tooltipProps">
+                                        Request Quote
+                                    </v-btn>
+                                </template>
+                            </v-tooltip>
+                            <v-tooltip text="Download product datasheet and specifications" location="top">
+                                <template v-slot:activator="{ props: tooltipProps }">
+                                    <v-btn variant="text" color="primary" class="w-100 mt-2" prepend-icon="mdi-download"
+                                        v-bind="tooltipProps">
+                                        Download Datasheet
+                                    </v-btn>
+                                </template>
+                            </v-tooltip>
                         </div>
                     </v-col>
                 </v-row>
@@ -82,9 +100,13 @@
                                 NEW
                             </v-chip>
                             <v-img :src="activeImage" height="100%" cover class="product-main-img"></v-img>
-                            <v-btn icon="mdi-magnify-plus-outline" variant="text" color="grey-darken-2"
-                                class="position-absolute bottom-0 right-0 ma-4 bg-white elevation-2"
-                                @click="showImageZoom = true"></v-btn>
+                            <v-tooltip text="Zoom image" location="top">
+                                <template v-slot:activator="{ props: tooltipProps }">
+                                    <v-btn icon="mdi-magnify-plus-outline" variant="text" color="grey-darken-2"
+                                        class="position-absolute bottom-0 right-0 ma-4 bg-white elevation-2"
+                                        v-bind="tooltipProps" @click="showImageZoom = true"></v-btn>
+                                </template>
+                            </v-tooltip>
                         </v-card>
 
                         <div class="d-flex gap-3 overflow-x-auto py-2 hide-scrollbar">
@@ -110,13 +132,28 @@
                                 </span>
                             </div>
                             <div class="d-flex align-center gap-4 flex-wrap mt-4">
-                                <v-btn color="primary" size="large" rounded="lg"
-                                    class="flex-grow-1 font-weight-bold elevation-2"
-                                    prepend-icon="mdi-file-document-edit-outline">
-                                    Request Quote
-                                </v-btn>
-                                <v-btn variant="outlined" color="grey-darken-1" size="large" rounded="lg"
-                                    icon="mdi-heart-outline"></v-btn>
+                                <v-tooltip text="Request a custom quote for this product" location="top">
+                                    <template v-slot:activator="{ props: tooltipProps }">
+                                        <v-btn color="primary" size="large" rounded="lg"
+                                            class="flex-grow-1 font-weight-bold elevation-2"
+                                            prepend-icon="mdi-file-document-edit-outline" v-bind="tooltipProps">
+                                            Request Quote
+                                        </v-btn>
+                                    </template>
+                                </v-tooltip>
+                                <v-tooltip text="Add to favorites" location="top">
+                                    <template v-slot:activator="{ props: tooltipProps }">
+                                        <v-btn variant="outlined" color="grey-darken-1" size="large" rounded="lg"
+                                            icon="mdi-heart-outline" v-bind="tooltipProps"></v-btn>
+                                    </template>
+                                </v-tooltip>
+                                <v-tooltip text="Share product on social media" location="top">
+                                    <template v-slot:activator="{ props: tooltipProps }">
+                                        <v-btn variant="outlined" color="success" size="large" rounded="lg"
+                                            icon="mdi-share-variant" v-bind="tooltipProps"
+                                            @click="openShareMenu"></v-btn>
+                                    </template>
+                                </v-tooltip>
                             </div>
                         </div>
 
@@ -321,8 +358,13 @@
                                                     {{ doc.size || 'N/A' }} • {{ doc.type || 'Document' }}
                                                 </v-list-item-subtitle>
                                                 <template v-slot:append>
-                                                    <v-btn variant="text" color="primary" icon="mdi-download"
-                                                        @click="downloadFile(doc)"></v-btn>
+                                                    <v-tooltip text="Download file" location="left">
+                                                        <template v-slot:activator="{ props: tooltipProps }">
+                                                            <v-btn variant="text" color="primary" icon="mdi-download"
+                                                                v-bind="tooltipProps"
+                                                                @click="downloadFile(doc)"></v-btn>
+                                                        </template>
+                                                    </v-tooltip>
                                                 </template>
                                             </v-list-item>
                                         </v-list>
@@ -416,9 +458,14 @@
             <section class="mt-12">
                 <div class="d-flex align-center justify-space-between mb-8">
                     <h2 class="text-h4 font-weight-bold text-grey-darken-3">Related Products</h2>
-                    <v-btn variant="text" color="primary" append-icon="mdi-arrow-right" :to="'/products'">
-                        View All Products
-                    </v-btn>
+                    <v-tooltip text="Browse all available products" location="top">
+                        <template v-slot:activator="{ props: tooltipProps }">
+                            <v-btn variant="text" color="primary" append-icon="mdi-arrow-right" :to="'/products'"
+                                v-bind="tooltipProps">
+                                View All Products
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
                 </div>
 
                 <v-row>
@@ -447,26 +494,39 @@
             <v-card class="rounded-xl">
                 <v-card-actions class="pa-2">
                     <v-spacer></v-spacer>
-                    <v-btn icon="mdi-close" variant="text" @click="showImageZoom = false"></v-btn>
+                    <v-tooltip text="Close" location="bottom">
+                        <template v-slot:activator="{ props: tooltipProps }">
+                            <v-btn icon="mdi-close" variant="text" v-bind="tooltipProps"
+                                @click="showImageZoom = false"></v-btn>
+                        </template>
+                    </v-tooltip>
                 </v-card-actions>
                 <v-card-text class="pa-0">
                     <v-img :src="activeImage" max-height="80vh" contain></v-img>
                 </v-card-text>
             </v-card>
         </v-dialog>
+
+        <!-- Share Dialog Component -->
+        <ShareDialog v-model="showShareMenu" :title="product.title" :url="productUrl" :share-text="shareText" />
     </div>
 </template>
 
 <script>
 import axios from 'axios';
+import ShareDialog from './ShareDialog.vue';
 
 export default {
     name: 'ProductDetailPage',
+    components: {
+        ShareDialog
+    },
     data() {
         return {
             tab: 'overview',
             activeImage: '',
             showImageZoom: false,
+            showShareMenu: false,
             product: {
                 title: 'Loading...',
                 price: '0.00',
@@ -643,6 +703,16 @@ export default {
                     answer: 'Absolutely! Click the "Request Quote" button to submit your requirements, and our sales team will provide a customized quote within 24 hours.'
                 }
             ];
+        },
+        productUrl() {
+            const baseUrl = window.location.origin;
+            return `${baseUrl}/products/${this.product.slug || this.$route.params.slug}`;
+        },
+        shareText() {
+            const title = this.product.title || 'Product';
+            const description = this.product.short_description || '';
+            const price = this.formatPrice(this.product);
+            return `Check out ${title}${description ? ` - ${description}` : ''}${price ? ` - ${price}` : ''}`;
         }
     },
     mounted() {
@@ -755,6 +825,23 @@ export default {
             } else {
                 // Handle download logic
                 console.log('Download:', doc);
+            }
+        },
+        openShareMenu() {
+            // Check if Web Share API is available (mobile devices)
+            if (navigator.share) {
+                navigator.share({
+                    title: this.product.title,
+                    text: this.shareText,
+                    url: this.productUrl
+                }).catch((error) => {
+                    // User cancelled or error occurred, show share menu instead
+                    if (error.name !== 'AbortError') {
+                        this.showShareMenu = true;
+                    }
+                });
+            } else {
+                this.showShareMenu = true;
             }
         }
     }
