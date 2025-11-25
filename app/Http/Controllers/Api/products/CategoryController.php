@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\products;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -63,6 +64,10 @@ class CategoryController extends Controller
         // Paginate results
         $perPage = $request->get('per_page', 15);
         $categories = $query->with(['parent', 'children'])->paginate($perPage);
+
+        $categories->getCollection()->transform(function ($category) {
+            return $this->transformCategoryWithImage($category);
+        });
         
         return response()->json($categories);
     }
@@ -80,14 +85,21 @@ class CategoryController extends Controller
             'published' => 'boolean',
         ]);
 
+        if (!empty($validated['image'])) {
+            $validated['image'] = $this->normalizeImagePath($validated['image']);
+        }
+
         $category = Category::create($validated);
-        
-        return response()->json($category->load(['parent', 'children']), 201);
+
+        return response()->json(
+            $this->transformCategoryWithImage($category->load(['parent', 'children'])),
+            201
+        );
     }
 
     public function show(Category $category)
     {
-        return response()->json($category->load(['parent', 'children']));
+        return response()->json($this->transformCategoryWithImage($category->load(['parent', 'children'])));
     }
 
     public function update(Request $request, Category $category)
@@ -103,6 +115,10 @@ class CategoryController extends Controller
             'published' => 'boolean',
         ]);
 
+        if (array_key_exists('image', $validated)) {
+            $validated['image'] = $this->normalizeImagePath($validated['image']);
+        }
+
         // Prevent category from being its own parent
         if (isset($validated['parent_id']) && $validated['parent_id'] == $category->id) {
             return response()->json(['error' => 'A category cannot be its own parent'], 422);
@@ -110,7 +126,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
         
-        return response()->json($category->load(['parent', 'children']));
+        return response()->json($this->transformCategoryWithImage($category->load(['parent', 'children'])));
     }
 
     public function destroy(Category $category)
@@ -134,5 +150,79 @@ class CategoryController extends Controller
 
         $category->delete();
         return response()->json(['message' => 'Category deleted successfully']);
+    }
+
+    private function transformCategoryWithImage(Category $category): Category
+    {
+        $category->image = $this->buildImageUrl($category->image);
+
+        if ($category->relationLoaded('parent') && $category->parent) {
+            $category->parent->image = $this->buildImageUrl($category->parent->image);
+        }
+
+        if ($category->relationLoaded('children')) {
+            $category->children->transform(function ($child) {
+                return $this->transformCategoryWithImage($child);
+            });
+        }
+
+        return $category;
+    }
+
+    private function normalizeImagePath(?string $image): ?string
+    {
+        if (!$image) {
+            return null;
+        }
+
+        $image = trim($image);
+        if ($image === '') {
+            return null;
+        }
+
+        $relativePattern = '/^(uploads\/|storage\/uploads\/|storage\/)/i';
+        $trimmed = ltrim($image, '/');
+
+        if (preg_match($relativePattern, $trimmed)) {
+            return $trimmed;
+        }
+
+        if (preg_match('#^https?://#i', $image)) {
+            $parsed = parse_url($image);
+            $path = isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
+
+            if ($path && preg_match($relativePattern, $path)) {
+                return $path;
+            }
+
+            return $image;
+        }
+
+        return $trimmed;
+    }
+
+    private function buildImageUrl(?string $image): ?string
+    {
+        if (!$image) {
+            return null;
+        }
+
+        $image = trim($image);
+        if ($image === '') {
+            return null;
+        }
+
+        if (Str::startsWith($image, ['http://', 'https://', '//'])) {
+            $parsed = parse_url($image);
+            $path = isset($parsed['path']) ? ltrim($parsed['path'], '/') : '';
+
+            if ($path && preg_match('/^(uploads\/|storage\/uploads\/|storage\/)/i', $path)) {
+                return asset($path);
+            }
+
+            return $image;
+        }
+
+        return asset(ltrim($image, '/'));
     }
 }

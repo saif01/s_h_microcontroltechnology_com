@@ -84,7 +84,7 @@
                         <tr v-for="category in categories" :key="category.id">
                             <td>
                                 <v-avatar size="40" v-if="category.image">
-                                    <v-img :src="category.image" cover></v-img>
+                                    <v-img :src="resolveImageUrl(category.image)" cover></v-img>
                                 </v-avatar>
                                 <v-avatar size="40" v-else color="grey-lighten-2">
                                     <v-icon icon="mdi-folder"></v-icon>
@@ -181,7 +181,7 @@
                                     <div class="d-flex flex-column flex-md-row gap-4">
                                         <!-- Preview Section -->
                                         <div v-if="imagePreview || form.image" class="flex-shrink-0">
-                                            <v-img :src="imagePreview || form.image" max-width="200" max-height="200"
+                                            <v-img :src="imagePreview || resolveImageUrl(form.image)" max-width="200" max-height="200"
                                                 contain class="rounded border"
                                                 style="min-width: 150px; min-height: 150px;">
                                             </v-img>
@@ -323,7 +323,7 @@ export default {
         'form.image'(newVal) {
             // Update preview when image URL is directly entered (if no file is selected)
             if (newVal && !this.imageFile) {
-                this.imagePreview = newVal;
+                this.imagePreview = this.resolveImageUrl(newVal);
             } else if (!newVal && !this.imageFile) {
                 this.imagePreview = null;
             }
@@ -356,7 +356,11 @@ export default {
                     headers: this.getAuthHeaders()
                 });
 
-                this.categories = response.data.data || [];
+                const categories = response.data.data || [];
+                this.categories = categories.map(cat => ({
+                    ...cat,
+                    image: this.resolveImageUrl(cat.image)
+                }));
                 this.updatePagination(response.data);
             } catch (error) {
                 this.handleApiError(error, 'Failed to load categories');
@@ -395,12 +399,14 @@ export default {
                 });
                 const data = response.data;
 
+                const normalizedImage = this.normalizeImageInput(data.image || '');
+
                 this.form = {
                     name: data.name || '',
                     slug: data.slug || '',
                     type: data.type || 'product',
                     description: data.description || '',
-                    image: data.image || '',
+                    image: normalizedImage,
                     parent_id: data.parent_id || null,
                     order: data.order || 0,
                     published: data.published !== false
@@ -409,7 +415,7 @@ export default {
                 this.originalSlug = data.slug;
                 // Reset image file and preview when loading existing category
                 this.imageFile = null;
-                this.imagePreview = data.image || null;
+                this.imagePreview = this.resolveImageUrl(data.image || normalizedImage);
             } catch (error) {
                 this.handleApiError(error, 'Failed to load category');
             }
@@ -505,7 +511,11 @@ export default {
                 });
 
                 if (response.data.success) {
-                    return response.data.url;
+                    const uploadedPath = this.normalizeImageInput(response.data.path || response.data.url);
+                    this.form.image = uploadedPath;
+                    this.imagePreview = this.resolveImageUrl(response.data.url || uploadedPath);
+                    this.imageFile = null;
+                    return uploadedPath;
                 } else {
                     throw new Error(response.data.message || 'Failed to upload image');
                 }
@@ -542,15 +552,20 @@ export default {
                     }
                 }
 
+                const payload = {
+                    ...this.form,
+                    image: this.normalizeImageInput(this.form.image)
+                };
+
                 if (this.editingCategory) {
                     // Use original slug for route model binding (Category model uses slug as route key)
                     const identifier = this.originalSlug || this.editingCategory.slug || this.editingCategory.id;
-                    await axios.put(`/api/v1/categories/${identifier}`, this.form, {
+                    await axios.put(`/api/v1/categories/${identifier}`, payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Category updated successfully');
                 } else {
-                    await axios.post('/api/v1/categories', this.form, {
+                    await axios.post('/api/v1/categories', payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Category created successfully');
@@ -607,6 +622,75 @@ export default {
         onSort(field) {
             this.handleSort(field);
             this.loadCategories();
+        },
+        normalizeImageInput(imageValue) {
+            if (!imageValue) return '';
+
+            const value = String(imageValue).trim();
+            if (value === '') return '';
+
+            const uploadsPathPattern = /^\/?(uploads|storage)\//i;
+
+            if (/^https?:\/\//i.test(value)) {
+                try {
+                    const url = new URL(value);
+                    const path = (url.pathname || '').replace(/^\/+/, '');
+                    if (uploadsPathPattern.test(path)) {
+                        return path.replace(/^\//, '');
+                    }
+                    return value;
+                } catch {
+                    return value;
+                }
+            }
+
+            if (uploadsPathPattern.test(value)) {
+                return value.replace(/^\//, '');
+            }
+
+            return value.replace(/^\//, '');
+        },
+        getAppBaseUrl() {
+            const metaApiBase = document.querySelector('meta[name="api-base-url"]')?.getAttribute('content');
+            if (metaApiBase) {
+                try {
+                    const metaUrl = new URL(metaApiBase, window.location.origin);
+                    const basePath = metaUrl.pathname.replace(/\/api(\/v\d+)?\/?$/, '');
+                    return `${metaUrl.origin}${basePath}`;
+                } catch (err) {
+                    console.warn('Invalid api-base-url meta tag, falling back to origin.', err);
+                }
+            }
+
+            const origin = window.location.origin;
+            const path = window.location.pathname || '/';
+            const publicIndex = path.indexOf('/public');
+            const basePath = publicIndex !== -1 ? path.slice(0, publicIndex + '/public'.length) : '';
+
+            return `${origin}${basePath}`;
+        },
+        resolveImageUrl(imageValue) {
+            if (!imageValue) return '';
+            if (typeof imageValue !== 'string') {
+                return '';
+            }
+
+            const value = imageValue.trim();
+            if (value === '') return '';
+
+            if (/^(data:|https?:\/\/|\/\/)/i.test(value)) {
+                return value;
+            }
+
+            const baseUrl = this.getAppBaseUrl().replace(/\/$/, '');
+            const normalized = value.startsWith('/') ? value : `/${value}`;
+
+            try {
+                return new URL(normalized, `${baseUrl}/`).href;
+            } catch (error) {
+                console.warn('Failed to resolve image URL', error);
+                return `${baseUrl}${normalized}`;
+            }
         }
     }
 };
