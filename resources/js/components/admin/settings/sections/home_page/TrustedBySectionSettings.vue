@@ -21,7 +21,7 @@
             </div>
             <v-row>
                 <v-col v-for="(client, index) in trustedByClients" :key="index" cols="12" md="6" lg="4">
-                    <v-card variant="outlined" class="h-100">
+                    <v-card variant="outlined" class="h-100 mb-4">
                         <v-card-text>
                             <div class="d-flex justify-space-between align-start mb-3">
                                 <div class="text-subtitle-2 font-weight-bold">
@@ -32,13 +32,10 @@
 
                             <!-- Logo Preview -->
                             <div v-if="client.logo" class="mb-3 text-center">
-                                <v-img :src="client.logo" max-height="120" max-width="200"
-                                    class="mx-auto mb-2" contain>
+                                <v-img :src="client.logo" max-height="120" max-width="200" class="mx-auto mb-2" contain>
                                     <template v-slot:placeholder>
-                                        <div
-                                            class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
-                                            <v-progress-circular indeterminate
-                                                color="primary"></v-progress-circular>
+                                        <div class="d-flex align-center justify-center fill-height bg-grey-lighten-3">
+                                            <v-progress-circular indeterminate color="primary"></v-progress-circular>
                                         </div>
                                     </template>
                                 </v-img>
@@ -46,21 +43,19 @@
 
                             <!-- File Upload -->
                             <v-file-input v-model="client.file" label="Upload Logo" variant="outlined"
-                                density="comfortable" color="primary" accept="image/*"
-                                prepend-icon="mdi-image"
-                                hint="Upload a logo image (JPG, PNG, GIF, WebP - Max 5MB)" persistent-hint
-                                show-size @update:model-value="handleClientLogoChange(index)">
+                                density="comfortable" color="primary" accept="image/*" prepend-icon="mdi-image"
+                                hint="Upload a logo image (JPG, PNG, GIF, WebP - Max 5MB). Recommended size: 200x200px or 300x300px (square format)"
+                                persistent-hint show-size @update:model-value="handleClientLogoChange(index)"
+                                class="mb-3">
                                 <template v-slot:append-inner v-if="client.uploading">
-                                    <v-progress-circular indeterminate size="20"
-                                        color="primary"></v-progress-circular>
+                                    <v-progress-circular indeterminate size="20" color="primary"></v-progress-circular>
                                 </template>
                             </v-file-input>
 
                             <!-- Or Enter URL -->
                             <v-text-field v-model="client.logo" label="Or Enter Logo URL" variant="outlined"
-                                density="comfortable" color="primary"
-                                hint="Enter a direct URL to the logo image" persistent-hint
-                                prepend-inner-icon="mdi-link" @input="updateTrustedByClients">
+                                density="comfortable" color="primary" hint="Enter a direct URL to the logo image"
+                                persistent-hint prepend-inner-icon="mdi-link" @input="updateTrustedByClients">
                                 <template v-slot:append-inner v-if="client.logo && !client.file">
                                     <v-btn icon="mdi-open-in-new" variant="text" size="small"
                                         @click="window.open(client.logo, '_blank')"></v-btn>
@@ -199,4 +194,3 @@ export default {
     }
 };
 </script>
-
