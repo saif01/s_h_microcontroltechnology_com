@@ -37,7 +37,26 @@
         <section class="py-20 bg-grey-lighten-5 position-relative">
             <div class="bg-pattern-dots"></div>
             <v-container class="position-relative z-index-1">
-                <v-row>
+                <!-- Loading State -->
+                <div v-if="loading" class="text-center py-12">
+                    <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+                    <p class="mt-4 text-body-1">Loading services...</p>
+                </div>
+
+                <!-- Error State -->
+                <v-alert v-else-if="error" type="warning" variant="tonal" class="mb-4">
+                    {{ error }}
+                </v-alert>
+
+                <!-- Empty State -->
+                <div v-else-if="services.length === 0" class="text-center py-12">
+                    <v-icon icon="mdi-information-outline" size="64" color="grey-lighten-1" class="mb-4"></v-icon>
+                    <h3 class="text-h5 mb-2">No services available</h3>
+                    <p class="text-body-1 text-medium-emphasis">Check back soon for our latest service offerings.</p>
+                </div>
+
+                <!-- Services Grid -->
+                <v-row v-else>
                     <v-col v-for="(service, i) in services" :key="service.id" cols="12" md="6">
                         <v-hover v-slot="{ isHovering, props }">
                             <v-card v-bind="props" :elevation="isHovering ? 12 : 2"
@@ -46,13 +65,14 @@
                                 <div class="d-flex flex-column flex-md-row h-100">
                                     <div
                                         class="service-icon-side bg-primary-darken-1 d-flex align-center justify-center pa-6">
-                                        <v-icon :icon="getServiceIcon(i)" size="48" color="amber-accent-4"></v-icon>
+                                        <v-icon :icon="service.icon || getServiceIcon(i)" size="48"
+                                            color="amber-accent-4"></v-icon>
                                     </div>
                                     <div class="pa-8 flex-grow-1 bg-white">
                                         <h3 class="text-h5 font-weight-bold mb-3 text-grey-darken-3">{{ service.title }}
                                         </h3>
                                         <p class="text-body-1 text-medium-emphasis mb-6 lh-relaxed">
-                                            {{ service.short_description }}
+                                            {{ service.short_description || defaultShortDescription }}
                                         </p>
                                         <div class="d-flex align-center">
                                             <span class="text-primary font-weight-bold link-hover-effect">
@@ -119,6 +139,8 @@ export default {
     data() {
         return {
             services: [],
+            loading: true,
+            error: null,
             process: [
                 {
                     title: 'Consultation',
@@ -132,7 +154,13 @@ export default {
                     title: 'Support',
                     desc: 'We provide ongoing maintenance and 24/7 support to ensure your systems never fail.'
                 }
-            ]
+            ],
+            defaultShortDescription: 'From installation to maintenance, we provide end-to-end technical support to keep your operations running smoothly.',
+            defaultTitle: 'Comprehensive Power Solutions',
+            defaultDescription: 'From installation to maintenance, we provide end-to-end technical support to keep your operations running smoothly.',
+            defaultButtonText: 'Explore Service',
+            defaultButtonLink: '/services',
+            defaultOverline: 'OUR EXPERTISE',
         };
     },
     async mounted() {
@@ -140,20 +168,18 @@ export default {
     },
     methods: {
         async loadServices() {
+            this.loading = true;
+            this.error = null;
+
             try {
                 const response = await axios.get('/api/openapi/services');
-                this.services = response.data;
+                this.services = response.data || [];
             } catch (error) {
                 console.error('Error loading services:', error);
-                // Fallback data
-                this.services = [
-                    { id: 1, title: 'UPS Systems', slug: 'ups-systems', short_description: 'Reliable Uninterruptible Power Supply systems for critical equipment protection.' },
-                    { id: 2, title: 'Industrial Backup', slug: 'industrial-backup', short_description: 'Heavy-duty power backup solutions designed for demanding industrial applications.' },
-                    { id: 3, title: 'Home Power Solutions', slug: 'home-power', short_description: 'Keep your home running smoothly during outages with our residential backup systems.' },
-                    { id: 4, title: 'Battery Maintenance', slug: 'battery-maintenance', short_description: 'Professional testing, replacement, and disposal services for all battery types.' },
-                    { id: 5, title: 'Power Management', slug: 'power-management', short_description: 'Smart energy monitoring and efficiency optimization to reduce costs.' },
-                    { id: 6, title: 'Installation Services', slug: 'installation', short_description: 'Expert installation of all power systems, wiring, and safety equipment.' }
-                ];
+                this.error = 'Failed to load services. Please try again later.';
+                this.services = [];
+            } finally {
+                this.loading = false;
             }
         },
         getServiceIcon(index) {
