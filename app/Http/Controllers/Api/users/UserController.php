@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\users;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\MediaPath;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -55,6 +56,10 @@ class UserController extends Controller
         $query->orderBy($sortBy, $sortDirection);
 
         $users = $query->paginate($request->get('per_page', 10));
+
+        $users->getCollection()->transform(function ($user) {
+            return $this->transformUserAvatar($user);
+        });
         
         return response()->json($users);
     }
@@ -69,6 +74,10 @@ class UserController extends Controller
             'role_ids.*' => 'exists:roles,id',
             'avatar' => 'nullable|string|max:255',
         ]);
+
+        if (!empty($validated['avatar'])) {
+            $validated['avatar'] = MediaPath::normalize($validated['avatar']);
+        }
 
         $validated['password'] = Hash::make($validated['password']);
         
@@ -87,7 +96,7 @@ class UserController extends Controller
         // Remove password from response
         unset($user->password);
         
-        return response()->json($user, 201);
+        return response()->json($this->transformUserAvatar($user), 201);
     }
 
     public function show(User $user)
@@ -97,7 +106,8 @@ class UserController extends Controller
         
         // Remove password from response
         unset($user->password);
-        return response()->json($user);
+
+        return response()->json($this->transformUserAvatar($user));
     }
 
     public function update(Request $request, User $user)
@@ -125,6 +135,10 @@ class UserController extends Controller
             unset($validated['role_ids']);
         }
 
+        if (array_key_exists('avatar', $validated)) {
+            $validated['avatar'] = MediaPath::normalize($validated['avatar']);
+        }
+
         $user->update($validated);
         
         // Update roles if provided
@@ -138,7 +152,7 @@ class UserController extends Controller
         // Remove password from response
         unset($user->password);
         
-        return response()->json($user);
+        return response()->json($this->transformUserAvatar($user));
     }
 
     public function destroy(User $user)
@@ -196,5 +210,11 @@ class UserController extends Controller
         return response()->json([
             'roles' => $roles
         ]);
+    }
+
+    private function transformUserAvatar(User $user): User
+    {
+        $user->avatar = MediaPath::url($user->avatar);
+        return $user;
     }
 }

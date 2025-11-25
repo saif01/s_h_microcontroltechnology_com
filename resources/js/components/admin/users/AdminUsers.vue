@@ -71,7 +71,7 @@
                             <td>
                                 <div class="d-flex align-center gap-2">
                                     <v-avatar size="32" color="primary">
-                                        <v-img v-if="user.avatar" :src="user.avatar" :alt="user.name"></v-img>
+                                        <v-img v-if="user.avatar" :src="resolveImageUrl(user.avatar)" :alt="user.name"></v-img>
                                         <span v-else class="text-white">{{ user.name.charAt(0).toUpperCase() }}</span>
                                     </v-avatar>
                                     {{ user.name }}
@@ -187,7 +187,7 @@
                             <!-- Avatar Preview -->
                             <div v-if="form.avatar" class="mb-3 text-center">
                                 <v-avatar size="80" class="mb-2">
-                                    <v-img :src="form.avatar" alt="Avatar Preview"></v-img>
+                                    <v-img :src="resolveImageUrl(form.avatar)" alt="Avatar Preview"></v-img>
                                 </v-avatar>
                                 <div>
                                     <v-btn size="small" variant="text" color="error" prepend-icon="mdi-delete"
@@ -212,7 +212,7 @@
                                 persistent-hint prepend-inner-icon="mdi-link">
                                 <template v-slot:append-inner v-if="form.avatar && !avatarFile">
                                     <v-btn icon="mdi-open-in-new" variant="text" size="small"
-                                        @click="window.open(form.avatar, '_blank')"></v-btn>
+                                        @click="window.open(resolveImageUrl(form.avatar), '_blank')"></v-btn>
                                 </template>
                             </v-text-field>
                         </div>
@@ -233,6 +233,7 @@
 <script>
 import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
+import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
     mixins: [adminPaginationMixin],
@@ -299,7 +300,11 @@ export default {
                     headers: this.getAuthHeaders()
                 });
 
-                this.users = response.data.data;
+                const users = response.data.data || [];
+                this.users = users.map(user => ({
+                    ...user,
+                    avatar: this.resolveImageUrl(user.avatar)
+                }));
                 this.updatePagination(response.data);
             } catch (error) {
                 this.handleApiError(error, 'Failed to load users');
@@ -347,7 +352,7 @@ export default {
                     role_ids: roleIds,
                     password: '',
                     password_confirmation: '',
-                    avatar: user.avatar || ''
+                    avatar: this.normalizeAvatarInput(user.avatar || '')
                 };
             } else {
                 this.editingUser = null;
@@ -427,7 +432,8 @@ export default {
                 });
 
                 if (response.data.success) {
-                    this.form.avatar = response.data.url;
+                    const uploadedPath = this.normalizeAvatarInput(response.data.path || response.data.url);
+                    this.form.avatar = uploadedPath;
                     this.avatarFile = null;
                     this.showSuccess('Avatar uploaded successfully');
                 } else {
@@ -499,6 +505,8 @@ export default {
                     delete data.password;
                     delete data.password_confirmation;
                 }
+
+                data.avatar = this.normalizeAvatarInput(data.avatar);
 
                 // Remove legacy role field if it exists
                 delete data.role;
@@ -578,6 +586,12 @@ export default {
         onSort(field) {
             this.handleSort(field);
             this.loadUsers();
+        },
+        normalizeAvatarInput(value) {
+            return normalizeUploadPath(value);
+        },
+        resolveImageUrl(value) {
+            return resolveUploadUrl(value);
         }
     }
 };
