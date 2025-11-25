@@ -1,12 +1,12 @@
 <template>
-    <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="1400" scrollable persistent>
+    <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="1400"
+        scrollable persistent>
         <v-card>
             <v-card-title class="d-flex align-center justify-space-between bg-primary text-white pa-4">
                 <span class="text-h5 font-weight-bold">
                     {{ editingProduct ? 'Edit Product' : 'Create New Product' }}
                 </span>
-                <v-btn icon="mdi-close" variant="text" color="white" @click="close"
-                    :disabled="loading"></v-btn>
+                <v-btn icon="mdi-close" variant="text" color="white" @click="close" :disabled="loading"></v-btn>
             </v-card-title>
 
             <v-card-text class="pa-0">
@@ -20,7 +20,8 @@
 
                 <!-- Form Content -->
                 <div v-else>
-                    <v-tabs v-model="localFormTab" color="primary" bg-color="grey-lighten-4" @update:model-value="updateFormTab">
+                    <v-tabs v-model="localFormTab" color="primary" bg-color="grey-lighten-4"
+                        @update:model-value="updateFormTab">
                         <v-tab value="basic">
                             <v-icon icon="mdi-information" class="mr-2"></v-icon>
                             Basic Info
@@ -75,12 +76,13 @@
                             <v-row>
                                 <v-col cols="12">
                                     <v-text-field v-model="localForm.title" label="Product Title *" variant="outlined"
-                                        :rules="[v => !!v || 'Title is required']" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        :rules="[v => !!v || 'Title is required']"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model="localForm.slug" label="Slug *" variant="outlined"
-                                        hint="URL-friendly version of title"
-                                        :rules="[v => !!v || 'Slug is required']" @update:model-value="$emit('update:form', localForm)">
+                                        hint="URL-friendly version of title" :rules="[v => !!v || 'Slug is required']"
+                                        @update:model-value="$emit('update:form', localForm)">
                                         <template v-slot:append>
                                             <v-btn icon="mdi-refresh" size="small" variant="text"
                                                 @click="$emit('generate-slug')"></v-btn>
@@ -89,17 +91,19 @@
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model="localForm.sku" label="SKU" variant="outlined"
-                                        hint="Stock Keeping Unit" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        hint="Stock Keeping Unit"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-textarea v-model="localForm.short_description" label="Short Description"
-                                        variant="outlined" rows="2"
-                                        hint="Brief description for listings" @update:model-value="$emit('update:form', localForm)"></v-textarea>
+                                        variant="outlined" rows="2" hint="Brief description for listings"
+                                        @update:model-value="$emit('update:form', localForm)"></v-textarea>
                                 </v-col>
                                 <v-col cols="12">
-                                    <v-textarea v-model="localForm.description" label="Full Description"
-                                        variant="outlined" rows="6"
-                                        hint="Detailed product description (supports HTML)" @update:model-value="$emit('update:form', localForm)"></v-textarea>
+                                    <v-label class="mb-2">Full Description</v-label>
+                                    <div class="rich-text-editor-wrapper">
+                                        <div ref="editorContainer" class="rich-text-editor"></div>
+                                    </div>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -145,7 +149,8 @@
 
                                     <v-text-field v-model="localForm.thumbnail" label="Or Enter Image URL"
                                         variant="outlined" prepend-inner-icon="mdi-link"
-                                        hint="Alternative: Paste image URL" class="mt-2" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        hint="Alternative: Paste image URL" class="mt-2"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <div class="text-subtitle-1 font-weight-bold mb-2">Product Images (Gallery)
@@ -175,8 +180,8 @@
                                     <!-- Upload New Images -->
                                     <div class="text-subtitle-2 text-medium-emphasis mb-2">Upload New Images</div>
                                     <v-file-input v-model="localGalleryFiles" label="Select Gallery Images"
-                                        accept="image/*" prepend-icon="mdi-image-multiple" variant="outlined"
-                                        multiple @update:model-value="handleGalleryChange" clearable show-size
+                                        accept="image/*" prepend-icon="mdi-image-multiple" variant="outlined" multiple
+                                        @update:model-value="handleGalleryChange" clearable show-size
                                         hint="Select multiple image files (will upload on save). Recommended size: 1200x800px or 1600x1200px (3:2 or 4:3 ratio)"
                                         persistent-hint class="mb-3"></v-file-input>
 
@@ -192,8 +197,7 @@
                                                 <v-img :src="preview.url" height="150" cover></v-img>
                                                 <v-card-text class="pa-2">
                                                     <div class="text-caption text-truncate">{{ preview.name }}</div>
-                                                    <div class="text-caption text-medium-emphasis"
-                                                        v-if="preview.size">
+                                                    <div class="text-caption text-medium-emphasis" v-if="preview.size">
                                                         {{ formatFileSize(preview.size) }}
                                                     </div>
                                                 </v-card-text>
@@ -209,9 +213,8 @@
                                     <!-- Add Image URLs -->
                                     <div class="text-subtitle-2 text-medium-emphasis mb-2">Or Add Image URLs</div>
                                     <div v-for="(img, index) in imageUrlInputs" :key="`url-${index}`" class="mb-3">
-                                        <v-text-field v-model="imageUrlInputs[index]"
-                                            :label="`Image URL ${index + 1}`" variant="outlined"
-                                            prepend-inner-icon="mdi-link"
+                                        <v-text-field v-model="imageUrlInputs[index]" :label="`Image URL ${index + 1}`"
+                                            variant="outlined" prepend-inner-icon="mdi-link"
                                             placeholder="https://example.com/image.jpg">
                                             <template v-slot:append>
                                                 <v-btn icon="mdi-delete" size="small" variant="text" color="error"
@@ -224,7 +227,8 @@
                                         </div>
                                     </div>
                                     <v-btn color="primary" variant="outlined" prepend-icon="mdi-plus"
-                                        @click="$emit('add-image-url')">Add Image URL</v-btn>
+                                        @click="$emit('add-image-url')">Add Image
+                                        URL</v-btn>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -235,15 +239,18 @@
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model.number="localForm.price" label="Price" variant="outlined"
                                         type="number" step="0.01" prepend-inner-icon="mdi-currency-usd"
-                                        hint="Numeric price value" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        hint="Numeric price value"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model="localForm.price_range" label="Price Range" variant="outlined"
-                                        hint="e.g., '$50 - $100' or 'Contact for Price'" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        hint="e.g., '$50 - $100' or 'Contact for Price'"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-switch v-model="localForm.show_price" label="Show Price on Website"
-                                        color="primary" @update:model-value="$emit('update:form', localForm)"></v-switch>
+                                        color="primary"
+                                        @update:model-value="$emit('update:form', localForm)"></v-switch>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -254,14 +261,15 @@
                                 <v-col cols="12">
                                     <div class="text-subtitle-1 font-weight-bold mb-2">Categories</div>
                                     <v-select v-model="localForm.category_ids" :items="availableCategories"
-                                        item-title="name" item-value="id" label="Select Categories"
-                                        variant="outlined" multiple chips :loading="loadingCategories" @update:model-value="$emit('update:form', localForm)"></v-select>
+                                        item-title="name" item-value="id" label="Select Categories" variant="outlined"
+                                        multiple chips :loading="loadingCategories"
+                                        @update:model-value="$emit('update:form', localForm)"></v-select>
                                 </v-col>
                                 <v-col cols="12">
                                     <div class="text-subtitle-1 font-weight-bold mb-2">Tags</div>
                                     <v-combobox v-model="localForm.tag_names" :items="availableTags" label="Tags"
-                                        variant="outlined" multiple chips closable-chips
-                                        hint="Type to add new tags" @update:model-value="$emit('update:form', localForm)"></v-combobox>
+                                        variant="outlined" multiple chips closable-chips hint="Type to add new tags"
+                                        @update:model-value="$emit('update:form', localForm)"></v-combobox>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -272,13 +280,14 @@
                             <div v-for="(spec, index) in specificationsList" :key="index" class="mb-3">
                                 <v-row>
                                     <v-col cols="12" md="5">
-                                        <v-text-field v-model="spec.key" label="Specification Name"
-                                            variant="outlined"
-                                            placeholder="e.g., Capacity, Input Voltage" @update:model-value="$emit('update:specifications-list', specificationsList)"></v-text-field>
+                                        <v-text-field v-model="spec.key" label="Specification Name" variant="outlined"
+                                            placeholder="e.g., Capacity, Input Voltage"
+                                            @update:model-value="$emit('update:specifications-list', specificationsList)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="6">
                                         <v-text-field v-model="spec.value" label="Value" variant="outlined"
-                                            placeholder="e.g., 2000VA / 1800W" @update:model-value="$emit('update:specifications-list', specificationsList)"></v-text-field>
+                                            placeholder="e.g., 2000VA / 1800W"
+                                            @update:model-value="$emit('update:specifications-list', specificationsList)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="1">
                                         <v-btn icon="mdi-delete" color="error" variant="text"
@@ -296,7 +305,8 @@
                             <div class="text-subtitle-1 font-weight-bold mb-4">Key Features</div>
                             <div v-for="(feature, index) in featuresList" :key="index" class="mb-3">
                                 <v-text-field v-model="featuresList[index]" :label="`Feature ${index + 1}`"
-                                    variant="outlined" @update:model-value="$emit('update:features-list', featuresList)">
+                                    variant="outlined"
+                                    @update:model-value="$emit('update:features-list', featuresList)">
                                     <template v-slot:append>
                                         <v-btn icon="mdi-delete" color="error" variant="text"
                                             @click="$emit('remove-feature', index)"></v-btn>
@@ -316,15 +326,18 @@
                                 <v-row>
                                     <v-col cols="12" md="4">
                                         <v-text-field v-model="download.title" label="Title" variant="outlined"
-                                            placeholder="e.g., Product Datasheet" @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
+                                            placeholder="e.g., Product Datasheet"
+                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="3">
                                         <v-select v-model="download.type" :items="downloadTypes" label="Type"
-                                            variant="outlined" @update:model-value="$emit('update:downloads-list', downloadsList)"></v-select>
+                                            variant="outlined"
+                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-select>
                                     </v-col>
                                     <v-col cols="12" md="3">
                                         <v-text-field v-model="download.size" label="Size" variant="outlined"
-                                            placeholder="e.g., 1.2 MB" :disabled="!!download.file" @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
+                                            placeholder="e.g., 1.2 MB" :disabled="!!download.file"
+                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="2">
                                         <v-btn icon="mdi-delete" color="error" variant="text"
@@ -357,14 +370,13 @@
                                                             </span>
                                                             <span v-else-if="download.uploaded"
                                                                 class="ml-2 text-success">
-                                                                <v-icon icon="mdi-check-circle"
-                                                                    size="small"></v-icon>
+                                                                <v-icon icon="mdi-check-circle" size="small"></v-icon>
                                                                 Uploaded
                                                             </span>
                                                         </div>
                                                     </div>
-                                                    <v-btn icon="mdi-close" size="small" variant="text"
-                                                        color="error" @click="$emit('clear-download-file', index)"></v-btn>
+                                                    <v-btn icon="mdi-close" size="small" variant="text" color="error"
+                                                        @click="$emit('clear-download-file', index)"></v-btn>
                                                 </div>
                                             </v-card>
                                         </div>
@@ -373,7 +385,8 @@
                                         <div class="text-subtitle-2 text-medium-emphasis mb-2">Or Enter File URL
                                         </div>
                                         <v-text-field v-model="download.url" label="File URL" variant="outlined"
-                                            placeholder="https://..." :disabled="!!download.file" @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
+                                            placeholder="https://..." :disabled="!!download.file"
+                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </div>
@@ -389,11 +402,13 @@
                                 <v-row>
                                     <v-col cols="12">
                                         <v-text-field v-model="faq.question" label="Question" variant="outlined"
-                                            placeholder="What is the warranty period?" @update:model-value="$emit('update:faqs-list', faqsList)"></v-text-field>
+                                            placeholder="What is the warranty period?"
+                                            @update:model-value="$emit('update:faqs-list', faqsList)"></v-text-field>
                                     </v-col>
                                     <v-col cols="12">
                                         <v-textarea v-model="faq.answer" label="Answer" variant="outlined" rows="3"
-                                            placeholder="This product comes with..." @update:model-value="$emit('update:faqs-list', faqsList)"></v-textarea>
+                                            placeholder="This product comes with..."
+                                            @update:model-value="$emit('update:faqs-list', faqsList)"></v-textarea>
                                     </v-col>
                                     <v-col cols="12">
                                         <v-btn color="error" variant="outlined" prepend-icon="mdi-delete"
@@ -402,7 +417,8 @@
                                     </v-col>
                                 </v-row>
                             </div>
-                            <v-btn color="primary" variant="outlined" prepend-icon="mdi-plus" @click="$emit('add-faq')">Add
+                            <v-btn color="primary" variant="outlined" prepend-icon="mdi-plus"
+                                @click="$emit('add-faq')">Add
                                 FAQ</v-btn>
                         </v-window-item>
 
@@ -411,13 +427,15 @@
                             <v-row>
                                 <v-col cols="12">
                                     <v-text-field v-model="warrantyInfo.period" label="Warranty Period"
-                                        variant="outlined" placeholder="e.g., 2 Years" @update:model-value="$emit('update:warranty-info', warrantyInfo)"></v-text-field>
+                                        variant="outlined" placeholder="e.g., 2 Years"
+                                        @update:model-value="$emit('update:warranty-info', warrantyInfo)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <div class="text-subtitle-2 font-weight-bold mb-2">What's Covered</div>
                                     <div v-for="(item, index) in warrantyInfo.coverage" :key="index" class="mb-2">
                                         <v-text-field v-model="warrantyInfo.coverage[index]" variant="outlined"
-                                            :label="`Coverage Item ${index + 1}`" @update:model-value="$emit('update:warranty-info', warrantyInfo)">
+                                            :label="`Coverage Item ${index + 1}`"
+                                            @update:model-value="$emit('update:warranty-info', warrantyInfo)">
                                             <template v-slot:append>
                                                 <v-btn icon="mdi-delete" size="small" color="error" variant="text"
                                                     @click="$emit('remove-coverage-item', index)"></v-btn>
@@ -425,12 +443,14 @@
                                         </v-text-field>
                                     </div>
                                     <v-btn color="primary" variant="outlined" prepend-icon="mdi-plus"
-                                        @click="$emit('add-coverage-item')">Add Coverage
+                                        @click="$emit('add-coverage-item')">Add
+                                        Coverage
                                         Item</v-btn>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-textarea v-model="warrantyInfo.terms" label="Terms & Conditions"
-                                        variant="outlined" rows="4" @update:model-value="$emit('update:warranty-info', warrantyInfo)"></v-textarea>
+                                        variant="outlined" rows="4"
+                                        @update:model-value="$emit('update:warranty-info', warrantyInfo)"></v-textarea>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -440,20 +460,24 @@
                             <v-row>
                                 <v-col cols="12">
                                     <v-text-field v-model="localForm.meta_title" label="Meta Title" variant="outlined"
-                                        hint="SEO title (50-60 characters recommended)" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        hint="SEO title (50-60 characters recommended)"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-textarea v-model="localForm.meta_description" label="Meta Description"
                                         variant="outlined" rows="3"
-                                        hint="SEO description (150-160 characters recommended)" @update:model-value="$emit('update:form', localForm)"></v-textarea>
+                                        hint="SEO description (150-160 characters recommended)"
+                                        @update:model-value="$emit('update:form', localForm)"></v-textarea>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-text-field v-model="localForm.meta_keywords" label="Meta Keywords"
-                                        variant="outlined" hint="Comma-separated keywords" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        variant="outlined" hint="Comma-separated keywords"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
                                     <v-text-field v-model="localForm.og_image" label="Open Graph Image URL"
-                                        variant="outlined" hint="Image for social media sharing" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        variant="outlined" hint="Image for social media sharing"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -462,20 +486,22 @@
                         <v-window-item value="settings">
                             <v-row>
                                 <v-col cols="12" md="6">
-                                    <v-switch v-model="localForm.published" label="Published" color="success" @update:model-value="$emit('update:form', localForm)"></v-switch>
+                                    <v-switch v-model="localForm.published" label="Published" color="success"
+                                        @update:model-value="$emit('update:form', localForm)"></v-switch>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-switch v-model="localForm.featured" label="Featured Product"
-                                        color="amber" @update:model-value="$emit('update:form', localForm)"></v-switch>
+                                    <v-switch v-model="localForm.featured" label="Featured Product" color="amber"
+                                        @update:model-value="$emit('update:form', localForm)"></v-switch>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model.number="localForm.stock" label="Stock Quantity"
-                                        variant="outlined" type="number" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        variant="outlined" type="number"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-text-field v-model.number="localForm.order" label="Display Order"
-                                        variant="outlined" type="number"
-                                        hint="Lower numbers appear first" @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                        variant="outlined" type="number" hint="Lower numbers appear first"
+                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -486,8 +512,7 @@
             <v-card-actions class="pa-4 bg-grey-lighten-4" v-if="!loading">
                 <v-spacer></v-spacer>
                 <v-btn variant="text" @click="close" :disabled="saving">Cancel</v-btn>
-                <v-btn color="primary" variant="flat" @click="$emit('save')" :loading="saving"
-                    :disabled="loading">
+                <v-btn color="primary" variant="flat" @click="$emit('save')" :loading="saving" :disabled="loading">
                     {{ editingProduct ? 'Update' : 'Create' }} Product
                 </v-btn>
             </v-card-actions>
@@ -497,6 +522,9 @@
 
 <script>
 import { resolveUploadUrl } from '../../../utils/uploads';
+import Quill from 'quill';
+// Import Quill styles
+import 'quill/dist/quill.snow.css';
 
 export default {
     name: 'ProductFormDialog',
@@ -623,15 +651,36 @@ export default {
             localForm: { ...this.form },
             localFormTab: this.formTab,
             localThumbnailFile: this.thumbnailFile,
-            localGalleryFiles: this.galleryFiles
+            localGalleryFiles: this.galleryFiles,
+            quillEditor: null
         };
     },
     watch: {
         form: {
-            handler(newVal) {
+            handler(newVal, oldVal) {
                 this.localForm = { ...newVal };
+
+                // If description changed and editor exists, update it
+                if (this.quillEditor) {
+                    const currentContent = this.quillEditor.root.innerHTML.trim();
+                    const newContent = (newVal.description || '').trim();
+                    // Only update if content actually changed and is not empty
+                    if (newContent && currentContent !== newContent) {
+                        this.quillEditor.root.innerHTML = newVal.description || '';
+                    }
+                }
+                // If editor doesn't exist, description exists, we're on basic tab, dialog is open, and not loading
+                else if (newVal.description && this.localFormTab === 'basic' && this.modelValue && !this.loading) {
+                    // Initialize editor with the description
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.initEditor();
+                        }, 300);
+                    });
+                }
             },
-            deep: true
+            deep: true,
+            immediate: false
         },
         formTab(newVal) {
             this.localFormTab = newVal;
@@ -645,11 +694,46 @@ export default {
         modelValue(newVal) {
             if (!newVal) {
                 this.localFormTab = 'basic';
+                this.destroyEditor();
+            } else if (newVal && this.localFormTab === 'basic' && !this.loading) {
+                // Initialize editor when dialog opens and we're on basic tab (only if not loading)
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        this.initEditor();
+                    }, 300);
+                });
+            }
+        },
+        'localFormTab'(newTab) {
+            // Initialize editor when switching to basic tab
+            if (newTab === 'basic' && this.modelValue && !this.loading) {
+                setTimeout(() => {
+                    this.initEditor();
+                }, 300);
+            } else if (newTab !== 'basic' && this.quillEditor) {
+                // Save editor content when leaving basic tab
+                this.destroyEditor();
+            }
+        },
+        loading(newVal, oldVal) {
+            // When loading finishes and we're on basic tab, initialize or update editor
+            if (oldVal === true && newVal === false && this.localFormTab === 'basic' && this.modelValue) {
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        // If editor exists, update content; otherwise initialize
+                        if (this.quillEditor && this.localForm.description) {
+                            this.quillEditor.root.innerHTML = this.localForm.description || '';
+                        } else {
+                            this.initEditor();
+                        }
+                    }, 300);
+                });
             }
         }
     },
     methods: {
         close() {
+            this.destroyEditor();
             this.$emit('update:modelValue', false);
             this.$emit('close');
         },
@@ -674,7 +758,113 @@ export default {
         },
         resolveImageUrl(imageValue) {
             return resolveUploadUrl(imageValue);
+        },
+        initEditor() {
+            if (this.quillEditor) {
+                this.destroyEditor();
+            }
+
+            // Wait for DOM and ensure we're not loading
+            this.$nextTick(() => {
+                // Double check conditions
+                if (!this.$refs.editorContainer) {
+                    console.warn('Editor container not found');
+                    return;
+                }
+
+                if (this.localFormTab !== 'basic' || !this.modelValue || this.loading) {
+                    return;
+                }
+
+                try {
+                    // Clear container
+                    this.$refs.editorContainer.innerHTML = '';
+
+                    // Create new Quill instance
+                    this.quillEditor = new Quill(this.$refs.editorContainer, {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{ 'color': [] }, { 'background': [] }],
+                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                [{ 'align': [] }],
+                                ['link', 'image'],
+                                ['blockquote', 'code-block'],
+                                ['clean']
+                            ]
+                        },
+                        placeholder: 'Enter detailed product description...'
+                    });
+
+                    // Set initial content from form description (use current form value)
+                    const description = this.localForm.description || '';
+                    if (description) {
+                        // Use a small delay to ensure Quill is fully initialized
+                        setTimeout(() => {
+                            if (this.quillEditor) {
+                                this.quillEditor.root.innerHTML = description;
+                            }
+                        }, 100);
+                    }
+
+                    // Update form when editor content changes
+                    this.quillEditor.on('text-change', () => {
+                        if (!this.quillEditor) return;
+                        const content = this.quillEditor.root.innerHTML.trim();
+                        // Only update if content is not empty
+                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
+                            this.localForm.description = this.quillEditor.root.innerHTML;
+                            this.$emit('update:form', this.localForm);
+                        } else if (!content || content === '<p><br></p>' || content === '<p></p>') {
+                            // Clear description if editor is empty
+                            this.localForm.description = '';
+                            this.$emit('update:form', this.localForm);
+                        }
+                    });
+
+                    // Also update on selection change (for better sync)
+                    this.quillEditor.on('selection-change', () => {
+                        if (!this.quillEditor) return;
+                        const content = this.quillEditor.root.innerHTML.trim();
+                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
+                            this.localForm.description = this.quillEditor.root.innerHTML;
+                            this.$emit('update:form', this.localForm);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing Quill editor:', error);
+                }
+            });
+        },
+        destroyEditor() {
+            if (this.quillEditor) {
+                try {
+                    if (this.quillEditor.root && this.quillEditor.root.innerHTML) {
+                        const content = this.quillEditor.root.innerHTML.trim();
+                        if (content && content !== '<p><br></p>') {
+                            this.localForm.description = content;
+                            this.$emit('update:form', this.localForm);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error saving editor content:', error);
+                }
+
+                try {
+                    this.quillEditor = null;
+                    if (this.$refs.editorContainer) {
+                        this.$refs.editorContainer.innerHTML = '';
+                    }
+                } catch (error) {
+                    console.error('Error destroying editor:', error);
+                }
+            }
         }
+    },
+    beforeUnmount() {
+        this.destroyEditor();
     }
 };
 </script>
@@ -683,5 +873,48 @@ export default {
 .border {
     border: 1px solid rgba(0, 0, 0, 0.12);
 }
-</style>
 
+.rich-text-editor-wrapper {
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-radius: 4px;
+    background-color: rgb(var(--v-theme-surface));
+}
+
+.rich-text-editor {
+    min-height: 300px;
+}
+
+.rich-text-editor-wrapper :deep(.ql-container) {
+    min-height: 300px;
+    font-size: 14px;
+}
+
+.rich-text-editor-wrapper :deep(.ql-editor) {
+    min-height: 300px;
+}
+
+.rich-text-editor-wrapper :deep(.ql-toolbar) {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    background-color: rgb(var(--v-theme-surface));
+}
+
+.rich-text-editor-wrapper :deep(.ql-container) {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.rich-text-editor-wrapper :deep(.ql-snow) {
+    border: none;
+}
+
+.rich-text-editor-wrapper :deep(.ql-snow .ql-toolbar) {
+    border: none;
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.rich-text-editor-wrapper :deep(.ql-snow .ql-container) {
+    border: none;
+}
+</style>
