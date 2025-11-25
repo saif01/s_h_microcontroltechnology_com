@@ -321,27 +321,26 @@
                         <!-- Downloads Tab -->
                         <v-window-item value="downloads">
                             <div class="text-subtitle-1 font-weight-bold mb-4">Product Downloads</div>
-                            <div v-for="(download, index) in downloadsList" :key="index"
+                            <div v-for="(download, index) in localDownloadsList" :key="index"
                                 class="mb-4 pa-4 border rounded">
                                 <v-row>
                                     <v-col cols="12" md="4">
                                         <v-text-field v-model="download.title" label="Title" variant="outlined"
                                             placeholder="e.g., Product Datasheet"
-                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
+                                            @update:model-value="updateDownloadsList"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="3">
                                         <v-select v-model="download.type" :items="downloadTypes" label="Type"
-                                            variant="outlined"
-                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-select>
+                                            variant="outlined" @update:model-value="updateDownloadsList"></v-select>
                                     </v-col>
                                     <v-col cols="12" md="3">
                                         <v-text-field v-model="download.size" label="Size" variant="outlined"
                                             placeholder="e.g., 1.2 MB" :disabled="!!download.file"
-                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
+                                            @update:model-value="updateDownloadsList"></v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="2">
                                         <v-btn icon="mdi-delete" color="error" variant="text"
-                                            @click="$emit('remove-download', index)"></v-btn>
+                                            @click="handleRemoveDownload(index)"></v-btn>
                                     </v-col>
                                     <v-col cols="12">
                                         <div class="text-subtitle-2 font-weight-bold mb-2">Upload File</div>
@@ -349,7 +348,7 @@
                                             :label="download.file ? 'File Selected' : 'Select File to Upload'"
                                             accept=".pdf,.zip,.doc,.docx,.xls,.xlsx" prepend-icon="mdi-file-upload"
                                             variant="outlined" show-size clearable
-                                            @update:model-value="$emit('handle-download-file-change', index)"
+                                            @update:model-value="handleDownloadFileChange(index, $event)"
                                             hint="PDF, ZIP, DOC, DOCX, XLS, XLSX files (max 10MB)"></v-file-input>
 
                                         <!-- File Preview -->
@@ -362,7 +361,7 @@
                                                             download.file.name }}
                                                         </div>
                                                         <div class="text-caption text-medium-emphasis">
-                                                            {{ formatFileSize(download.file.size) }}
+                                                            {{ getDownloadFileSize(download) }}
                                                             <span v-if="download.uploading" class="ml-2">
                                                                 <v-progress-circular indeterminate size="16"
                                                                     color="primary"></v-progress-circular>
@@ -376,7 +375,7 @@
                                                         </div>
                                                     </div>
                                                     <v-btn icon="mdi-close" size="small" variant="text" color="error"
-                                                        @click="$emit('clear-download-file', index)"></v-btn>
+                                                        @click="handleClearDownloadFile(index)"></v-btn>
                                                 </div>
                                             </v-card>
                                         </div>
@@ -386,7 +385,7 @@
                                         </div>
                                         <v-text-field v-model="download.url" label="File URL" variant="outlined"
                                             placeholder="https://..." :disabled="!!download.file"
-                                            @update:model-value="$emit('update:downloads-list', downloadsList)"></v-text-field>
+                                            @update:model-value="updateDownloadsList"></v-text-field>
                                     </v-col>
                                 </v-row>
                             </div>
@@ -652,7 +651,8 @@ export default {
             localFormTab: this.formTab,
             localThumbnailFile: this.thumbnailFile,
             localGalleryFiles: this.galleryFiles,
-            quillEditor: null
+            quillEditor: null,
+            localDownloadsList: []
         };
     },
     watch: {
@@ -690,6 +690,30 @@ export default {
         },
         galleryFiles(newVal) {
             this.localGalleryFiles = newVal;
+        },
+        downloadsList: {
+            handler(newVal) {
+                // Create a deep copy to avoid mutating props
+                if (Array.isArray(newVal)) {
+                    this.localDownloadsList = newVal.map((download, index) => {
+                        // Preserve existing file object if it exists in local list
+                        const existingDownload = this.localDownloadsList[index];
+                        return {
+                            title: download.title || '',
+                            type: download.type || 'PDF',
+                            size: download.size || (download.file && download.file.size ? this.formatFileSize(download.file.size) : ''),
+                            url: download.url || '',
+                            file: download.file || (existingDownload && existingDownload.file ? existingDownload.file : null),
+                            uploading: download.uploading || false,
+                            uploaded: download.uploaded || false
+                        };
+                    });
+                } else {
+                    this.localDownloadsList = [];
+                }
+            },
+            deep: true,
+            immediate: true
         },
         modelValue(newVal) {
             if (!newVal) {
@@ -750,14 +774,80 @@ export default {
             this.$emit('update:form-tab', value);
         },
         formatFileSize(bytes) {
-            if (!bytes) return '0 Bytes';
+            if (!bytes || bytes === 0) return '0 Bytes';
             const k = 1024;
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         },
+        getDownloadFileSize(download) {
+            // Priority 1: Use download.size if it exists and is not empty
+            if (download.size && download.size !== '' && download.size !== '0 Bytes') {
+                // If it's already formatted (contains KB, MB, etc), return as is
+                if (typeof download.size === 'string' && (download.size.includes('KB') || download.size.includes('MB') || download.size.includes('GB') || download.size.includes('Bytes'))) {
+                    return download.size;
+                }
+                // If it's a number, format it
+                if (typeof download.size === 'number' && download.size > 0) {
+                    return this.formatFileSize(download.size);
+                }
+            }
+            // Priority 2: Use file.size if file exists and has size
+            if (download.file && download.file.size && download.file.size > 0) {
+                return this.formatFileSize(download.file.size);
+            }
+            // Priority 3: If uploaded but no size, try to get from file if still exists
+            if (download.uploaded && download.file && download.file.size) {
+                return this.formatFileSize(download.file.size);
+            }
+            return 'Size unknown';
+        },
         resolveImageUrl(imageValue) {
             return resolveUploadUrl(imageValue);
+        },
+        updateDownloadsList() {
+            // Emit updated downloads list to parent
+            this.$emit('update:downloads-list', [...this.localDownloadsList]);
+        },
+        handleDownloadFileChange(index, file) {
+            const download = this.localDownloadsList[index];
+            if (download) {
+                download.file = file;
+                if (file && file.size) {
+                    // Auto-detect file type from extension
+                    const extension = file.name.split('.').pop().toUpperCase();
+                    if (['PDF', 'ZIP', 'DOC', 'DOCX', 'XLS', 'XLSX'].includes(extension)) {
+                        download.type = extension;
+                    }
+                    // Auto-fill size only if not already set (preserve uploaded size)
+                    if (!download.size || download.size === '') {
+                        download.size = this.formatFileSize(file.size);
+                    }
+                }
+                this.updateDownloadsList();
+                // Also emit the event for parent to handle
+                this.$emit('handle-download-file-change', index);
+            }
+        },
+        handleClearDownloadFile(index) {
+            const download = this.localDownloadsList[index];
+            if (download) {
+                download.file = null;
+                download.uploading = false;
+                download.uploaded = false;
+                if (!download.url) {
+                    download.size = '';
+                }
+                this.updateDownloadsList();
+                // Also emit the event for parent to handle
+                this.$emit('clear-download-file', index);
+            }
+        },
+        handleRemoveDownload(index) {
+            this.localDownloadsList.splice(index, 1);
+            this.updateDownloadsList();
+            // Also emit the event for parent to handle
+            this.$emit('remove-download', index);
         },
         initEditor() {
             if (this.quillEditor) {

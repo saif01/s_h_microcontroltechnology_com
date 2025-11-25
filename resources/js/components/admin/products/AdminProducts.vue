@@ -788,6 +788,9 @@ export default {
             const download = this.downloadsList[index];
             if (!download.file) return null;
 
+            // Preserve file size before upload (in case API doesn't return it)
+            const fileSize = download.file.size || 0;
+            
             download.uploading = true;
             try {
                 const formData = new FormData();
@@ -808,7 +811,9 @@ export default {
                 if (response.data.success) {
                     const uploadedPath = this.normalizeImageInput(response.data.path || response.data.url);
                     download.url = uploadedPath;
-                    download.size = this.formatFileSize(response.data.size);
+                    // Use API response size if available, otherwise use file size
+                    const size = response.data.size || fileSize;
+                    download.size = this.formatFileSize(size);
                     download.uploaded = true;
                     return uploadedPath;
                 } else {
