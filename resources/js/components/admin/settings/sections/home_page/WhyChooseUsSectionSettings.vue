@@ -47,7 +47,7 @@
             <v-file-input v-model="imageFile" label="Upload Image" variant="outlined" density="comfortable"
                 color="primary" accept="image/*" prepend-icon="mdi-image"
                 hint="Upload a section image (JPG, PNG, GIF, WebP - Max 5MB, Recommended: 1200x800px)" persistent-hint
-                show-size @update:model-value="handleImageChange">
+                show-size @update:model-value="handleImageChange" class="mb-3">
                 <template v-slot:append-inner v-if="uploading">
                     <v-progress-circular indeterminate size="20" color="primary"></v-progress-circular>
                 </template>

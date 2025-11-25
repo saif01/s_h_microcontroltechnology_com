@@ -70,8 +70,8 @@
                             <!-- File Upload -->
                             <v-file-input v-model="testimonial.file" label="Upload Avatar Image" variant="outlined"
                                 density="comfortable" color="primary" accept="image/*" prepend-icon="mdi-image"
-                                hint="Upload an avatar image (JPG, PNG, GIF, WebP - Max 5MB)" persistent-hint show-size
-                                @update:model-value="handleAvatarChange(index)">
+                                hint="Upload an avatar image (JPG, PNG, GIF, WebP - Max 5MB). Recommended size: 200x200px or 300x300px (square format)" persistent-hint show-size
+                                @update:model-value="handleAvatarChange(index)" class="mb-3">
                                 <template v-slot:append-inner v-if="testimonial.uploading">
                                     <v-progress-circular indeterminate size="20" color="primary"></v-progress-circular>
                                 </template>

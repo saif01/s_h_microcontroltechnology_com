@@ -637,7 +637,8 @@
                                         <v-file-input v-model="thumbnailFile" label="Select Thumbnail Image"
                                             accept="image/*" prepend-icon="mdi-camera" variant="outlined"
                                             @update:model-value="previewThumbnail" clearable show-size
-                                            hint="Select an image file (will upload on save)"></v-file-input>
+                                            hint="Select an image file (will upload on save). Recommended size: 800x600px or 1200x900px (4:3 ratio)" persistent-hint
+                                            class="mb-3"></v-file-input>
 
                                         <!-- Preview for selected file -->
                                         <div v-if="thumbnailFile && thumbnailPreview" class="mt-3 mb-3">
@@ -677,7 +678,8 @@
                                         <v-file-input v-model="galleryFiles" label="Select Gallery Images"
                                             accept="image/*" prepend-icon="mdi-image-multiple" variant="outlined"
                                             multiple @update:model-value="previewGalleryImages" clearable show-size
-                                            hint="Select multiple image files (will upload on save)"></v-file-input>
+                                            hint="Select multiple image files (will upload on save). Recommended size: 1200x800px or 1600x1200px (3:2 or 4:3 ratio)" persistent-hint
+                                            class="mb-3"></v-file-input>
 
                                         <!-- Preview for selected files -->
                                         <div v-if="galleryPreviews.length > 0" class="mt-3 mb-4">
