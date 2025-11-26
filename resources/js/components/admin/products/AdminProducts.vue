@@ -156,13 +156,16 @@
             :specifications-list="specificationsList" :features-list="featuresList" :downloads-list="downloadsList"
             :faqs-list="faqsList" :warranty-info="warrantyInfo" :download-types="downloadTypes"
             :thumbnail-file="thumbnailFile" :gallery-files="galleryFiles" :thumbnail-preview="thumbnailPreview"
-            :gallery-previews="galleryPreviews" :image-url-inputs="imageUrlInputs" @update:form="form = $event"
+            :gallery-previews="galleryPreviews" :image-url-inputs="imageUrlInputs"
+            :thumbnail-error="thumbnailError" :gallery-error="galleryError" @update:form="form = $event"
             @update:form-tab="formTab = $event" @update:specifications-list="specificationsList = $event"
             @update:features-list="featuresList = $event" @update:downloads-list="downloadsList = $event"
             @update:faqs-list="faqsList = $event" @update:warranty-info="warrantyInfo = $event"
             @update:thumbnail-file="thumbnailFile = $event" @update:gallery-files="galleryFiles = $event"
             @update:thumbnail-preview="thumbnailPreview = $event" @update:gallery-previews="galleryPreviews = $event"
-            @update:image-url-inputs="imageUrlInputs = $event" @close="closeDialog" @save="saveProduct"
+            @update:image-url-inputs="imageUrlInputs = $event"
+            @update:thumbnail-error="thumbnailError = $event" @update:gallery-error="galleryError = $event"
+            @close="closeDialog" @save="saveProduct"
             @generate-slug="generateSlug" @add-image-url="addImageUrl" @remove-image-url="removeImageUrl"
             @remove-image="removeImage" @preview-thumbnail="previewThumbnail"
             @preview-gallery-images="previewGalleryImages" @remove-gallery-preview="removeGalleryPreview"
@@ -262,6 +265,8 @@ export default {
             uploadingGallery: false,
             thumbnailPreview: null,
             galleryPreviews: [],
+            thumbnailError: null,
+            galleryError: null,
             imageUrlInputs: []
         };
     },
@@ -542,8 +547,10 @@ export default {
             };
             this.thumbnailFile = null;
             this.thumbnailPreview = null;
+            this.thumbnailError = null;
             this.galleryFiles = [];
             this.galleryPreviews = [];
+            this.galleryError = null;
             this.imageUrlInputs = [];
             this.formTab = 'basic';
         },
@@ -565,6 +572,9 @@ export default {
             this.form.images.splice(index, 1);
         },
         previewThumbnail(file) {
+            // Clear previous error
+            this.thumbnailError = null;
+
             if (!file) {
                 this.thumbnailPreview = null;
                 return;
@@ -577,14 +587,32 @@ export default {
                 return;
             }
 
+            // Validate file type
+            if (!fileToPreview.type.startsWith('image/')) {
+                this.thumbnailError = 'Please select a valid image file (jpeg, jpg, png, gif, webp)';
+                return;
+            }
+
+            // Validate file size
+            if (fileToPreview.size > 5242880) {
+                this.thumbnailError = 'Image file size must be less than 5MB';
+                return;
+            }
+
             // Create preview URL
             const reader = new FileReader();
             reader.onload = (e) => {
                 this.thumbnailPreview = e.target.result;
             };
+            reader.onerror = () => {
+                this.thumbnailError = 'Failed to read image file';
+            };
             reader.readAsDataURL(fileToPreview);
         },
         previewGalleryImages(files) {
+            // Clear previous error
+            this.galleryError = null;
+
             if (!files) {
                 this.galleryPreviews = [];
                 this.galleryFiles = [];
@@ -596,6 +624,21 @@ export default {
             if (filesToPreview.length === 0) {
                 this.galleryPreviews = [];
                 this.galleryFiles = [];
+                return;
+            }
+
+            // Validate all files
+            const invalidFiles = [];
+            filesToPreview.forEach((file, index) => {
+                if (!file.type.startsWith('image/')) {
+                    invalidFiles.push(`File ${index + 1}: Invalid image type`);
+                } else if (file.size > 5242880) {
+                    invalidFiles.push(`File ${index + 1}: File size exceeds 5MB`);
+                }
+            });
+
+            if (invalidFiles.length > 0) {
+                this.galleryError = invalidFiles.join('. ');
                 return;
             }
 
@@ -671,15 +714,34 @@ export default {
 
                 if (response.data.success) {
                     const uploadedPath = this.normalizeImageInput(response.data.path || response.data.url);
+                    this.thumbnailError = null; // Clear error on success
                     return uploadedPath;
                 } else {
                     throw new Error(response.data.message || 'Failed to upload thumbnail');
                 }
             } catch (error) {
                 console.error('Error uploading thumbnail:', error);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    'Failed to upload thumbnail';
+                console.error('Error response:', error.response?.data);
+                
+                // Extract validation errors
+                let errorMessage = 'Failed to upload thumbnail';
+                if (error.response?.status === 422) {
+                    // Validation error
+                    const errors = error.response.data.errors;
+                    if (errors && errors.image) {
+                        errorMessage = Array.isArray(errors.image) ? errors.image.join(', ') : errors.image;
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response?.data?.error) {
+                    errorMessage = error.response.data.error;
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                this.thumbnailError = errorMessage;
                 throw new Error(errorMessage);
             } finally {
                 this.uploadingThumbnail = false;
@@ -722,6 +784,7 @@ export default {
                         this.normalizeImageInput(img.path || img.url)
                     );
                     uploadedUrls.push(...normalizedPaths);
+                    this.galleryError = null; // Clear error on success
                 } else {
                     throw new Error(response.data.message || 'Failed to upload images');
                 }
@@ -729,9 +792,40 @@ export default {
                 return uploadedUrls;
             } catch (error) {
                 console.error('Error uploading gallery images:', error);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    'Failed to upload images';
+                console.error('Error response:', error.response?.data);
+                
+                // Extract validation errors
+                let errorMessage = 'Failed to upload images';
+                if (error.response?.status === 422) {
+                    // Validation error
+                    const errors = error.response.data.errors;
+                    if (errors && errors['images.0']) {
+                        // Handle array validation errors
+                        const imageErrors = [];
+                        Object.keys(errors).forEach(key => {
+                            if (key.startsWith('images.')) {
+                                if (Array.isArray(errors[key])) {
+                                    imageErrors.push(...errors[key]);
+                                } else {
+                                    imageErrors.push(errors[key]);
+                                }
+                            }
+                        });
+                        errorMessage = imageErrors.length > 0 ? imageErrors.join(', ') : error.response.data.message;
+                    } else if (errors && errors.images) {
+                        errorMessage = Array.isArray(errors.images) ? errors.images.join(', ') : errors.images;
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response?.data?.error) {
+                    errorMessage = error.response.data.error;
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                this.galleryError = errorMessage;
                 throw new Error(errorMessage);
             } finally {
                 this.uploadingGallery = false;
@@ -861,7 +955,9 @@ export default {
                             this.form.thumbnail = thumbnailPath;
                         }
                     } catch (error) {
-                        this.showError(error.message || 'Failed to upload thumbnail');
+                        // Error is already set in uploadThumbnailFile
+                        // Show error in the form dialog instead of global error
+                        this.saving = false;
                         return;
                     }
                 }
@@ -875,7 +971,9 @@ export default {
                         const uploadedPaths = await this.uploadGalleryFiles();
                         galleryPaths = [...galleryPaths, ...uploadedPaths];
                     } catch (error) {
-                        this.showError(error.message || 'Failed to upload gallery images');
+                        // Error is already set in uploadGalleryFiles
+                        // Show error in the form dialog instead of global error
+                        this.saving = false;
                         return;
                     }
                 }
@@ -961,8 +1059,10 @@ export default {
                 // Clear file inputs and previews
                 this.thumbnailFile = null;
                 this.thumbnailPreview = null;
+                this.thumbnailError = null;
                 this.galleryFiles = [];
                 this.galleryPreviews = [];
+                this.galleryError = null;
                 this.imageUrlInputs = [];
 
                 this.closeDialog();
@@ -1233,8 +1333,10 @@ export default {
             // Clear file inputs and previews
             this.thumbnailFile = null;
             this.thumbnailPreview = null;
+            this.thumbnailError = null;
             this.galleryFiles = [];
             this.galleryPreviews = [];
+            this.galleryError = null;
             this.resetForm();
         },
         onPerPageChange() {

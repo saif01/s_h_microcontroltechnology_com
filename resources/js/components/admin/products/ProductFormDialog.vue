@@ -119,6 +119,13 @@
                                         hint="Select an image file (will upload on save). Recommended size: 800x600px or 1200x900px (4:3 ratio)"
                                         persistent-hint class="mb-3"></v-file-input>
 
+                                    <v-alert v-if="thumbnailError" type="error" variant="tonal" density="compact"
+                                        class="mt-2 mb-3" closable @click:close="$emit('update:thumbnail-error', null)">
+                                        <div class="text-body-2">
+                                            <strong>Upload Error:</strong> {{ thumbnailError }}
+                                        </div>
+                                    </v-alert>
+
                                     <!-- Preview for selected file -->
                                     <div v-if="localThumbnailFile && thumbnailPreview" class="mt-3 mb-3">
                                         <v-card class="elevation-2" style="max-width: 300px;">
@@ -184,6 +191,13 @@
                                         @update:model-value="handleGalleryChange" clearable show-size
                                         hint="Select multiple image files (will upload on save). Recommended size: 1200x800px or 1600x1200px (3:2 or 4:3 ratio)"
                                         persistent-hint class="mb-3"></v-file-input>
+
+                                    <v-alert v-if="galleryError" type="error" variant="tonal" density="compact"
+                                        class="mt-2 mb-3" closable @click:close="$emit('update:gallery-error', null)">
+                                        <div class="text-body-2">
+                                            <strong>Upload Error:</strong> {{ galleryError }}
+                                        </div>
+                                    </v-alert>
 
                                     <!-- Preview for selected files -->
                                     <div v-if="galleryPreviews.length > 0" class="mt-3 mb-4">
@@ -607,6 +621,14 @@ export default {
         imageUrlInputs: {
             type: Array,
             default: () => []
+        },
+        thumbnailError: {
+            type: String,
+            default: null
+        },
+        galleryError: {
+            type: String,
+            default: null
         }
     },
     emits: [
@@ -623,6 +645,8 @@ export default {
         'update:thumbnail-preview',
         'update:gallery-previews',
         'update:image-url-inputs',
+        'update:thumbnail-error',
+        'update:gallery-error',
         'close',
         'save',
         'generate-slug',
