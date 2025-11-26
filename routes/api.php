@@ -24,6 +24,8 @@ use App\Http\Controllers\Public\about\AboutController as PublicAboutController;
 use App\Http\Controllers\Public\blog\BlogController as PublicBlogController;
 use App\Http\Controllers\Api\about\AboutController;
 use App\Http\Controllers\Api\blog\BlogController;
+use App\Http\Controllers\Api\career\CareerController;
+use App\Http\Controllers\Api\career\JobApplicationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('test', function () {
@@ -126,6 +128,22 @@ Route::prefix('v1')->group(function () {
         Route::middleware('permission:manage-pages')->group(function () {
             Route::apiResource('blog-posts', BlogController::class);
             Route::apiResource('blog-categories', \App\Http\Controllers\Api\blog\BlogCategoryController::class);
+        });
+
+        // Careers - requires manage-pages permission (or create new permission: manage-careers)
+        Route::middleware('permission:manage-pages')->group(function () {
+            Route::apiResource('careers', CareerController::class);
+        });
+
+        // Job Applications - requires view-leads permission for viewing, manage-leads for updates/deletes
+        Route::middleware('permission:view-leads')->group(function () {
+            Route::get('job-applications', [JobApplicationController::class, 'index']);
+            Route::get('job-applications/statistics', [JobApplicationController::class, 'statistics']);
+            Route::get('job-applications/{jobApplication}', [JobApplicationController::class, 'show']);
+        });
+        Route::middleware('permission:manage-leads')->group(function () {
+            Route::put('job-applications/{jobApplication}', [JobApplicationController::class, 'update']);
+            Route::delete('job-applications/{jobApplication}', [JobApplicationController::class, 'destroy']);
         });
 
         // Upload routes - requires authentication

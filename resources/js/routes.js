@@ -174,6 +174,18 @@ const routes = [
                 name: 'AdminBlogCategories',
                 meta: { title: 'Blog Categories Management' }
             },
+            {
+                path: 'careers',
+                component: () => import('./components/admin/career/AdminCareers.vue'),
+                name: 'AdminCareers',
+                meta: { title: 'Careers Management' }
+            },
+            {
+                path: 'job-applications',
+                component: () => import('./components/admin/career/AdminJobApplications.vue'),
+                name: 'AdminJobApplications',
+                meta: { title: 'Job Applications Management' }
+            },
         ]
     },
 

@@ -45,15 +45,24 @@
                 <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
                     value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
 
-                <v-list-group value="blog" prepend-icon="mdi-post" no-action
-                    v-if="hasPermission('manage-pages')">
+                <v-list-group value="blog" prepend-icon="mdi-post" no-action v-if="hasPermission('manage-pages')">
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Blog"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-post" title="Blog Posts"
-                        :to="{ name: 'AdminBlog' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-post" title="Blog Posts" :to="{ name: 'AdminBlog' }"></v-list-item>
                     <v-list-item prepend-icon="mdi-folder" title="Categories"
                         :to="{ name: 'AdminBlogCategories' }"></v-list-item>
+                </v-list-group>
+
+                <v-list-group value="careers" prepend-icon="mdi-briefcase" no-action
+                    v-if="hasPermission('manage-pages') || hasPermission('view-leads')">
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" title="Careers"></v-list-item>
+                    </template>
+                    <v-list-item prepend-icon="mdi-briefcase" title="Careers" :to="{ name: 'AdminCareers' }"
+                        v-if="hasPermission('manage-pages')"></v-list-item>
+                    <v-list-item prepend-icon="mdi-file-document-edit" title="Job Applications"
+                        :to="{ name: 'AdminJobApplications' }" v-if="hasPermission('view-leads')"></v-list-item>
                 </v-list-group>
 
                 <!-- ============================================ -->
