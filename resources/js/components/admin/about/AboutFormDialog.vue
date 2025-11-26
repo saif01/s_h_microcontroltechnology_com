@@ -65,9 +65,8 @@
                                     </v-col>
                                     <v-col cols="12">
                                         <v-label class="mb-2">Story Description</v-label>
-                                        <div class="rich-text-editor-wrapper">
-                                            <div ref="storyEditorContainer" class="rich-text-editor"></div>
-                                        </div>
+                                        <RichTextEditor v-model="form.story.description" :active="activeTab === 'story'"
+                                            placeholder="Enter story description..." />
                                     </v-col>
                                     <v-col cols="12">
                                         <v-label class="mb-2">Story Image</v-label>
@@ -571,12 +570,14 @@
 <script>
 import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
-import Quill from 'quill';
+import RichTextEditor from '../../common/RichTextEditor.vue';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
-import 'quill/dist/quill.snow.css';
 
 export default {
     name: 'AboutFormDialog',
+    components: {
+        RichTextEditor
+    },
     mixins: [adminPaginationMixin],
     props: {
         modelValue: {
@@ -598,7 +599,6 @@ export default {
             storyImagePreview: null,
             uploadingStoryImage: false,
             storyImageError: null,
-            storyQuillEditor: null,
             ogImageFile: null,
             ogImagePreview: null,
             uploadingOgImage: false,
@@ -683,11 +683,6 @@ export default {
                 } else {
                     this.resetForm();
                 }
-            } else {
-                // Clean up editor when dialog closes
-                if (this.storyQuillEditor) {
-                    this.destroyStoryEditor();
-                }
             }
         },
         aboutData: {
@@ -699,26 +694,10 @@ export default {
                 }
             },
             immediate: false
-        },
-        activeTab(newTab) {
-            if (newTab === 'story' && this.dialog && !this.loading) {
-                // Use nextTick and a small delay to ensure DOM is ready
-                this.$nextTick(() => {
-                    setTimeout(() => {
-                        this.initStoryEditor();
-                    }, 300);
-                });
-            } else if (newTab !== 'story' && this.storyQuillEditor) {
-                this.destroyStoryEditor();
-            }
         }
     },
     methods: {
         resetForm() {
-            if (this.storyQuillEditor) {
-                this.destroyStoryEditor();
-            }
-
             this.form = {
                 hero: {
                     overline: 'WHO WE ARE',
@@ -826,100 +805,6 @@ export default {
                 this.handleApiError(error, 'Failed to load about content');
             } finally {
                 this.loading = false;
-            }
-        },
-        initStoryEditor() {
-            if (this.storyQuillEditor) {
-                this.destroyStoryEditor();
-            }
-
-            this.$nextTick(() => {
-                const container = this.$refs.storyEditorContainer;
-                if (!container || this.activeTab !== 'story') {
-                    return;
-                }
-
-                try {
-                    // Clear container before initializing
-                    container.innerHTML = '';
-
-                    this.storyQuillEditor = new Quill(container, {
-                        theme: 'snow',
-                        modules: {
-                            toolbar: [
-                                [{ 'header': [1, 2, 3, false] }],
-                                ['bold', 'italic', 'underline', 'strike'],
-                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                [{ 'align': [] }],
-                                ['link'],
-                                ['clean']
-                            ]
-                        },
-                        placeholder: 'Enter story description...'
-                    });
-
-                    // Set initial content with a small delay to ensure Quill is fully initialized
-                    const description = this.form.story.description || '';
-                    if (description) {
-                        setTimeout(() => {
-                            if (this.storyQuillEditor) {
-                                this.storyQuillEditor.root.innerHTML = description;
-                            }
-                        }, 100);
-                    }
-
-                    // Update form when editor content changes
-                    this.storyQuillEditor.on('text-change', () => {
-                        if (!this.storyQuillEditor) return;
-                        const content = this.storyQuillEditor.root.innerHTML.trim();
-                        // Only update if content is not empty
-                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
-                            this.form.story.description = this.storyQuillEditor.root.innerHTML;
-                        } else if (!content || content === '<p><br></p>' || content === '<p></p>') {
-                            // Clear description if editor is empty
-                            this.form.story.description = '';
-                        }
-                    });
-
-                    // Also update on selection change for better sync
-                    this.storyQuillEditor.on('selection-change', () => {
-                        if (!this.storyQuillEditor) return;
-                        const content = this.storyQuillEditor.root.innerHTML.trim();
-                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
-                            this.form.story.description = this.storyQuillEditor.root.innerHTML;
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing Quill editor:', error);
-                    this.showError('Failed to initialize text editor');
-                }
-            });
-        },
-        destroyStoryEditor() {
-            if (this.storyQuillEditor) {
-                try {
-                    // Save content before destroying
-                    if (this.storyQuillEditor.root && this.storyQuillEditor.root.innerHTML) {
-                        const content = this.storyQuillEditor.root.innerHTML.trim();
-                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
-                            this.form.story.description = this.storyQuillEditor.root.innerHTML;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error saving editor content:', error);
-                }
-
-                try {
-                    this.storyQuillEditor = null;
-                    if (this.$refs.storyEditorContainer) {
-                        this.$refs.storyEditorContainer.innerHTML = '';
-                    }
-                } catch (error) {
-                    console.error('Error destroying editor:', error);
-                    this.storyQuillEditor = null;
-                }
-            } else if (this.$refs.storyEditorContainer) {
-                this.$refs.storyEditorContainer.innerHTML = '';
             }
         },
         handleStoryImageSelect(file) {
@@ -1189,16 +1074,6 @@ export default {
             if (!valid) {
                 this.showError('Please fill in all required fields');
                 return;
-            }
-
-            // Save editor content before submitting
-            if (this.storyQuillEditor && this.storyQuillEditor.root) {
-                const content = this.storyQuillEditor.root.innerHTML.trim();
-                if (content && content !== '<p><br></p>' && content !== '<p></p>') {
-                    this.form.story.description = this.storyQuillEditor.root.innerHTML;
-                } else {
-                    this.form.story.description = '';
-                }
             }
 
             this.saving = true;
@@ -1504,35 +1379,16 @@ export default {
             }
         },
         closeDialog() {
-            // Save editor content before closing
-            if (this.storyQuillEditor) {
-                this.destroyStoryEditor();
-            }
             this.dialog = false;
         },
         resolveImageUrl(imageValue) {
             return resolveUploadUrl(imageValue);
-        }
-    },
-    beforeUnmount() {
-        if (this.storyQuillEditor) {
-            this.destroyStoryEditor();
         }
     }
 };
 </script>
 
 <style scoped>
-.rich-text-editor-wrapper {
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.rich-text-editor {
-    min-height: 200px;
-}
-
 /* SEO Preview Styles */
 .search-preview {
     font-family: Arial, sans-serif;

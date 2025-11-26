@@ -101,9 +101,10 @@
                                 </v-col>
                                 <v-col cols="12">
                                     <v-label class="mb-2">Full Description</v-label>
-                                    <div class="rich-text-editor-wrapper">
-                                        <div ref="editorContainer" class="rich-text-editor"></div>
-                                    </div>
+                                    <RichTextEditor v-model="localForm.description"
+                                        :active="modelValue && localFormTab === 'basic'"
+                                        placeholder="Enter detailed product description..."
+                                        @update:model-value="$emit('update:form', localForm)" />
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -226,17 +227,20 @@
 
                                     <!-- Add Image URLs -->
                                     <div class="text-subtitle-2 text-medium-emphasis mb-2">Or Add Image URLs</div>
-                                    <div v-for="(img, index) in imageUrlInputs" :key="`url-${index}`" class="mb-3">
-                                        <v-text-field v-model="imageUrlInputs[index]" :label="`Image URL ${index + 1}`"
+                                    <div v-for="(img, index) in localImageUrlInputs" :key="`url-${index}`"
+                                        class="mb-3">
+                                        <v-text-field v-model="localImageUrlInputs[index]"
+                                            :label="`Image URL ${index + 1}`"
                                             variant="outlined" prepend-inner-icon="mdi-link"
-                                            placeholder="https://example.com/image.jpg">
+                                            placeholder="https://example.com/image.jpg"
+                                            @update:model-value="handleImageUrlChange(index, $event)">
                                             <template v-slot:append>
                                                 <v-btn icon="mdi-delete" size="small" variant="text" color="error"
                                                     @click="$emit('remove-image-url', index)"></v-btn>
                                             </template>
                                         </v-text-field>
-                                        <div v-if="imageUrlInputs[index]" class="mt-2">
-                                            <v-img :src="resolveImageUrl(imageUrlInputs[index])" max-height="150"
+                                        <div v-if="localImageUrlInputs[index]" class="mt-2">
+                                            <v-img :src="resolveImageUrl(localImageUrlInputs[index])" max-height="150"
                                                 contain class="rounded elevation-1"></v-img>
                                         </div>
                                     </div>
@@ -535,12 +539,13 @@
 
 <script>
 import { resolveUploadUrl } from '../../../utils/uploads';
-import Quill from 'quill';
-// Import Quill styles
-import 'quill/dist/quill.snow.css';
+import RichTextEditor from '../../common/RichTextEditor.vue';
 
 export default {
     name: 'ProductFormDialog',
+    components: {
+        RichTextEditor
+    },
     props: {
         modelValue: {
             type: Boolean,
@@ -675,36 +680,24 @@ export default {
             localFormTab: this.formTab,
             localThumbnailFile: this.thumbnailFile,
             localGalleryFiles: this.galleryFiles,
-            quillEditor: null,
+            localImageUrlInputs: [...this.imageUrlInputs],
             localDownloadsList: []
         };
     },
     watch: {
         form: {
-            handler(newVal, oldVal) {
+            handler(newVal) {
                 this.localForm = { ...newVal };
-
-                // If description changed and editor exists, update it
-                if (this.quillEditor) {
-                    const currentContent = this.quillEditor.root.innerHTML.trim();
-                    const newContent = (newVal.description || '').trim();
-                    // Only update if content actually changed and is not empty
-                    if (newContent && currentContent !== newContent) {
-                        this.quillEditor.root.innerHTML = newVal.description || '';
-                    }
-                }
-                // If editor doesn't exist, description exists, we're on basic tab, dialog is open, and not loading
-                else if (newVal.description && this.localFormTab === 'basic' && this.modelValue && !this.loading) {
-                    // Initialize editor with the description
-                    this.$nextTick(() => {
-                        setTimeout(() => {
-                            this.initEditor();
-                        }, 300);
-                    });
-                }
             },
             deep: true,
             immediate: false
+        },
+        imageUrlInputs: {
+            handler(newVal) {
+                this.localImageUrlInputs = Array.isArray(newVal) ? [...newVal] : [];
+            },
+            deep: true,
+            immediate: true
         },
         formTab(newVal) {
             this.localFormTab = newVal;
@@ -742,46 +735,14 @@ export default {
         modelValue(newVal) {
             if (!newVal) {
                 this.localFormTab = 'basic';
-                this.destroyEditor();
-            } else if (newVal && this.localFormTab === 'basic' && !this.loading) {
-                // Initialize editor when dialog opens and we're on basic tab (only if not loading)
-                this.$nextTick(() => {
-                    setTimeout(() => {
-                        this.initEditor();
-                    }, 300);
-                });
+                return;
             }
-        },
-        'localFormTab'(newTab) {
-            // Initialize editor when switching to basic tab
-            if (newTab === 'basic' && this.modelValue && !this.loading) {
-                setTimeout(() => {
-                    this.initEditor();
-                }, 300);
-            } else if (newTab !== 'basic' && this.quillEditor) {
-                // Save editor content when leaving basic tab
-                this.destroyEditor();
-            }
-        },
-        loading(newVal, oldVal) {
-            // When loading finishes and we're on basic tab, initialize or update editor
-            if (oldVal === true && newVal === false && this.localFormTab === 'basic' && this.modelValue) {
-                this.$nextTick(() => {
-                    setTimeout(() => {
-                        // If editor exists, update content; otherwise initialize
-                        if (this.quillEditor && this.localForm.description) {
-                            this.quillEditor.root.innerHTML = this.localForm.description || '';
-                        } else {
-                            this.initEditor();
-                        }
-                    }, 300);
-                });
-            }
+            // Keep local state in sync when dialog is reopened with new data
+            this.localForm = { ...this.form };
         }
     },
     methods: {
         close() {
-            this.destroyEditor();
             this.$emit('update:modelValue', false);
             this.$emit('close');
         },
@@ -792,6 +753,10 @@ export default {
         handleGalleryChange(files) {
             this.$emit('update:gallery-files', files);
             this.$emit('preview-gallery-images', files);
+        },
+        handleImageUrlChange(index, value) {
+            this.localImageUrlInputs.splice(index, 1, value);
+            this.$emit('update:image-url-inputs', [...this.localImageUrlInputs]);
         },
         updateFormTab(value) {
             this.localFormTab = value;
@@ -872,113 +837,7 @@ export default {
             this.updateDownloadsList();
             // Also emit the event for parent to handle
             this.$emit('remove-download', index);
-        },
-        initEditor() {
-            if (this.quillEditor) {
-                this.destroyEditor();
-            }
-
-            // Wait for DOM and ensure we're not loading
-            this.$nextTick(() => {
-                // Double check conditions
-                if (!this.$refs.editorContainer) {
-                    console.warn('Editor container not found');
-                    return;
-                }
-
-                if (this.localFormTab !== 'basic' || !this.modelValue || this.loading) {
-                    return;
-                }
-
-                try {
-                    // Clear container
-                    this.$refs.editorContainer.innerHTML = '';
-
-                    // Create new Quill instance
-                    this.quillEditor = new Quill(this.$refs.editorContainer, {
-                        theme: 'snow',
-                        modules: {
-                            toolbar: [
-                                [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                                ['bold', 'italic', 'underline', 'strike'],
-                                [{ 'color': [] }, { 'background': [] }],
-                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                [{ 'align': [] }],
-                                ['link', 'image'],
-                                ['blockquote', 'code-block'],
-                                ['clean']
-                            ]
-                        },
-                        placeholder: 'Enter detailed product description...'
-                    });
-
-                    // Set initial content from form description (use current form value)
-                    const description = this.localForm.description || '';
-                    if (description) {
-                        // Use a small delay to ensure Quill is fully initialized
-                        setTimeout(() => {
-                            if (this.quillEditor) {
-                                this.quillEditor.root.innerHTML = description;
-                            }
-                        }, 100);
-                    }
-
-                    // Update form when editor content changes
-                    this.quillEditor.on('text-change', () => {
-                        if (!this.quillEditor) return;
-                        const content = this.quillEditor.root.innerHTML.trim();
-                        // Only update if content is not empty
-                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
-                            this.localForm.description = this.quillEditor.root.innerHTML;
-                            this.$emit('update:form', this.localForm);
-                        } else if (!content || content === '<p><br></p>' || content === '<p></p>') {
-                            // Clear description if editor is empty
-                            this.localForm.description = '';
-                            this.$emit('update:form', this.localForm);
-                        }
-                    });
-
-                    // Also update on selection change (for better sync)
-                    this.quillEditor.on('selection-change', () => {
-                        if (!this.quillEditor) return;
-                        const content = this.quillEditor.root.innerHTML.trim();
-                        if (content && content !== '<p><br></p>' && content !== '<p></p>') {
-                            this.localForm.description = this.quillEditor.root.innerHTML;
-                            this.$emit('update:form', this.localForm);
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error initializing Quill editor:', error);
-                }
-            });
-        },
-        destroyEditor() {
-            if (this.quillEditor) {
-                try {
-                    if (this.quillEditor.root && this.quillEditor.root.innerHTML) {
-                        const content = this.quillEditor.root.innerHTML.trim();
-                        if (content && content !== '<p><br></p>') {
-                            this.localForm.description = content;
-                            this.$emit('update:form', this.localForm);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error saving editor content:', error);
-                }
-
-                try {
-                    this.quillEditor = null;
-                    if (this.$refs.editorContainer) {
-                        this.$refs.editorContainer.innerHTML = '';
-                    }
-                } catch (error) {
-                    console.error('Error destroying editor:', error);
-                }
-            }
         }
-    },
-    beforeUnmount() {
-        this.destroyEditor();
     }
 };
 </script>
@@ -986,49 +845,5 @@ export default {
 <style scoped>
 .border {
     border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.rich-text-editor-wrapper {
-    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    border-radius: 4px;
-    background-color: rgb(var(--v-theme-surface));
-}
-
-.rich-text-editor {
-    min-height: 300px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-container) {
-    min-height: 300px;
-    font-size: 14px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-editor) {
-    min-height: 300px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-toolbar) {
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    background-color: rgb(var(--v-theme-surface));
-}
-
-.rich-text-editor-wrapper :deep(.ql-container) {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-snow) {
-    border: none;
-}
-
-.rich-text-editor-wrapper :deep(.ql-snow .ql-toolbar) {
-    border: none;
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-}
-
-.rich-text-editor-wrapper :deep(.ql-snow .ql-container) {
-    border: none;
 }
 </style>
