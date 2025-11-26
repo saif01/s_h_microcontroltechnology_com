@@ -45,6 +45,9 @@
                 <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
                     value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
 
+                <v-list-item link router prepend-icon="mdi-post" title="Blog" :to="{ name: 'AdminBlog' }"
+                    value="Blog" exact v-if="hasPermission('manage-pages')"></v-list-item>
+
                 <!-- ============================================ -->
                 <!-- USER MANAGEMENT -->
                 <!-- ============================================ -->

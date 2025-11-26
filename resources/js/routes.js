@@ -150,6 +150,12 @@ const routes = [
                 name: 'AdminVisitorLogs',
                 meta: { title: 'Visitor Logs Management' }
             },
+            {
+                path: 'blog',
+                component: () => import('./components/admin/blog/AdminBlog.vue'),
+                name: 'AdminBlog',
+                meta: { title: 'Blog Management' }
+            },
         ]
     },
 

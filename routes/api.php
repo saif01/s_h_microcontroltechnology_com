@@ -22,6 +22,7 @@ use App\Http\Controllers\Public\products\ProductController as PublicProductContr
 use App\Http\Controllers\Public\services\ServiceController as PublicServiceController;
 use App\Http\Controllers\Public\about\AboutController as PublicAboutController;
 use App\Http\Controllers\Api\about\AboutController;
+use App\Http\Controllers\Api\blog\BlogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('test', function () {
@@ -112,6 +113,11 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('products', ProductController::class);
             Route::apiResource('categories', CategoryController::class);
             Route::apiResource('tags', TagController::class);
+        });
+
+        // Blog Posts - requires manage-pages permission
+        Route::middleware('permission:manage-pages')->group(function () {
+            Route::apiResource('blog-posts', BlogController::class);
         });
 
         // Upload routes - requires authentication
