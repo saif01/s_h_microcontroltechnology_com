@@ -15,12 +15,19 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $homePage = Page::where('page_type', 'home')->where('published', true)->first();
+        // Load only necessary columns for home page
+        $homePage = Page::where('page_type', 'home')
+            ->where('published', true)
+            ->select('id', 'title', 'slug', 'page_type', 'featured_image', 'published', 'order')
+            ->first();
         
-        // Load home page settings
-        $homePageSettings = Setting::where('group', 'home_page')->get()->mapWithKeys(function ($item) {
-            return [$item->key => $item->value];
-        });
+        // Load home page settings - only select key and value columns
+        $homePageSettings = Setting::where('group', 'home_page')
+            ->select('key', 'value')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->key => $item->value];
+            });
         
         // Ensure section visibility settings exist with defaults (all enabled by default)
         $defaultSectionSettings = [
@@ -63,19 +70,32 @@ class HomeController extends Controller
             'modules' => Module::where('enabled', true)->pluck('name')->toArray(),
         ];
 
-        // Load featured services if module is enabled
+        // Load featured services if module is enabled - only select necessary columns
         if (Module::isEnabled('services')) {
-            $data['services'] = Service::where('published', true)->orderBy('order')->limit(6)->get();
+            $data['services'] = Service::where('published', true)
+                ->select('id', 'title', 'slug', 'short_description', 'icon', 'image', 'price_range', 'order')
+                ->orderBy('order')
+                ->limit(6)
+                ->get();
         }
 
-        // Load featured products if module is enabled
+        // Load featured products if module is enabled - only select necessary columns
         if (Module::isEnabled('products')) {
-            $data['products'] = Product::where('published', true)->where('featured', true)->orderBy('order')->limit(6)->get();
+            $data['products'] = Product::where('published', true)
+                ->where('featured', true)
+                ->select('id', 'title', 'slug', 'sku', 'short_description', 'thumbnail', 'price', 'price_range', 'show_price', 'order')
+                ->orderBy('order')
+                ->limit(6)
+                ->get();
         }
 
-        // Load latest blog posts if module is enabled
+        // Load latest blog posts if module is enabled - only select necessary columns
         if (Module::isEnabled('blog')) {
-            $data['posts'] = BlogPost::where('published', true)->orderBy('published_at', 'desc')->limit(3)->get();
+            $data['posts'] = BlogPost::where('published', true)
+                ->select('id', 'title', 'slug', 'excerpt', 'featured_image', 'published_at', 'views')
+                ->orderBy('published_at', 'desc')
+                ->limit(3)
+                ->get();
         }
 
         return response()->json($data);
