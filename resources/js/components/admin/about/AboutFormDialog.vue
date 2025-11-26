@@ -318,80 +318,172 @@
                         <!-- SEO & Meta Tab -->
                         <v-window-item value="seo">
                             <div class="pa-6">
+                                <v-alert type="info" variant="tonal" class="mb-6" density="compact">
+                                    <div class="text-body-2">
+                                        <strong>SEO Best Practices:</strong> Fill in these fields to improve your
+                                        about page visibility in search
+                                        engines and social media.
+                                        If left empty, default values from the page content will be
+                                        used.
+                                    </div>
+                                </v-alert>
+
                                 <v-row>
                                     <v-col cols="12">
-                                        <v-alert type="info" variant="tonal" class="mb-4" density="compact">
-                                            These settings control how the About page appears in search engine results
-                                            and when shared on social
-                                            media.
-                                        </v-alert>
-                                    </v-col>
-                                    <v-col cols="12">
                                         <v-text-field v-model="form.meta_title" label="Meta Title" variant="outlined"
-                                            counter="60"
-                                            hint="Recommended length: 50-60 characters. Appears in browser tab and search results."
-                                            persistent-hint>
+                                            hint="SEO title for search engines (recommended: 50-60 characters)"
+                                            persistent-hint :counter="60" :color="getMetaTitleColor()"
+                                            prepend-inner-icon="mdi-format-title">
                                             <template v-slot:append>
-                                                <v-btn size="small" variant="text" color="primary"
-                                                    @click="generateMetaTitle" :disabled="!form.hero.title">
-                                                    Generate
+                                                <v-btn icon="mdi-refresh" size="small" variant="text"
+                                                    @click="generateMetaTitle" :disabled="!form.hero.title"
+                                                    title="Auto-generate from hero title">
                                                 </v-btn>
                                             </template>
                                         </v-text-field>
+                                        <!-- Suggestion for Meta Title -->
+                                        <v-alert v-if="!form.meta_title && suggestedMetaTitle" type="info"
+                                            variant="tonal" density="compact" class="mt-2" closable>
+                                            <div class="d-flex align-center justify-space-between">
+                                                <span class="text-body-2">
+                                                    <strong>Suggested:</strong> {{ suggestedMetaTitle }}
+                                                </span>
+                                                <v-btn size="small" color="primary" variant="text"
+                                                    @click="applySuggestedMetaTitle" class="ml-2">
+                                                    Apply
+                                                </v-btn>
+                                            </div>
+                                        </v-alert>
+                                        <div class="text-caption" :class="getMetaTitleColor() + '--text'">
+                                            {{ (form.meta_title || '').length }}/60 characters
+                                            <span v-if="(form.meta_title || '').length < 50 && form.meta_title"
+                                                class="ml-2">
+                                                (Too short - recommended: 50-60)
+                                            </span>
+                                            <span v-else-if="(form.meta_title || '').length > 60" class="ml-2">
+                                                (Too long - may be truncated)
+                                            </span>
+                                            <span v-else-if="form.meta_title" class="ml-2 text-success">✓ Good
+                                                length</span>
+                                        </div>
                                     </v-col>
+
                                     <v-col cols="12">
                                         <v-textarea v-model="form.meta_description" label="Meta Description"
-                                            variant="outlined" rows="3" counter="160"
-                                            hint="Recommended length: 150-160 characters. Summarize the page content."
-                                            persistent-hint>
+                                            variant="outlined" rows="4"
+                                            hint="SEO description for search results (recommended: 150-160 characters)"
+                                            persistent-hint :counter="160" :color="getMetaDescriptionColor()"
+                                            prepend-inner-icon="mdi-text">
                                             <template v-slot:append>
-                                                <v-btn size="small" variant="text" color="primary"
+                                                <v-btn icon="mdi-refresh" size="small" variant="text"
                                                     @click="generateMetaDescription"
-                                                    :disabled="!form.hero.subtitle && !form.story.description">
-                                                    Generate
+                                                    :disabled="!form.hero.subtitle && !form.story.description"
+                                                    title="Auto-generate from hero subtitle or story description">
                                                 </v-btn>
                                             </template>
                                         </v-textarea>
+                                        <!-- Suggestion for Meta Description -->
+                                        <v-alert v-if="!form.meta_description && suggestedMetaDescription" type="info"
+                                            variant="tonal" density="compact" class="mt-2" closable>
+                                            <div class="d-flex align-center justify-space-between flex-wrap">
+                                                <span class="text-body-2 mb-2">
+                                                    <strong>Suggested:</strong> {{ suggestedMetaDescription }}
+                                                </span>
+                                                <v-btn size="small" color="primary" variant="text"
+                                                    @click="applySuggestedMetaDescription">
+                                                    Apply
+                                                </v-btn>
+                                            </div>
+                                        </v-alert>
+                                        <div class="text-caption" :class="getMetaDescriptionColor() + '--text'">
+                                            {{ (form.meta_description || '').length }}/160 characters
+                                            <span
+                                                v-if="(form.meta_description || '').length < 120 && form.meta_description"
+                                                class="ml-2">
+                                                (Too short - recommended: 150-160)
+                                            </span>
+                                            <span v-else-if="(form.meta_description || '').length > 160" class="ml-2">
+                                                (Too long - may be truncated)
+                                            </span>
+                                            <span v-else-if="form.meta_description" class="ml-2 text-success">✓ Good
+                                                length</span>
+                                        </div>
                                     </v-col>
+
                                     <v-col cols="12">
-                                        <v-textarea v-model="form.meta_keywords" label="Meta Keywords"
-                                            variant="outlined" rows="2"
-                                            hint="Comma-separated keywords relevant to the page content."
-                                            persistent-hint>
+                                        <v-text-field v-model="form.meta_keywords" label="Meta Keywords"
+                                            variant="outlined"
+                                            hint="Comma-separated keywords for SEO (e.g., about us, company history, team)"
+                                            persistent-hint prepend-inner-icon="mdi-tag-multiple">
                                             <template v-slot:append>
-                                                <v-btn size="small" variant="text" color="primary"
+                                                <v-btn icon="mdi-auto-fix" size="small" variant="text"
                                                     @click="generateMetaKeywords"
-                                                    :disabled="!form.values.length && !form.hero.title">
-                                                    Generate
+                                                    :disabled="!form.hero.title && !form.values.length"
+                                                    title="Auto-generate from hero title and values">
                                                 </v-btn>
                                             </template>
-                                        </v-textarea>
+                                        </v-text-field>
+                                        <!-- Suggestion for Meta Keywords -->
+                                        <v-alert v-if="!form.meta_keywords && suggestedMetaKeywords" type="info"
+                                            variant="tonal" density="compact" class="mt-2" closable>
+                                            <div class="d-flex align-center justify-space-between flex-wrap">
+                                                <span class="text-body-2 mb-2">
+                                                    <strong>Suggested:</strong> {{ suggestedMetaKeywords }}
+                                                </span>
+                                                <v-btn size="small" color="primary" variant="text"
+                                                    @click="applySuggestedMetaKeywords">
+                                                    Apply
+                                                </v-btn>
+                                            </div>
+                                        </v-alert>
+                                        <div class="text-caption text-medium-emphasis">
+                                            {{(form.meta_keywords || '').split(',').filter(k => k.trim()).length}}
+                                            keywords entered
+                                        </div>
                                     </v-col>
                                     <v-col cols="12">
-                                        <v-label class="mb-2">Open Graph Image (Social Share Image)</v-label>
+                                        <v-divider class="my-4"></v-divider>
+                                        <h3 class="text-h6 font-weight-bold mb-4">Open Graph (Social Media)</h3>
+                                        <p class="text-body-2 text-medium-emphasis mb-4">
+                                            This image will be displayed when your about page is shared on social media
+                                            platforms like Facebook,
+                                            Twitter, LinkedIn, etc.
+                                        </p>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-label class="mb-2">Open Graph Image</v-label>
                                         <v-card variant="outlined" class="pa-4">
                                             <div class="d-flex flex-column flex-md-row align-start">
+                                                <!-- OG Image Preview -->
                                                 <div v-if="ogImagePreview || form.og_image"
                                                     class="mr-md-4 mb-4 mb-md-0">
                                                     <v-img :src="ogImagePreview || resolveImageUrl(form.og_image)"
-                                                        max-width="300" max-height="157" class="rounded elevation-2"
-                                                        cover aspect-ratio="1.91"></v-img>
+                                                        max-width="300" max-height="300" class="rounded elevation-2"
+                                                        cover></v-img>
                                                     <div class="mt-2">
                                                         <v-btn color="error" size="small" variant="text"
                                                             @click="removeOgImage" prepend-icon="mdi-delete">
                                                             Remove Image
                                                         </v-btn>
                                                     </div>
+                                                    <div class="text-caption text-medium-emphasis mt-2">
+                                                        Recommended: 1200x630px (1.91:1 ratio)
+                                                    </div>
                                                 </div>
+
+                                                <!-- Upload Section -->
                                                 <div class="flex-grow-1">
                                                     <v-file-input v-model="ogImageFile" accept="image/*"
-                                                        label="Select OG Image" variant="outlined" prepend-icon=""
-                                                        prepend-inner-icon="mdi-image" show-size clearable
+                                                        label="Select Open Graph Image" variant="outlined"
+                                                        prepend-icon="" prepend-inner-icon="mdi-image" show-size
+                                                        clearable
                                                         hint="Recommended size: 1200x630px. Max file size: 5MB"
                                                         persistent-hint @update:model-value="handleOgImageSelect">
                                                         <template v-slot:append>
                                                             <v-progress-circular v-if="uploadingOgImage" indeterminate
-                                                                color="primary" size="24"></v-progress-circular>
+                                                                color="primary" size="24">
+                                                            </v-progress-circular>
                                                         </template>
                                                     </v-file-input>
 
@@ -402,9 +494,32 @@
 
                                                     <div v-if="!ogImagePreview && !ogImageFile && !form.og_image"
                                                         class="text-caption text-medium-emphasis mt-2">
-                                                        No image selected. This image will be displayed when the page is
-                                                        shared on social media.
+                                                        No image selected. If not provided, the story image will
+                                                        be used.
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </v-card>
+                                    </v-col>
+
+                                    <!-- SEO Preview -->
+                                    <v-col cols="12">
+                                        <v-divider class="my-4"></v-divider>
+                                        <h3 class="text-h6 font-weight-bold mb-4">Search Engine Preview</h3>
+                                        <v-card variant="outlined" class="pa-4">
+                                            <div class="search-preview">
+                                                <div class="search-url mb-1 text-caption" style="color: #006621;">
+                                                    {{ getPreviewUrl() }}
+                                                </div>
+                                                <div class="search-title mb-1 text-h6"
+                                                    :class="getMetaTitleColor() + '--text'"
+                                                    style="color: #1a0dab; cursor: pointer;">
+                                                    {{ getPreviewTitle() }}
+                                                </div>
+                                                <div class="search-description text-body-2"
+                                                    :class="getMetaDescriptionColor() + '--text'"
+                                                    style="color: #545454;">
+                                                    {{ getPreviewDescription() }}
                                                 </div>
                                             </div>
                                         </v-card>
@@ -460,6 +575,9 @@ export default {
             ogImageFile: null,
             ogImagePreview: null,
             uploadingOgImage: false,
+            ogImageFile: null,
+            ogImagePreview: null,
+            uploadingOgImage: false,
             form: {
                 hero: {
                     overline: 'WHO WE ARE',
@@ -494,6 +612,38 @@ export default {
             set(value) {
                 this.$emit('update:modelValue', value);
             }
+        },
+        suggestedMetaTitle() {
+            if (this.form.meta_title || !this.form.hero.title) return null;
+            return this.form.hero.title.length > 60
+                ? this.form.hero.title.substring(0, 57) + '...'
+                : this.form.hero.title;
+        },
+        suggestedMetaDescription() {
+            if (this.form.meta_description) return null;
+            let suggestion = null;
+            if (this.form.hero.subtitle) {
+                suggestion = this.form.hero.subtitle;
+            } else if (this.form.story.description) {
+                // Strip HTML tags for suggestion
+                const textContent = this.form.story.description.replace(/<[^>]*>/g, '').trim();
+                suggestion = textContent;
+            }
+            if (suggestion && suggestion.length > 160) {
+                // Try to cut at a word boundary
+                suggestion = suggestion.substring(0, 157);
+                const lastSpace = suggestion.lastIndexOf(' ');
+                if (lastSpace > 120) {
+                    suggestion = suggestion.substring(0, lastSpace) + '...';
+                } else {
+                    suggestion += '...';
+                }
+            }
+            return suggestion;
+        },
+        suggestedMetaKeywords() {
+            if (this.form.meta_keywords) return null;
+            return this.generateSuggestedKeywords();
         }
     },
     watch: {
@@ -1002,6 +1152,18 @@ export default {
                     }
                 }
 
+                // Upload OG image if a new file is selected
+                if (this.ogImageFile) {
+                    try {
+                        await this.uploadOgImage();
+                    } catch (error) {
+                        const errorMessage = error.message || 'Failed to upload OG image';
+                        this.showError(errorMessage);
+                        this.saving = false;
+                        return;
+                    }
+                }
+
                 const payload = { ...this.form };
 
                 try {
@@ -1032,6 +1194,216 @@ export default {
                 this.saving = false;
             }
         },
+        generateMetaTitle() {
+            if (this.form.hero.title) {
+                this.form.meta_title = this.form.hero.title.length > 60
+                    ? this.form.hero.title.substring(0, 57) + '...'
+                    : this.form.hero.title;
+            }
+        },
+        generateMetaDescription() {
+            let description = '';
+            if (this.form.hero.subtitle) {
+                description = this.form.hero.subtitle;
+            } else if (this.form.story.description) {
+                // Strip HTML tags
+                description = this.form.story.description.replace(/<[^>]*>/g, '').trim();
+            }
+            if (description) {
+                if (description.length > 160) {
+                    // Try to cut at a word boundary
+                    description = description.substring(0, 157);
+                    const lastSpace = description.lastIndexOf(' ');
+                    if (lastSpace > 120) {
+                        description = description.substring(0, lastSpace) + '...';
+                    } else {
+                        description += '...';
+                    }
+                }
+                this.form.meta_description = description;
+            }
+        },
+        generateMetaKeywords() {
+            const keywords = this.generateSuggestedKeywords();
+            if (keywords) {
+                this.form.meta_keywords = keywords;
+            }
+        },
+        generateSuggestedKeywords() {
+            const keywords = [];
+
+            // Extract keywords from hero title
+            if (this.form.hero.title) {
+                const titleWords = this.form.hero.title
+                    .toLowerCase()
+                    .replace(/[^\w\s]/g, ' ')
+                    .split(/\s+/)
+                    .filter(word => word.length > 3)
+                    .slice(0, 5);
+                keywords.push(...titleWords);
+            }
+
+            // Extract keywords from hero subtitle
+            if (this.form.hero.subtitle) {
+                const descWords = this.form.hero.subtitle
+                    .toLowerCase()
+                    .replace(/[^\w\s]/g, ' ')
+                    .split(/\s+/)
+                    .filter(word => word.length > 4)
+                    .slice(0, 5);
+                keywords.push(...descWords);
+            }
+
+            // Add values titles as keywords
+            if (this.form.values && this.form.values.length > 0) {
+                this.form.values.forEach(value => {
+                    if (value.title) {
+                        const valueWords = value.title
+                            .toLowerCase()
+                            .replace(/[^\w\s]/g, ' ')
+                            .split(/\s+/)
+                            .filter(word => word.length > 3)
+                            .slice(0, 2);
+                        keywords.push(...valueWords);
+                    }
+                });
+            }
+
+            // Remove duplicates and common words
+            const commonWords = ['the', 'and', 'for', 'with', 'from', 'this', 'that', 'your', 'our', 'about', 'company', 'team'];
+            const uniqueKeywords = [...new Set(keywords)]
+                .filter(word => !commonWords.includes(word))
+                .slice(0, 10);
+
+            return uniqueKeywords.length > 0 ? uniqueKeywords.join(', ') : null;
+        },
+        applySuggestedMetaTitle() {
+            if (this.suggestedMetaTitle) {
+                this.form.meta_title = this.suggestedMetaTitle;
+            }
+        },
+        applySuggestedMetaDescription() {
+            if (this.suggestedMetaDescription) {
+                this.form.meta_description = this.suggestedMetaDescription;
+            }
+        },
+        applySuggestedMetaKeywords() {
+            if (this.suggestedMetaKeywords) {
+                this.form.meta_keywords = this.suggestedMetaKeywords;
+            }
+        },
+        getMetaTitleColor() {
+            const length = this.form.meta_title ? this.form.meta_title.length : 0;
+            if (length === 0) return 'grey';
+            if (length < 50) return 'warning';
+            if (length > 60) return 'error';
+            return 'success';
+        },
+        getMetaDescriptionColor() {
+            const length = this.form.meta_description ? this.form.meta_description.length : 0;
+            if (length === 0) return 'grey';
+            if (length < 120) return 'warning';
+            if (length > 160) return 'error';
+            return 'success';
+        },
+        getPreviewTitle() {
+            return this.form.meta_title || this.form.hero.title || 'About Us';
+        },
+        getPreviewDescription() {
+            return this.form.meta_description || this.form.hero.subtitle || 'Learn more about our company, our story, and our team...';
+        },
+        getPreviewUrl() {
+            return window.location.origin + '/about';
+        },
+        handleOgImageSelect(file) {
+            if (file) {
+                const selectedFile = Array.isArray(file) ? file[0] : file;
+
+                if (selectedFile && selectedFile.size > 5242880) {
+                    this.showError('OG image file size must be less than 5MB');
+                    this.ogImageFile = null;
+                    return;
+                }
+
+                if (selectedFile && !selectedFile.type.startsWith('image/')) {
+                    this.showError('Please select a valid image file');
+                    this.ogImageFile = null;
+                    return;
+                }
+
+                this.ogImageFile = selectedFile;
+
+                if (selectedFile) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.ogImagePreview = e.target.result;
+                    };
+                    reader.onerror = () => {
+                        this.showError('Failed to read image file');
+                        this.ogImageFile = null;
+                        this.ogImagePreview = null;
+                    };
+                    reader.readAsDataURL(selectedFile);
+                } else {
+                    this.ogImagePreview = null;
+                }
+            } else {
+                this.ogImageFile = null;
+                if (!this.form.og_image) {
+                    this.ogImagePreview = null;
+                } else {
+                    // Update preview when OG image URL is directly entered (if no file is selected)
+                    this.ogImagePreview = this.resolveImageUrl(this.form.og_image);
+                }
+            }
+        },
+        removeOgImage() {
+            if (confirm('Are you sure you want to remove the Open Graph image?')) {
+                this.ogImagePreview = null;
+                this.ogImageFile = null;
+                this.form.og_image = '';
+            }
+        },
+        async uploadOgImage() {
+            if (!this.ogImageFile) return null;
+
+            const fileToUpload = Array.isArray(this.ogImageFile) ? this.ogImageFile[0] : this.ogImageFile;
+            if (!fileToUpload) return null;
+
+            this.uploadingOgImage = true;
+            try {
+                const formData = new FormData();
+                formData.append('image', fileToUpload);
+                formData.append('folder', 'about/og');
+
+                const response = await axios.post('/api/v1/upload/image', formData, {
+                    headers: {
+                        ...this.getAuthHeaders(),
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                if (response.data.success) {
+                    const uploadedPath = normalizeUploadPath(response.data.path || response.data.url);
+                    this.form.og_image = uploadedPath;
+                    this.ogImagePreview = resolveUploadUrl(response.data.url || uploadedPath);
+                    this.ogImageFile = null;
+                    return uploadedPath;
+                } else {
+                    throw new Error(response.data.message || 'Failed to upload OG image');
+                }
+            } catch (error) {
+                console.error('Error uploading OG image:', error);
+                console.error('Error response:', error.response?.data);
+                const errorMessage = error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    error.message ||
+                    'Failed to upload OG image';
+                throw new Error(errorMessage);
+            } finally {
+                this.uploadingOgImage = false;
+            }
+        },
         closeDialog() {
             // Save editor content before closing
             if (this.storyQuillEditor) {
@@ -1060,5 +1432,33 @@ export default {
 
 .rich-text-editor {
     min-height: 200px;
+}
+
+/* SEO Preview Styles */
+.search-preview {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+}
+
+.search-url {
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+.search-title {
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+.search-title:hover {
+    text-decoration: underline;
+}
+
+.search-description {
+    font-size: 14px;
+    line-height: 1.58;
+    color: #545454;
 }
 </style>
