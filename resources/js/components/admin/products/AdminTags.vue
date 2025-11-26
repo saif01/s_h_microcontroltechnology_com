@@ -73,34 +73,61 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="tag in tags" :key="tag.id">
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <div class="font-weight-medium">{{ tag.name }}</div>
+                                <v-skeleton-loader type="text" width="150"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" variant="outlined">{{ tag.slug }}</v-chip>
+                                <v-skeleton-loader type="chip" width="120" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" color="primary" variant="tonal">{{ tag.type }}</v-chip>
+                                <v-skeleton-loader type="chip" width="80" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <span class="text-body-2" v-if="tag.description">{{ tag.description }}</span>
-                                <span v-else class="text-caption text-grey">No description</span>
+                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
                             </td>
                             <td>
-                                <span class="text-caption">{{ tag.created_at ? new
-                                    Date(tag.created_at).toLocaleDateString() : '-' }}</span>
+                                <v-skeleton-loader type="text" width="100"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-btn size="small" icon="mdi-pencil" @click="editTag(tag)" variant="text"
-                                    color="primary"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deleteTag(tag.id)" variant="text"
-                                    color="error"></v-btn>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="tags.length === 0">
-                            <td colspan="6" class="text-center py-4">No tags found</td>
-                        </tr>
+                        <!-- Actual Tag Data -->
+                        <template v-else>
+                            <tr v-for="tag in tags" :key="tag.id">
+                                <td>
+                                    <div class="font-weight-medium">{{ tag.name }}</div>
+                                </td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ tag.slug }}</v-chip>
+                                </td>
+                                <td>
+                                    <v-chip size="small" color="primary" variant="tonal">{{ tag.type }}</v-chip>
+                                </td>
+                                <td>
+                                    <span class="text-body-2" v-if="tag.description">{{ tag.description }}</span>
+                                    <span v-else class="text-caption text-grey">No description</span>
+                                </td>
+                                <td>
+                                    <span class="text-caption">{{ tag.created_at ? new
+                                        Date(tag.created_at).toLocaleDateString() : '-' }}</span>
+                                </td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-pencil" @click="editTag(tag)" variant="text"
+                                        color="primary"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="deleteTag(tag.id)" variant="text"
+                                        color="error"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="tags.length === 0">
+                                <td colspan="6" class="text-center py-4">No tags found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

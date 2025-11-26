@@ -142,42 +142,75 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="log in logs" :key="log.id">
-                            <td>{{ log.email }}</td>
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <v-chip v-if="log.user" size="small" color="primary" variant="text">
-                                    {{ log.user.name }}
-                                </v-chip>
-                                <span v-else class="text-grey">-</span>
+                                <v-skeleton-loader type="text" width="180"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" variant="outlined">{{ log.ip_address || '-' }}</v-chip>
+                                <v-skeleton-loader type="chip" width="100" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <span class="text-caption" :title="log.user_agent">
-                                    {{ truncateText(log.user_agent, 50) }}
-                                </span>
+                                <v-skeleton-loader type="chip" width="120" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip :color="log.status === 'success' ? 'success' : 'error'" size="small">
-                                    {{ log.status }}
-                                </v-chip>
+                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
                             </td>
                             <td>
-                                <span v-if="log.failure_reason" class="text-caption text-grey">
-                                    {{ log.failure_reason }}
-                                </span>
-                                <span v-else>-</span>
+                                <v-skeleton-loader type="chip" width="80" height="24"></v-skeleton-loader>
                             </td>
-                            <td>{{ formatDate(log.created_at) }}</td>
                             <td>
-                                <v-btn size="small" icon="mdi-eye" @click="viewLog(log)" variant="text"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deleteLog(log)" variant="text" color="error"></v-btn>
+                                <v-skeleton-loader type="text" width="120"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="140"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="logs.length === 0">
-                            <td colspan="8" class="text-center py-4">No login logs found</td>
-                        </tr>
+                        <!-- Actual Log Data -->
+                        <template v-else>
+                            <tr v-for="log in logs" :key="log.id">
+                                <td>{{ log.email }}</td>
+                                <td>
+                                    <v-chip v-if="log.user" size="small" color="primary" variant="text">
+                                        {{ log.user.name }}
+                                    </v-chip>
+                                    <span v-else class="text-grey">-</span>
+                                </td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ log.ip_address || '-' }}</v-chip>
+                                </td>
+                                <td>
+                                    <span class="text-caption" :title="log.user_agent">
+                                        {{ truncateText(log.user_agent, 50) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <v-chip :color="log.status === 'success' ? 'success' : 'error'" size="small">
+                                        {{ log.status }}
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <span v-if="log.failure_reason" class="text-caption text-grey">
+                                        {{ log.failure_reason }}
+                                    </span>
+                                    <span v-else>-</span>
+                                </td>
+                                <td>{{ formatDate(log.created_at) }}</td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-eye" @click="viewLog(log)" variant="text"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="deleteLog(log)" variant="text" color="error"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="logs.length === 0">
+                                <td colspan="8" class="text-center py-4">No login logs found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

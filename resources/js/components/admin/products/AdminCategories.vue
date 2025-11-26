@@ -81,48 +81,82 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="category in categories" :key="category.id">
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <v-avatar size="40" v-if="category.image">
-                                    <v-img :src="resolveImageUrl(category.image)" cover></v-img>
-                                </v-avatar>
-                                <v-avatar size="40" v-else color="grey-lighten-2">
-                                    <v-icon icon="mdi-folder"></v-icon>
-                                </v-avatar>
+                                <v-skeleton-loader type="avatar" width="40" height="40"></v-skeleton-loader>
                             </td>
                             <td>
-                                <div class="font-weight-medium">{{ category.name }}</div>
-                                <div v-if="category.children && category.children.length > 0"
-                                    class="text-caption text-grey">
-                                    {{ category.children.length }} sub-category(ies)
+                                <v-skeleton-loader type="text" width="150" class="mb-1"></v-skeleton-loader>
+                                <v-skeleton-loader type="text" width="100" height="16"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="chip" width="120" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="chip" width="70" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="100"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="50"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="chip" width="80" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
                                 </div>
                             </td>
-                            <td>
-                                <v-chip size="small" variant="outlined">{{ category.slug }}</v-chip>
-                            </td>
-                            <td>
-                                <v-chip size="small" color="primary" variant="tonal">{{ category.type }}</v-chip>
-                            </td>
-                            <td>
-                                <span v-if="category.parent" class="text-body-2">{{ category.parent.name }}</span>
-                                <span v-else class="text-caption text-grey">Root</span>
-                            </td>
-                            <td>{{ category.order || 0 }}</td>
-                            <td>
-                                <v-chip :color="category.published ? 'success' : 'error'" size="small">
-                                    {{ category.published ? 'Published' : 'Draft' }}
-                                </v-chip>
-                            </td>
-                            <td>
-                                <v-btn size="small" icon="mdi-pencil" @click="editCategory(category)" variant="text"
-                                    color="primary"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deleteCategory(category)" variant="text"
-                                    color="error"></v-btn>
-                            </td>
                         </tr>
-                        <tr v-if="categories.length === 0">
-                            <td colspan="8" class="text-center py-4">No categories found</td>
-                        </tr>
+                        <!-- Actual Category Data -->
+                        <template v-else>
+                            <tr v-for="category in categories" :key="category.id">
+                                <td>
+                                    <v-avatar size="40" v-if="category.image">
+                                        <v-img :src="resolveImageUrl(category.image)" cover></v-img>
+                                    </v-avatar>
+                                    <v-avatar size="40" v-else color="grey-lighten-2">
+                                        <v-icon icon="mdi-folder"></v-icon>
+                                    </v-avatar>
+                                </td>
+                                <td>
+                                    <div class="font-weight-medium">{{ category.name }}</div>
+                                    <div v-if="category.children && category.children.length > 0"
+                                        class="text-caption text-grey">
+                                        {{ category.children.length }} sub-category(ies)
+                                    </div>
+                                </td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ category.slug }}</v-chip>
+                                </td>
+                                <td>
+                                    <v-chip size="small" color="primary" variant="tonal">{{ category.type }}</v-chip>
+                                </td>
+                                <td>
+                                    <span v-if="category.parent" class="text-body-2">{{ category.parent.name }}</span>
+                                    <span v-else class="text-caption text-grey">Root</span>
+                                </td>
+                                <td>{{ category.order || 0 }}</td>
+                                <td>
+                                    <v-chip :color="category.published ? 'success' : 'error'" size="small">
+                                        {{ category.published ? 'Published' : 'Draft' }}
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-pencil" @click="editCategory(category)" variant="text"
+                                        color="primary"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="deleteCategory(category)" variant="text"
+                                        color="error"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="categories.length === 0">
+                                <td colspan="8" class="text-center py-4">No categories found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

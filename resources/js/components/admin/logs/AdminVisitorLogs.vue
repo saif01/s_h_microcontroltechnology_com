@@ -156,42 +156,81 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="log in logs" :key="log.id">
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <v-checkbox :value="log.id" v-model="selectedLogs" density="compact"></v-checkbox>
+                                <v-skeleton-loader type="checkbox" width="24" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" variant="outlined">{{ log.ip_address || '-' }}</v-chip>
+                                <v-skeleton-loader type="chip" width="120" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <span class="text-caption" :title="log.url">
-                                    {{ truncateText(log.url, 40) }}
-                                </span>
+                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" :color="getDeviceColor(log.device_type)">
-                                    {{ log.device_type || '-' }}
-                                </v-chip>
-                                <v-chip v-if="log.is_bot" size="x-small" color="warning" class="ml-1">Bot</v-chip>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="chip" width="80" height="24" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="chip" width="40" height="20"></v-skeleton-loader>
+                                </div>
                             </td>
-                            <td>{{ log.browser || '-' }}</td>
-                            <td>{{ log.os || '-' }}</td>
                             <td>
-                                <span v-if="log.referer" class="text-caption" :title="log.referer">
-                                    {{ truncateText(log.referer, 30) }}
-                                </span>
-                                <span v-else class="text-grey">-</span>
+                                <v-skeleton-loader type="text" width="100"></v-skeleton-loader>
                             </td>
-                            <td>{{ formatDate(log.created_at) }}</td>
                             <td>
-                                <v-btn size="small" icon="mdi-eye" @click="viewLog(log)" variant="text"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deleteLog(log)" variant="text"
-                                    color="error"></v-btn>
+                                <v-skeleton-loader type="text" width="100"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="150"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="140"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="logs.length === 0">
-                            <td colspan="9" class="text-center py-4">No visitor logs found</td>
-                        </tr>
+                        <!-- Actual Log Data -->
+                        <template v-else>
+                            <tr v-for="log in logs" :key="log.id">
+                                <td>
+                                    <v-checkbox :value="log.id" v-model="selectedLogs" density="compact"></v-checkbox>
+                                </td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ log.ip_address || '-' }}</v-chip>
+                                </td>
+                                <td>
+                                    <span class="text-caption" :title="log.url">
+                                        {{ truncateText(log.url, 40) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <v-chip size="small" :color="getDeviceColor(log.device_type)">
+                                        {{ log.device_type || '-' }}
+                                    </v-chip>
+                                    <v-chip v-if="log.is_bot" size="x-small" color="warning" class="ml-1">Bot</v-chip>
+                                </td>
+                                <td>{{ log.browser || '-' }}</td>
+                                <td>{{ log.os || '-' }}</td>
+                                <td>
+                                    <span v-if="log.referer" class="text-caption" :title="log.referer">
+                                        {{ truncateText(log.referer, 30) }}
+                                    </span>
+                                    <span v-else class="text-grey">-</span>
+                                </td>
+                                <td>{{ formatDate(log.created_at) }}</td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-eye" @click="viewLog(log)" variant="text"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="deleteLog(log)" variant="text"
+                                        color="error"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="logs.length === 0">
+                                <td colspan="9" class="text-center py-4">No visitor logs found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

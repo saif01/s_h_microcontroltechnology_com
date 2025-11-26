@@ -72,34 +72,59 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="subscription in subscriptions" :key="subscription.id">
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <a :href="`mailto:${subscription.email}`" class="text-primary text-decoration-none">
-                                    {{ subscription.email }}
-                                </a>
+                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip :color="getStatusColor(subscription.status)" size="small">
-                                    {{ subscription.status }}
-                                </v-chip>
+                                <v-skeleton-loader type="chip" width="90" height="24"></v-skeleton-loader>
                             </td>
-                            <td>{{ formatDate(subscription.subscribed_at) }}</td>
-                            <td>{{ subscription.unsubscribed_at ? formatDate(subscription.unsubscribed_at) : '-' }}</td>
                             <td>
-                                <v-btn size="small" icon="mdi-eye" @click="viewSubscription(subscription)" variant="text"
-                                    class="mr-1" title="View Details"></v-btn>
-                                <v-btn v-if="subscription.status === 'active'" size="small" icon="mdi-email-remove"
-                                    @click="unsubscribe(subscription)" variant="text" color="error"
-                                    title="Unsubscribe"></v-btn>
-                                <v-btn v-else size="small" icon="mdi-email-check" @click="resubscribe(subscription)"
-                                    variant="text" color="success" title="Resubscribe"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="confirmDelete(subscription)" variant="text"
-                                    color="error" class="ml-1" title="Delete"></v-btn>
+                                <v-skeleton-loader type="text" width="140"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="140"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="subscriptions.length === 0 && !loading">
-                            <td colspan="5" class="text-center py-4">No subscriptions found</td>
-                        </tr>
+                        <!-- Actual Subscription Data -->
+                        <template v-else>
+                            <tr v-for="subscription in subscriptions" :key="subscription.id">
+                                <td>
+                                    <a :href="`mailto:${subscription.email}`" class="text-primary text-decoration-none">
+                                        {{ subscription.email }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <v-chip :color="getStatusColor(subscription.status)" size="small">
+                                        {{ subscription.status }}
+                                    </v-chip>
+                                </td>
+                                <td>{{ formatDate(subscription.subscribed_at) }}</td>
+                                <td>{{ subscription.unsubscribed_at ? formatDate(subscription.unsubscribed_at) : '-' }}</td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-eye" @click="viewSubscription(subscription)" variant="text"
+                                        class="mr-1" title="View Details"></v-btn>
+                                    <v-btn v-if="subscription.status === 'active'" size="small" icon="mdi-email-remove"
+                                        @click="unsubscribe(subscription)" variant="text" color="error"
+                                        title="Unsubscribe"></v-btn>
+                                    <v-btn v-else size="small" icon="mdi-email-check" @click="resubscribe(subscription)"
+                                        variant="text" color="success" title="Resubscribe"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="confirmDelete(subscription)" variant="text"
+                                        color="error" class="ml-1" title="Delete"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="subscriptions.length === 0">
+                                <td colspan="5" class="text-center py-4">No subscriptions found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

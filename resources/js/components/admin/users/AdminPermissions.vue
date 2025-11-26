@@ -108,32 +108,58 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="permission in permissions" :key="permission.id">
-                                    <td>
-                                        <div class="font-weight-medium">{{ permission.name }}</div>
-                                    </td>
-                                    <td>
-                                        <v-chip size="small" variant="outlined">{{ permission.slug }}</v-chip>
-                                    </td>
-                                    <td>
-                                        <span class="text-caption text-grey">
-                                            {{ permission.description || 'No description' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <v-chip size="small" color="info" variant="text">
-                                            {{ permission.roles_count || 0 }} role{{ (permission.roles_count || 0) !== 1
-                                                ? 's' : '' }}
-                                        </v-chip>
-                                    </td>
-                                    <td>
-                                        <v-btn size="small" icon="mdi-pencil" @click="openDialog(permission)"
-                                            variant="text"></v-btn>
-                                        <v-btn size="small" icon="mdi-delete" @click="deletePermission(permission)"
-                                            variant="text" color="error"
-                                            :disabled="(permission.roles_count || 0) > 0"></v-btn>
-                                    </td>
-                                </tr>
+                                <!-- Skeleton Loaders for Grouped View -->
+                                <template v-if="loading">
+                                    <tr v-for="n in 5" :key="`skeleton-grouped-${n}`">
+                                        <td>
+                                            <v-skeleton-loader type="text" width="150"></v-skeleton-loader>
+                                        </td>
+                                        <td>
+                                            <v-skeleton-loader type="chip" width="120" height="24"></v-skeleton-loader>
+                                        </td>
+                                        <td>
+                                            <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
+                                        </td>
+                                        <td>
+                                            <v-skeleton-loader type="chip" width="60" height="24"></v-skeleton-loader>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex">
+                                                <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                                <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <!-- Actual Permission Data for Grouped View -->
+                                <template v-else>
+                                    <tr v-for="permission in permissions" :key="permission.id">
+                                        <td>
+                                            <div class="font-weight-medium">{{ permission.name }}</div>
+                                        </td>
+                                        <td>
+                                            <v-chip size="small" variant="outlined">{{ permission.slug }}</v-chip>
+                                        </td>
+                                        <td>
+                                            <span class="text-caption text-grey">
+                                                {{ permission.description || 'No description' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <v-chip size="small" color="info" variant="text">
+                                                {{ permission.roles_count || 0 }} role{{ (permission.roles_count || 0) !== 1
+                                                    ? 's' : '' }}
+                                            </v-chip>
+                                        </td>
+                                        <td>
+                                            <v-btn size="small" icon="mdi-pencil" @click="openDialog(permission)"
+                                                variant="text"></v-btn>
+                                            <v-btn size="small" icon="mdi-delete" @click="deletePermission(permission)"
+                                                variant="text" color="error"
+                                                :disabled="(permission.roles_count || 0) > 0"></v-btn>
+                                        </td>
+                                    </tr>
+                                </template>
                             </tbody>
                         </v-table>
                     </div>
@@ -167,39 +193,66 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="permission in permissions" :key="permission.id">
+                        <!-- Skeleton Loaders for Flat View -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-flat-${n}`">
                             <td>
-                                <div class="font-weight-medium">{{ permission.name }}</div>
+                                <v-skeleton-loader type="text" width="150"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" variant="outlined">{{ permission.slug }}</v-chip>
+                                <v-skeleton-loader type="chip" width="120" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" :color="getGroupColor(permission.group)">
-                                    {{ permission.group }}
-                                </v-chip>
+                                <v-skeleton-loader type="chip" width="100" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <span class="text-caption text-grey">
-                                    {{ permission.description || 'No description' }}
-                                </span>
+                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip size="small" color="info" variant="text">
-                                    {{ permission.roles_count || 0 }} role{{ (permission.roles_count || 0) !== 1 ? 's' :
-                                        '' }}
-                                </v-chip>
+                                <v-skeleton-loader type="chip" width="60" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-btn size="small" icon="mdi-pencil" @click="openDialog(permission)"
-                                    variant="text"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deletePermission(permission)"
-                                    variant="text" color="error" :disabled="(permission.roles_count || 0) > 0"></v-btn>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="permissions.length === 0">
-                            <td colspan="6" class="text-center py-4">No permissions found</td>
-                        </tr>
+                        <!-- Actual Permission Data for Flat View -->
+                        <template v-else>
+                            <tr v-for="permission in permissions" :key="permission.id">
+                                <td>
+                                    <div class="font-weight-medium">{{ permission.name }}</div>
+                                </td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ permission.slug }}</v-chip>
+                                </td>
+                                <td>
+                                    <v-chip size="small" :color="getGroupColor(permission.group)">
+                                        {{ permission.group }}
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <span class="text-caption text-grey">
+                                        {{ permission.description || 'No description' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <v-chip size="small" color="info" variant="text">
+                                        {{ permission.roles_count || 0 }} role{{ (permission.roles_count || 0) !== 1 ? 's' :
+                                            '' }}
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-pencil" @click="openDialog(permission)"
+                                        variant="text"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="deletePermission(permission)"
+                                        variant="text" color="error" :disabled="(permission.roles_count || 0) > 0"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="permissions.length === 0">
+                                <td colspan="6" class="text-center py-4">No permissions found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

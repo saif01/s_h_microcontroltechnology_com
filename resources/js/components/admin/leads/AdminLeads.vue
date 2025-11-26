@@ -95,47 +95,83 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="lead in leads" :key="lead.id" :class="{ 'unread-row': !lead.is_read }">
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
                                 <div class="d-flex align-center">
-                                    <v-icon v-if="!lead.is_read" icon="mdi-circle" size="small" color="primary"
-                                        class="mr-2"></v-icon>
-                                    <span v-else class="mr-2" style="width: 16px;"></span>
-                                    {{ lead.name }}
+                                    <v-skeleton-loader type="avatar" width="16" height="16" class="mr-2"></v-skeleton-loader>
+                                    <v-skeleton-loader type="text" width="120"></v-skeleton-loader>
                                 </div>
                             </td>
-                            <td>{{ lead.email }}</td>
-                            <td>{{ lead.phone || '-' }}</td>
                             <td>
-                                <v-chip size="small" variant="outlined">{{ lead.type }}</v-chip>
+                                <v-skeleton-loader type="text" width="180"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip :color="getStatusColor(lead.status)" size="small">
-                                    {{ lead.status }}
-                                </v-chip>
-                            </td>
-                            <td>{{ formatDate(lead.created_at) }}</td>
-                            <td>
-                                <v-chip v-if="lead.is_read" size="small" color="success" variant="flat">
-                                    <v-icon icon="mdi-check" size="small" class="mr-1"></v-icon>
-                                    Read
-                                </v-chip>
-                                <v-chip v-else size="small" color="error" variant="flat">
-                                    <v-icon icon="mdi-email" size="small" class="mr-1"></v-icon>
-                                    Unread
-                                </v-chip>
+                                <v-skeleton-loader type="text" width="100"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-btn size="small" icon="mdi-eye" @click="viewLead(lead)" variant="text"
-                                    class="mr-1"></v-btn>
-                                <v-btn v-if="!lead.is_read" size="small" icon="mdi-email-mark-as-unread"
-                                    @click="markAsRead(lead)" variant="text" color="primary"
-                                    title="Mark as read"></v-btn>
+                                <v-skeleton-loader type="chip" width="80" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="chip" width="90" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="text" width="120"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <v-skeleton-loader type="chip" width="70" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="leads.length === 0">
-                            <td colspan="8" class="text-center py-4">No leads found</td>
-                        </tr>
+                        <!-- Actual Lead Data -->
+                        <template v-else>
+                            <tr v-for="lead in leads" :key="lead.id" :class="{ 'unread-row': !lead.is_read }">
+                                <td>
+                                    <div class="d-flex align-center">
+                                        <v-icon v-if="!lead.is_read" icon="mdi-circle" size="small" color="primary"
+                                            class="mr-2"></v-icon>
+                                        <span v-else class="mr-2" style="width: 16px;"></span>
+                                        {{ lead.name }}
+                                    </div>
+                                </td>
+                                <td>{{ lead.email }}</td>
+                                <td>{{ lead.phone || '-' }}</td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ lead.type }}</v-chip>
+                                </td>
+                                <td>
+                                    <v-chip :color="getStatusColor(lead.status)" size="small">
+                                        {{ lead.status }}
+                                    </v-chip>
+                                </td>
+                                <td>{{ formatDate(lead.created_at) }}</td>
+                                <td>
+                                    <v-chip v-if="lead.is_read" size="small" color="success" variant="flat">
+                                        <v-icon icon="mdi-check" size="small" class="mr-1"></v-icon>
+                                        Read
+                                    </v-chip>
+                                    <v-chip v-else size="small" color="error" variant="flat">
+                                        <v-icon icon="mdi-email" size="small" class="mr-1"></v-icon>
+                                        Unread
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-eye" @click="viewLead(lead)" variant="text"
+                                        class="mr-1"></v-btn>
+                                    <v-btn v-if="!lead.is_read" size="small" icon="mdi-email-mark-as-unread"
+                                        @click="markAsRead(lead)" variant="text" color="primary"
+                                        title="Mark as read"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="leads.length === 0">
+                                <td colspan="8" class="text-center py-4">No leads found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 

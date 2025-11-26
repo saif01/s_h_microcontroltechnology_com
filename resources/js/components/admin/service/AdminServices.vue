@@ -67,28 +67,50 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="service in services" :key="service.id">
-                            <td>{{ service.title }}</td>
+                        <!-- Skeleton Loaders -->
+                        <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <v-chip size="small" variant="outlined">{{ service.slug }}</v-chip>
+                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-chip :color="service.published ? 'success' : 'error'" size="small">
-                                    {{ service.published ? 'Published' : 'Draft' }}
-                                </v-chip>
+                                <v-skeleton-loader type="chip" width="150" height="24"></v-skeleton-loader>
                             </td>
                             <td>
-                                <v-btn size="small" icon="mdi-eye" @click="viewService(service)" variant="text"
-                                    color="info" title="View Service"></v-btn>
-                                <v-btn size="small" icon="mdi-pencil" @click="editService(service)" variant="text"
-                                    title="Edit Service"></v-btn>
-                                <v-btn size="small" icon="mdi-delete" @click="deleteService(service.id)" variant="text"
-                                    color="error" title="Delete Service"></v-btn>
+                                <v-skeleton-loader type="chip" width="80" height="24"></v-skeleton-loader>
+                            </td>
+                            <td>
+                                <div class="d-flex">
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
+                                </div>
                             </td>
                         </tr>
-                        <tr v-if="services.length === 0">
-                            <td colspan="4" class="text-center py-4">No services found</td>
-                        </tr>
+                        <!-- Actual Service Data -->
+                        <template v-else>
+                            <tr v-for="service in services" :key="service.id">
+                                <td>{{ service.title }}</td>
+                                <td>
+                                    <v-chip size="small" variant="outlined">{{ service.slug }}</v-chip>
+                                </td>
+                                <td>
+                                    <v-chip :color="service.published ? 'success' : 'error'" size="small">
+                                        {{ service.published ? 'Published' : 'Draft' }}
+                                    </v-chip>
+                                </td>
+                                <td>
+                                    <v-btn size="small" icon="mdi-eye" @click="viewService(service)" variant="text"
+                                        color="info" title="View Service"></v-btn>
+                                    <v-btn size="small" icon="mdi-pencil" @click="editService(service)" variant="text"
+                                        title="Edit Service"></v-btn>
+                                    <v-btn size="small" icon="mdi-delete" @click="deleteService(service.id)" variant="text"
+                                        color="error" title="Delete Service"></v-btn>
+                                </td>
+                            </tr>
+                            <tr v-if="services.length === 0">
+                                <td colspan="4" class="text-center py-4">No services found</td>
+                            </tr>
+                        </template>
                     </tbody>
                 </v-table>
 
