@@ -29,6 +29,44 @@ Route::get('test', function () {
     return response()->json(['message' => 'Hello World']);
 });
 
+// Test Telegram Notification
+Route::get('test/telegram', function () {
+    try {
+        $message = request()->get('message', null);
+        $chatId = request()->get('chat_id', null);
+        
+        $result = \App\Services\TelegramNotify::T_NOTIFY($message, $chatId);
+        
+        if ($result === false) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Telegram notification failed. Check logs for details.',
+                'config' => [
+                    'bot_token_configured' => !empty(config('telegram.bots.mybot.token')) || !empty(env('TELEGRAM_BOT_TOKEN')),
+                    'chat_id_configured' => !empty(config('values.telegram_chat_id')) || !empty(env('TELEGRAM_CHAT_ID')),
+                ]
+            ], 500);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Telegram notification sent successfully!',
+            'response' => [
+                'message_id' => $result->messageId ?? $result->get('message_id'),
+                'chat_id' => $result->chat->id ?? $result->get('chat')->get('id'),
+                'date' => $result->date ?? $result->get('date'),
+                'text' => $result->text ?? $result->get('text'),
+            ]
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage(),
+            'trace' => config('app.debug') ? $e->getTraceAsString() : null
+        ], 500);
+    }
+});
+
 // Public, unauthenticated API endpoints (no version prefix)
 Route::prefix('openapi')->group(function () {
     Route::get('/home', [HomeController::class, 'index']);
