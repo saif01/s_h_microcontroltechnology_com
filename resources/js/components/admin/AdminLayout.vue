@@ -17,21 +17,16 @@
             <v-divider class="my-0 divider-glow"></v-divider>
 
             <v-list density="compact" nav>
-                <!-- Dashboard - Requires 'access-dashboard' permission -->
+                <!-- ============================================ -->
+                <!-- OVERVIEW -->
+                <!-- ============================================ -->
                 <v-list-item link router prepend-icon="mdi-view-dashboard" title="Dashboard"
                     :to="{ name: 'AdminDashboard' }" value="Dashboard" exact
                     v-if="hasPermission('access-dashboard')"></v-list-item>
 
-
-                <!-- Services Management - Requires 'manage-services' permission -->
-                <v-list-item link router prepend-icon="mdi-wrench" title="Services" :to="{ name: 'AdminServices' }"
-                    value="Services" exact v-if="hasPermission('manage-services')"></v-list-item>
-
-                <!-- About Page Management - Requires 'manage-pages' permission -->
-                <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
-                    value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
-
-                <!-- Products Management - Requires 'manage-products' permission -->
+                <!-- ============================================ -->
+                <!-- CONTENT MANAGEMENT -->
+                <!-- ============================================ -->
                 <v-list-group value="products" prepend-icon="mdi-package-variant" no-action
                     v-if="hasPermission('manage-products')">
                     <template v-slot:activator="{ props }">
@@ -44,7 +39,32 @@
                     <v-list-item prepend-icon="mdi-tag" title="Tags" :to="{ name: 'AdminTags' }"></v-list-item>
                 </v-list-group>
 
-                <!-- Leads Management - Requires 'view-leads' permission -->
+                <v-list-item link router prepend-icon="mdi-wrench" title="Services" :to="{ name: 'AdminServices' }"
+                    value="Services" exact v-if="hasPermission('manage-services')"></v-list-item>
+
+                <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
+                    value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
+
+                <!-- ============================================ -->
+                <!-- USER MANAGEMENT -->
+                <!-- ============================================ -->
+                <v-list-item link router prepend-icon="mdi-account-group" title="Users" :to="{ name: 'AdminUsers' }"
+                    value="Users" exact v-if="hasPermission('manage-users')"></v-list-item>
+
+                <v-list-group value="roles" prepend-icon="mdi-shield-account" no-action
+                    v-if="hasPermission('manage-roles')">
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" title="Roles & Permissions"></v-list-item>
+                    </template>
+                    <v-list-item prepend-icon="mdi-shield-account" title="Roles"
+                        :to="{ name: 'AdminRoles' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-key" title="Permissions"
+                        :to="{ name: 'AdminPermissions' }"></v-list-item>
+                </v-list-group>
+
+                <!-- ============================================ -->
+                <!-- COMMUNICATION -->
+                <!-- ============================================ -->
                 <v-list-item link router prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }" value="Leads" exact
                     v-if="hasPermission('view-leads')" class="leads-menu-item">
                     <template v-slot:title>
@@ -57,38 +77,20 @@
                     </template>
                 </v-list-item>
 
-                <!-- Newsletter Subscriptions - Requires 'view-leads' permission -->
                 <v-list-item link router prepend-icon="mdi-email-newsletter" :to="{ name: 'AdminNewsletters' }"
                     value="Newsletters" exact v-if="hasPermission('view-leads')" title="Newsletters"></v-list-item>
 
-                <!-- Users Management - Requires 'manage-users' permission -->
-                <v-list-item link router prepend-icon="mdi-account-group" title="Users" :to="{ name: 'AdminUsers' }"
-                    value="Users" exact v-if="hasPermission('manage-users')"></v-list-item>
-
-                <!-- Roles & Permissions Management - Requires 'manage-roles' permission -->
-                <v-list-group value="roles" prepend-icon="mdi-shield-account" no-action
-                    v-if="hasPermission('manage-roles')">
-                    <template v-slot:activator="{ props }">
-                        <v-list-item v-bind="props" title="Roles & Permissions"></v-list-item>
-                    </template>
-
-                    <v-list-item prepend-icon="mdi-shield-account" title="Roles"
-                        :to="{ name: 'AdminRoles' }"></v-list-item>
-                    <v-list-item prepend-icon="mdi-key" title="Permissions"
-                        :to="{ name: 'AdminPermissions' }"></v-list-item>
-                </v-list-group>
-
-                <!-- Settings Management - Requires 'manage-settings' permission -->
+                <!-- ============================================ -->
+                <!-- SYSTEM & ADMINISTRATION -->
+                <!-- ============================================ -->
                 <v-list-item link router prepend-icon="mdi-cog" title="Settings" :to="{ name: 'AdminSettings' }"
                     value="Settings" exact v-if="hasPermission('manage-settings')"></v-list-item>
 
-                <!-- Logs Management - Group for Login Logs and Visitor Logs -->
                 <v-list-group value="logs" prepend-icon="mdi-file-document-multiple" no-action
                     v-if="hasPermission('view-login-logs') || hasPermission('view-visitor-logs')">
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Logs"></v-list-item>
                     </template>
-
                     <v-list-item prepend-icon="mdi-login" title="Login Logs" :to="{ name: 'AdminLoginLogs' }"
                         v-if="hasPermission('view-login-logs')"></v-list-item>
                     <v-list-item prepend-icon="mdi-account-group" title="Visitor Logs"
