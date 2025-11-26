@@ -63,7 +63,16 @@ class CategoryController extends Controller
 
         // Paginate results
         $perPage = $request->get('per_page', 15);
-        $categories = $query->with(['parent', 'children'])->paginate($perPage);
+        $categories = $query->select('id', 'name', 'slug', 'type', 'description', 'image', 'parent_id', 'order', 'published', 'created_at', 'updated_at')
+            ->with([
+                'parent' => function ($query) {
+                    $query->select('id', 'name', 'slug', 'type', 'image');
+                },
+                'children' => function ($query) {
+                    $query->select('id', 'name', 'slug', 'type', 'image', 'parent_id', 'order');
+                }
+            ])
+            ->paginate($perPage);
 
         $categories->getCollection()->transform(function ($category) {
             return $this->transformCategoryWithImage($category);

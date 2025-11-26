@@ -11,7 +11,8 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::where('published', true);
+        $query = Product::where('published', true)
+            ->select('id', 'title', 'slug', 'sku', 'short_description', 'thumbnail', 'price', 'price_range', 'show_price', 'meta_title', 'meta_description', 'og_image', 'published', 'featured', 'stock', 'order', 'created_at', 'updated_at');
 
         if ($request->has('category')) {
             $query->whereHas('categories', function ($q) use ($request) {
@@ -24,7 +25,14 @@ class ProductController extends Controller
         }
 
         $products = $query->orderBy('order')
-            ->with(['categories', 'tags'])
+            ->with([
+                'categories' => function ($query) {
+                    $query->select('categories.id', 'categories.name', 'categories.slug', 'categories.type');
+                },
+                'tags' => function ($query) {
+                    $query->select('tags.id', 'tags.name', 'tags.slug', 'tags.type');
+                }
+            ])
             ->get();
         
         $products->transform(function ($product) {
@@ -38,7 +46,15 @@ class ProductController extends Controller
     {
         $product = Product::where('slug', $slug)
             ->where('published', true)
-            ->with(['categories', 'tags'])
+            ->select('id', 'title', 'slug', 'sku', 'short_description', 'description', 'thumbnail', 'images', 'price', 'price_range', 'show_price', 'specifications', 'downloads', 'meta_title', 'meta_description', 'meta_keywords', 'og_image', 'published', 'featured', 'stock', 'order', 'created_at', 'updated_at')
+            ->with([
+                'categories' => function ($query) {
+                    $query->select('categories.id', 'categories.name', 'categories.slug', 'categories.type', 'categories.description', 'categories.image');
+                },
+                'tags' => function ($query) {
+                    $query->select('tags.id', 'tags.name', 'tags.slug', 'tags.type');
+                }
+            ])
             ->firstOrFail();
         
         return response()->json($this->transformProductWithImages($product));

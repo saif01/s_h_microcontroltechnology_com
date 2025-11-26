@@ -12,8 +12,16 @@ class ServiceController extends Controller
     public function index()
     {
         $services = Service::where('published', true)
+            ->select('id', 'title', 'slug', 'short_description', 'icon', 'image', 'price_range', 'meta_title', 'meta_description', 'og_image', 'published', 'order', 'created_at', 'updated_at')
             ->orderBy('order')
-            ->with(['categories', 'tags'])
+            ->with([
+                'categories' => function ($query) {
+                    $query->select('categories.id', 'categories.name', 'categories.slug', 'categories.type');
+                },
+                'tags' => function ($query) {
+                    $query->select('tags.id', 'tags.name', 'tags.slug', 'tags.type');
+                }
+            ])
             ->get();
         
         $services->transform(function ($service) {
@@ -27,7 +35,15 @@ class ServiceController extends Controller
     {
         $service = Service::where('slug', $slug)
             ->where('published', true)
-            ->with(['categories', 'tags'])
+            ->select('id', 'title', 'slug', 'short_description', 'description', 'icon', 'image', 'price_range', 'features', 'benefits', 'meta_title', 'meta_description', 'meta_keywords', 'og_image', 'published', 'order', 'created_at', 'updated_at')
+            ->with([
+                'categories' => function ($query) {
+                    $query->select('categories.id', 'categories.name', 'categories.slug', 'categories.type', 'categories.description', 'categories.image');
+                },
+                'tags' => function ($query) {
+                    $query->select('tags.id', 'tags.name', 'tags.slug', 'tags.type');
+                }
+            ])
             ->firstOrFail();
         
         return response()->json($this->transformServiceWithImages($service));

@@ -78,7 +78,7 @@ class SettingController extends Controller
             $query->whereIn('group', ['general', 'contact_page', 'social', 'seo', 'branding']);
         }
 
-        $settings = $query->get();
+        $settings = $query->select('key', 'value')->get();
 
         // Return as key-value pair for easier frontend usage
         $formatted = $settings->mapWithKeys(function ($item) {
