@@ -2,6 +2,163 @@
 
 A comprehensive, generic business website platform built according to SRS specifications. This platform can represent almost any type of business with configurable modules.
 
+## 🛠️ Technical Specifications
+
+### Backend Stack
+
+#### Core Framework
+- **Laravel Framework**: ^12.0
+- **PHP**: ^8.2
+- **Composer**: Dependency management
+
+#### Authentication & Security
+- **Laravel Sanctum**: ^4.2 - API token-based authentication
+- **Laravel UI**: ^4.6 - Authentication scaffolding
+
+#### Database & ORM
+- **Laravel Eloquent ORM**: Built-in ORM for database operations
+- **MySQL/PostgreSQL/SQLite**: Supported database systems
+- **Yajra Laravel DataTables**: ^12.3 - Advanced data tables with server-side processing
+- **Yajra Laravel OCI8**: ^12.0 - Oracle database support
+
+#### File Processing & Media
+- **Intervention Image**: ^3.11 - Image manipulation library
+- **Intervention Image Laravel**: ^1.5 - Laravel integration for image processing
+- **Barryvdh Laravel Snappy**: ^1.0 - PDF generation from HTML
+
+#### Data Export & Import
+- **Maatwebsite Excel**: ^3.1 - Excel file import/export functionality
+
+#### API & Integration
+- **Guzzle HTTP**: ^7.9 - HTTP client for API requests
+- **Inertia.js Laravel**: ^2.0 - Modern monolith approach (SPA-like experience)
+- **Tightenco Ziggy**: ^2.4 - Route helper for JavaScript
+
+#### Utilities
+- **SimpleSoftwareIO Simple QRCode**: ^4.2 - QR code generation
+- **Irazasyed Telegram Bot SDK**: ^3.15 - Telegram bot integration
+- **DirectoryTree LDAPRecord Laravel**: ^3.4 - LDAP authentication support
+
+#### Development Tools
+- **Laravel Tinker**: ^2.10.1 - REPL for Laravel
+- **Laravel Pint**: ^1.18 - Code style fixer
+- **Laravel Sail**: ^1.41 - Docker development environment
+- **Laravel Pail**: ^1.2.2 - Real-time log viewer
+- **OpcodesIO Log Viewer**: ^3.17 - Advanced log viewing interface
+
+#### Testing
+- **PHPUnit**: ^11.5.3 - Unit testing framework
+- **Mockery**: ^1.6 - Mocking library for testing
+- **Nunomaduro Collision**: ^8.6 - Error handler for console/CLI
+- **FakerPHP Faker**: ^1.23 - Fake data generator for testing
+
+### Frontend Stack
+
+#### Core Framework
+- **Vue.js**: ^3.2.37 - Progressive JavaScript framework
+- **Vue Router**: ^4.3.0 - Official router for Vue.js
+- **Vite**: ^6.3.5 - Next-generation frontend build tool
+
+#### UI Framework
+- **Vuetify**: ^3.5.14 - Material Design component framework
+- **Material Design Icons**: ^7.4.47 - Icon library (@mdi/font)
+
+#### State Management
+- **Pinia**: ^3.0.4 - Official state management for Vue 3
+- **Vuex**: ^4.1.0 - State management pattern library
+
+#### Forms & Validation
+- **VForm**: ^2.1.2 - Form validation library for Vue.js
+
+#### Rich Text Editing
+- **Quill**: ^2.0.3 - Rich text WYSIWYG editor
+- **Vue3 Editor**: ^0.1.1 - Vue 3 wrapper for Quill
+
+#### Data Visualization
+- **Chart.js**: ^4.5.1 - Simple yet flexible JavaScript charting library
+- **Vue ChartJS**: ^5.3.3 - Vue.js wrapper for Chart.js
+
+#### UI Enhancements
+- **Vue SweetAlert2**: ^5.0.5 - Beautiful, responsive, customizable popup boxes
+- **Vue3 Progress Bar**: ^1.0.3 - Progress bar component for Vue 3
+
+#### Utilities
+- **Axios**: ^1.6.4 - Promise-based HTTP client
+- **Moment.js**: ^2.30.1 - Date manipulation library
+- **Bootstrap**: ^5.3.6 - CSS framework (for some legacy components)
+- **Popper.js**: ^2.11.6 - Tooltip and popover positioning engine
+- **Fontsource Prompt**: ^5.0.13 - Self-hosted Prompt font
+
+#### Build Tools
+- **Vite**: ^6.3.5 - Fast build tool and dev server
+- **Sass**: ^1.89.1 - CSS preprocessor
+- **Laravel Vite Plugin**: ^1.0 - Laravel integration for Vite
+- **@vitejs/plugin-vue**: ^5.2.4 - Vue.js plugin for Vite
+
+### Development Environment
+
+#### Required Software
+- **PHP**: 8.2 or higher
+- **Composer**: PHP dependency manager
+- **Node.js**: 18+ (for npm)
+- **npm**: Package manager for JavaScript
+- **MySQL/PostgreSQL/SQLite**: Database system
+
+#### Build Commands
+```bash
+# Install PHP dependencies
+composer install
+
+# Install JavaScript dependencies
+npm install
+
+# Development build (with hot reload)
+npm run dev
+
+# Production build
+npm run build
+```
+
+### Architecture
+
+#### Backend Architecture
+- **MVC Pattern**: Model-View-Controller architecture
+- **RESTful API**: RESTful API design for admin panel
+- **Service Layer**: Business logic separation
+- **Repository Pattern**: Data access abstraction (where applicable)
+
+#### Frontend Architecture
+- **Component-Based**: Vue.js component architecture
+- **SPA (Single Page Application)**: Client-side routing with Vue Router
+- **API-Driven**: Frontend communicates with backend via REST API
+- **State Management**: Centralized state with Pinia/Vuex
+
+#### Security Features
+- **CSRF Protection**: Laravel's built-in CSRF protection
+- **XSS Protection**: Automatic output escaping
+- **SQL Injection Protection**: Eloquent ORM parameter binding
+- **Authentication**: Laravel Sanctum token-based authentication
+- **Authorization**: Role-Based Access Control (RBAC) with permissions
+
+### Performance Optimizations
+
+#### Backend
+- **Query Optimization**: Eloquent eager loading
+- **Caching**: Laravel's caching system
+- **Database Indexing**: Optimized database queries
+- **File Compression**: Image optimization with Intervention Image
+
+#### Frontend
+- **Code Splitting**: Lazy loading of routes and components
+- **Asset Optimization**: Vite's built-in optimization
+- **Image Lazy Loading**: Lazy loading for images
+- **Tree Shaking**: Unused code elimination
+
+### Browser Support
+- **Modern Browsers**: Chrome, Firefox, Safari, Edge (latest versions)
+- **Mobile Browsers**: iOS Safari, Chrome Mobile
+- **Responsive Design**: Mobile-first approach with Vuetify
+
 ## 🚀 Features
 
 ### Core Features
