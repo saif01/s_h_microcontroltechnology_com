@@ -103,6 +103,14 @@
                                                         File size is larger than 5MB. Please choose a smaller image.
                                                     </v-alert>
 
+                                                    <v-alert v-if="storyImageError" type="error" variant="tonal"
+                                                        density="compact" class="mt-2" closable
+                                                        @click:close="storyImageError = null">
+                                                        <div class="text-body-2">
+                                                            <strong>Upload Error:</strong> {{ storyImageError }}
+                                                        </div>
+                                                    </v-alert>
+
                                                     <div v-if="!storyImagePreview && !storyImageFile && !form.story.image"
                                                         class="text-caption text-medium-emphasis mt-2">
                                                         No image selected. Upload an image to display with the story
@@ -279,6 +287,16 @@
                                                                         class="mt-2">
                                                                         File size is larger than 5MB. Please choose a
                                                                         smaller image.
+                                                                    </v-alert>
+
+                                                                    <v-alert v-if="member.imageError" type="error"
+                                                                        variant="tonal" density="compact" class="mt-2"
+                                                                        closable
+                                                                        @click:close="member.imageError = null">
+                                                                        <div class="text-body-2">
+                                                                            <strong>Upload Error:</strong> {{
+                                                                                member.imageError }}
+                                                                        </div>
                                                                     </v-alert>
 
                                                                     <div v-if="!member.imagePreview && !member.imageFile && !member.image"
@@ -492,6 +510,14 @@
                                                         File size is larger than 5MB. Please choose a smaller image.
                                                     </v-alert>
 
+                                                    <v-alert v-if="ogImageError" type="error" variant="tonal"
+                                                        density="compact" class="mt-2" closable
+                                                        @click:close="ogImageError = null">
+                                                        <div class="text-body-2">
+                                                            <strong>Upload Error:</strong> {{ ogImageError }}
+                                                        </div>
+                                                    </v-alert>
+
                                                     <div v-if="!ogImagePreview && !ogImageFile && !form.og_image"
                                                         class="text-caption text-medium-emphasis mt-2">
                                                         No image selected. If not provided, the story image will
@@ -571,10 +597,12 @@ export default {
             storyImageFile: null,
             storyImagePreview: null,
             uploadingStoryImage: false,
+            storyImageError: null,
             storyQuillEditor: null,
             ogImageFile: null,
             ogImagePreview: null,
             uploadingOgImage: false,
+            ogImageError: null,
             ogImageFile: null,
             ogImagePreview: null,
             uploadingOgImage: false,
@@ -718,8 +746,10 @@ export default {
 
             this.storyImageFile = null;
             this.storyImagePreview = null;
+            this.storyImageError = null;
             this.ogImageFile = null;
             this.ogImagePreview = null;
+            this.ogImageError = null;
         },
         loadAboutForEdit() {
             if (!this.aboutData) {
@@ -770,7 +800,8 @@ export default {
                     twitter: m.twitter || '',
                     imagePreview: m.image ? this.resolveImageUrl(m.image) : null,
                     imageFile: null,
-                    uploadingImage: false
+                    uploadingImage: false,
+                    imageError: null
                 })) : [];
 
                 // Load SEO data
@@ -892,17 +923,20 @@ export default {
             }
         },
         handleStoryImageSelect(file) {
+            // Clear previous error
+            this.storyImageError = null;
+
             if (file) {
                 const selectedFile = Array.isArray(file) ? file[0] : file;
 
                 if (selectedFile && selectedFile.size > 5242880) {
-                    this.showError('Image file size must be less than 5MB');
+                    this.storyImageError = 'Image file size must be less than 5MB';
                     this.storyImageFile = null;
                     return;
                 }
 
                 if (selectedFile && !selectedFile.type.startsWith('image/')) {
-                    this.showError('Please select a valid image file');
+                    this.storyImageError = 'Please select a valid image file (jpeg, jpg, png, gif, webp)';
                     this.storyImageFile = null;
                     return;
                 }
@@ -938,6 +972,7 @@ export default {
                 this.storyImagePreview = null;
                 this.storyImageFile = null;
                 this.form.story.image = '';
+                this.storyImageError = null; // Clear error
             }
         },
         async uploadStoryImage() {
@@ -964,6 +999,7 @@ export default {
                     this.form.story.image = uploadedPath;
                     this.storyImagePreview = resolveUploadUrl(response.data.url || uploadedPath);
                     this.storyImageFile = null;
+                    this.storyImageError = null; // Clear error on success
                     return uploadedPath;
                 } else {
                     throw new Error(response.data.message || 'Failed to upload image');
@@ -971,10 +1007,26 @@ export default {
             } catch (error) {
                 console.error('Error uploading story image:', error);
                 console.error('Error response:', error.response?.data);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    error.message ||
-                    'Failed to upload image';
+
+                // Extract validation errors
+                let errorMessage = 'Failed to upload image';
+                if (error.response?.status === 422) {
+                    // Validation error
+                    const errors = error.response.data.errors;
+                    if (errors && errors.image) {
+                        errorMessage = Array.isArray(errors.image) ? errors.image.join(', ') : errors.image;
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response?.data?.error) {
+                    errorMessage = error.response.data.error;
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+
+                this.storyImageError = errorMessage;
                 throw new Error(errorMessage);
             } finally {
                 this.uploadingStoryImage = false;
@@ -999,24 +1051,32 @@ export default {
                 image: '',
                 linkedin: '',
                 twitter: '',
-                imagePreview: null
+                imagePreview: null,
+                imageFile: null,
+                uploadingImage: false,
+                imageError: null
             });
         },
         removeTeamMember(index) {
             this.form.team.splice(index, 1);
         },
         handleTeamMemberImageSelect(file, index) {
+            // Clear previous error
+            if (this.form.team[index]) {
+                this.form.team[index].imageError = null;
+            }
+
             if (file) {
                 const selectedFile = Array.isArray(file) ? file[0] : file;
 
                 if (selectedFile && selectedFile.size > 5242880) {
-                    this.showError('Image file size must be less than 5MB');
+                    this.form.team[index].imageError = 'Image file size must be less than 5MB';
                     this.form.team[index].imageFile = null;
                     return;
                 }
 
                 if (selectedFile && !selectedFile.type.startsWith('image/')) {
-                    this.showError('Please select a valid image file');
+                    this.form.team[index].imageError = 'Please select a valid image file (jpeg, jpg, png, gif, webp)';
                     this.form.team[index].imageFile = null;
                     return;
                 }
@@ -1052,6 +1112,7 @@ export default {
                 this.form.team[index].imagePreview = null;
                 this.form.team[index].imageFile = null;
                 this.form.team[index].image = '';
+                this.form.team[index].imageError = null; // Clear error
             }
         },
         async uploadTeamMemberImage(index) {
@@ -1083,6 +1144,7 @@ export default {
                     member.image = uploadedPath;
                     member.imagePreview = resolveUploadUrl(response.data.url || uploadedPath);
                     member.imageFile = null;
+                    member.imageError = null; // Clear error on success
                     return uploadedPath;
                 } else {
                     const errorMsg = response.data?.message || response.data?.error || 'Failed to upload image';
@@ -1091,10 +1153,26 @@ export default {
             } catch (error) {
                 console.error('Error uploading team member image:', error);
                 console.error('Error response:', error.response?.data);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    error.message ||
-                    'Failed to upload image';
+
+                // Extract validation errors
+                let errorMessage = 'Failed to upload image';
+                if (error.response?.status === 422) {
+                    // Validation error
+                    const errors = error.response.data.errors;
+                    if (errors && errors.image) {
+                        errorMessage = Array.isArray(errors.image) ? errors.image.join(', ') : errors.image;
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response?.data?.error) {
+                    errorMessage = error.response.data.error;
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+
+                member.imageError = errorMessage;
                 throw new Error(errorMessage);
             } finally {
                 member.uploadingImage = false;
@@ -1316,17 +1394,20 @@ export default {
             return window.location.origin + '/about';
         },
         handleOgImageSelect(file) {
+            // Clear previous error
+            this.ogImageError = null;
+
             if (file) {
                 const selectedFile = Array.isArray(file) ? file[0] : file;
 
                 if (selectedFile && selectedFile.size > 5242880) {
-                    this.showError('OG image file size must be less than 5MB');
+                    this.ogImageError = 'OG image file size must be less than 5MB';
                     this.ogImageFile = null;
                     return;
                 }
 
                 if (selectedFile && !selectedFile.type.startsWith('image/')) {
-                    this.showError('Please select a valid image file');
+                    this.ogImageError = 'Please select a valid image file (jpeg, jpg, png, gif, webp)';
                     this.ogImageFile = null;
                     return;
                 }
@@ -1362,6 +1443,7 @@ export default {
                 this.ogImagePreview = null;
                 this.ogImageFile = null;
                 this.form.og_image = '';
+                this.ogImageError = null; // Clear error
             }
         },
         async uploadOgImage() {
@@ -1388,6 +1470,7 @@ export default {
                     this.form.og_image = uploadedPath;
                     this.ogImagePreview = resolveUploadUrl(response.data.url || uploadedPath);
                     this.ogImageFile = null;
+                    this.ogImageError = null; // Clear error on success
                     return uploadedPath;
                 } else {
                     throw new Error(response.data.message || 'Failed to upload OG image');
@@ -1395,10 +1478,26 @@ export default {
             } catch (error) {
                 console.error('Error uploading OG image:', error);
                 console.error('Error response:', error.response?.data);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    error.message ||
-                    'Failed to upload OG image';
+
+                // Extract validation errors
+                let errorMessage = 'Failed to upload OG image';
+                if (error.response?.status === 422) {
+                    // Validation error
+                    const errors = error.response.data.errors;
+                    if (errors && errors.image) {
+                        errorMessage = Array.isArray(errors.image) ? errors.image.join(', ') : errors.image;
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                } else if (error.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error.response?.data?.error) {
+                    errorMessage = error.response.data.error;
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+
+                this.ogImageError = errorMessage;
                 throw new Error(errorMessage);
             } finally {
                 this.uploadingOgImage = false;
