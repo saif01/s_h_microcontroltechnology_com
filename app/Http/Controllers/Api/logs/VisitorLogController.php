@@ -102,8 +102,11 @@ class VisitorLogController extends Controller
     /**
      * Get statistics about visitor logs
      */
-    public function statistics()
+    public function statistics(Request $request)
     {
+        $timeRange = $request->get('time_range', '7d'); // 7d, 30d, 90d, 1y
+        $startDate = $this->getStartDateForRange($timeRange);
+        
         $totalVisits = VisitorLog::count();
         $uniqueIPs = VisitorLog::whereNotNull('ip_address')->distinct('ip_address')->count('ip_address');
         $botVisits = VisitorLog::where('is_bot', true)->count();
@@ -155,6 +158,9 @@ class VisitorLogController extends Controller
                 ];
             });
 
+        // Time-series data for trends
+        $trendsData = $this->getTrendsData($startDate);
+
         return response()->json([
             'total' => $totalVisits,
             'unique_ips' => $uniqueIPs,
@@ -169,6 +175,69 @@ class VisitorLogController extends Controller
                 'bot' => $recentBotVisits,
             ],
             'top_pages' => $topPages,
+            'trends' => $trendsData,
         ]);
+    }
+
+    /**
+     * Get start date based on time range
+     */
+    private function getStartDateForRange($timeRange)
+    {
+        switch ($timeRange) {
+            case '30d':
+                return now()->subDays(30);
+            case '90d':
+                return now()->subDays(90);
+            case '1y':
+                return now()->subYear();
+            case '7d':
+            default:
+                return now()->subDays(7);
+        }
+    }
+
+    /**
+     * Get time-series trends data
+     */
+    private function getTrendsData($startDate)
+    {
+        $days = [];
+        $totalVisits = [];
+        $humanVisits = [];
+        $botVisits = [];
+        
+        $currentDate = \Carbon\Carbon::parse($startDate);
+        $endDate = now();
+        
+        while ($currentDate->lte($endDate)) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $days[] = $dateStr;
+            
+            // Get visits for this day
+            $dayStart = $currentDate->copy()->startOfDay();
+            $dayEnd = $currentDate->copy()->endOfDay();
+            
+            $total = VisitorLog::whereBetween('created_at', [$dayStart, $dayEnd])->count();
+            $human = VisitorLog::where('is_bot', false)
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->count();
+            $bot = VisitorLog::where('is_bot', true)
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->count();
+            
+            $totalVisits[] = $total;
+            $humanVisits[] = $human;
+            $botVisits[] = $bot;
+            
+            $currentDate->addDay();
+        }
+        
+        return [
+            'labels' => $days,
+            'total' => $totalVisits,
+            'human' => $humanVisits,
+            'bot' => $botVisits,
+        ];
     }
 }

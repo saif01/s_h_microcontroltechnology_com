@@ -128,6 +128,7 @@ Route::prefix('v1')->group(function () {
         // Leads - requires view-leads permission for viewing, manage-leads for updates/deletes
         Route::middleware('permission:view-leads')->group(function () {
             Route::get('leads', [LeadController::class, 'index']);
+            Route::get('leads/statistics', [LeadController::class, 'statistics']);
             Route::get('leads/unread-count', [LeadController::class, 'unreadCount']);
             Route::get('leads/{lead}', [LeadController::class, 'show']);
             Route::post('leads', [LeadController::class, 'store']); // Creating leads (public submission)

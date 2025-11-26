@@ -149,4 +149,116 @@ class LeadController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    /**
+     * Get statistics about leads
+     */
+    public function statistics(Request $request)
+    {
+        $timeRange = $request->get('time_range', '7d'); // 7d, 30d, 90d, 1y
+        $startDate = $this->getStartDateForRange($timeRange);
+        
+        $totalLeads = Lead::count();
+        $unreadLeads = Lead::where('is_read', false)->count();
+        $readLeads = Lead::where('is_read', true)->count();
+        
+        // Leads by status
+        $leadsByStatus = Lead::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+        
+        // Leads by type
+        $leadsByType = Lead::selectRaw('type, COUNT(*) as count')
+            ->groupBy('type')
+            ->pluck('count', 'type')
+            ->toArray();
+        
+        // Recent activity (last 24 hours)
+        $recentLeads = Lead::where('created_at', '>=', now()->subDay())->count();
+        $recentUnread = Lead::where('is_read', false)
+            ->where('created_at', '>=', now()->subDay())
+            ->count();
+        
+        // Time-series data for trends
+        $trendsData = $this->getTrendsData($startDate);
+
+        return response()->json([
+            'total' => $totalLeads,
+            'unread' => $unreadLeads,
+            'read' => $readLeads,
+            'by_status' => $leadsByStatus,
+            'by_type' => $leadsByType,
+            'recent' => [
+                'total' => $recentLeads,
+                'unread' => $recentUnread,
+            ],
+            'trends' => $trendsData,
+        ]);
+    }
+
+    /**
+     * Get start date based on time range
+     */
+    private function getStartDateForRange($timeRange)
+    {
+        switch ($timeRange) {
+            case '30d':
+                return now()->subDays(30);
+            case '90d':
+                return now()->subDays(90);
+            case '1y':
+                return now()->subYear();
+            case '7d':
+            default:
+                return now()->subDays(7);
+        }
+    }
+
+    /**
+     * Get time-series trends data
+     */
+    private function getTrendsData($startDate)
+    {
+        $days = [];
+        $total = [];
+        $byStatus = [];
+        
+        $currentDate = \Carbon\Carbon::parse($startDate);
+        $endDate = now();
+        
+        // Initialize status arrays
+        $statuses = ['new', 'contacted', 'qualified', 'converted', 'lost'];
+        foreach ($statuses as $status) {
+            $byStatus[$status] = [];
+        }
+        
+        while ($currentDate->lte($endDate)) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $days[] = $dateStr;
+            
+            // Get leads for this day
+            $dayStart = $currentDate->copy()->startOfDay();
+            $dayEnd = $currentDate->copy()->endOfDay();
+            
+            $dayTotal = Lead::whereBetween('created_at', [$dayStart, $dayEnd])->count();
+            $total[] = $dayTotal;
+            
+            // Get leads by status for this day
+            foreach ($statuses as $status) {
+                $count = Lead::where('status', $status)
+                    ->whereBetween('created_at', [$dayStart, $dayEnd])
+                    ->count();
+                $byStatus[$status][] = $count;
+            }
+            
+            $currentDate->addDay();
+        }
+        
+        return [
+            'labels' => $days,
+            'total' => $total,
+            'by_status' => $byStatus,
+        ];
+    }
 }

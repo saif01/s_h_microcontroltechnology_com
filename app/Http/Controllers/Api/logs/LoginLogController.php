@@ -70,8 +70,11 @@ class LoginLogController extends Controller
     /**
      * Get statistics about login logs
      */
-    public function statistics()
+    public function statistics(Request $request)
     {
+        $timeRange = $request->get('time_range', '7d'); // 7d, 30d, 90d, 1y
+        $startDate = $this->getStartDateForRange($timeRange);
+        
         $totalLogs = LoginLog::count();
         $successfulLogins = LoginLog::where('status', 'success')->count();
         $failedLogins = LoginLog::where('status', 'failed')->count();
@@ -87,6 +90,9 @@ class LoginLogController extends Controller
             ->where('created_at', '>=', now()->subDay())
             ->count();
 
+        // Time-series data for trends
+        $trendsData = $this->getTrendsData($startDate);
+
         return response()->json([
             'total' => $totalLogs,
             'successful' => $successfulLogins,
@@ -98,6 +104,65 @@ class LoginLogController extends Controller
                 'successful' => $recentSuccessful,
                 'failed' => $recentFailed,
             ],
+            'trends' => $trendsData,
         ]);
+    }
+
+    /**
+     * Get start date based on time range
+     */
+    private function getStartDateForRange($timeRange)
+    {
+        switch ($timeRange) {
+            case '30d':
+                return now()->subDays(30);
+            case '90d':
+                return now()->subDays(90);
+            case '1y':
+                return now()->subYear();
+            case '7d':
+            default:
+                return now()->subDays(7);
+        }
+    }
+
+    /**
+     * Get time-series trends data
+     */
+    private function getTrendsData($startDate)
+    {
+        $days = [];
+        $successful = [];
+        $failed = [];
+        
+        $currentDate = \Carbon\Carbon::parse($startDate);
+        $endDate = now();
+        
+        while ($currentDate->lte($endDate)) {
+            $dateStr = $currentDate->format('Y-m-d');
+            $days[] = $dateStr;
+            
+            // Get logins for this day
+            $dayStart = $currentDate->copy()->startOfDay();
+            $dayEnd = $currentDate->copy()->endOfDay();
+            
+            $successfulCount = LoginLog::where('status', 'success')
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->count();
+            $failedCount = LoginLog::where('status', 'failed')
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->count();
+            
+            $successful[] = $successfulCount;
+            $failed[] = $failedCount;
+            
+            $currentDate->addDay();
+        }
+        
+        return [
+            'labels' => $days,
+            'successful' => $successful,
+            'failed' => $failed,
+        ];
     }
 }
