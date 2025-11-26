@@ -118,6 +118,7 @@ Route::prefix('v1')->group(function () {
         // Blog Posts - requires manage-pages permission
         Route::middleware('permission:manage-pages')->group(function () {
             Route::apiResource('blog-posts', BlogController::class);
+            Route::apiResource('blog-categories', \App\Http\Controllers\Api\blog\BlogCategoryController::class);
         });
 
         // Upload routes - requires authentication

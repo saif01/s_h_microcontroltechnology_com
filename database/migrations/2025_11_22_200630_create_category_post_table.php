@@ -16,6 +16,13 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->foreignId('blog_post_id')->constrained('blog_posts')->onDelete('cascade');
             $table->timestamps();
+            
+            // Prevent duplicate category-post relationships
+            $table->unique(['category_id', 'blog_post_id']);
+            
+            // Add indexes for better query performance
+            $table->index('category_id');
+            $table->index('blog_post_id');
         });
     }
 

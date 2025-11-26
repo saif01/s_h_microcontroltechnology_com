@@ -48,8 +48,9 @@
                                         </v-text-field>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field v-model="form.published_at" label="Published Date" type="datetime-local"
-                                            variant="outlined" hint="When to publish this post" persistent-hint></v-text-field>
+                                        <v-text-field v-model="form.published_at" label="Published Date"
+                                            type="datetime-local" variant="outlined" hint="When to publish this post"
+                                            persistent-hint></v-text-field>
                                     </v-col>
                                     <v-col cols="12">
                                         <v-textarea v-model="form.excerpt" label="Excerpt" variant="outlined" rows="3"
@@ -79,7 +80,8 @@
                                         <v-card variant="outlined" class="pa-4">
                                             <div class="d-flex flex-column flex-md-row align-start">
                                                 <!-- Image Preview -->
-                                                <div v-if="imagePreview || form.featured_image" class="mr-md-4 mb-4 mb-md-0">
+                                                <div v-if="imagePreview || form.featured_image"
+                                                    class="mr-md-4 mb-4 mb-md-0">
                                                     <v-img :src="imagePreview || resolveImageUrl(form.featured_image)"
                                                         max-width="300" max-height="300" class="rounded elevation-2"
                                                         cover></v-img>
@@ -137,15 +139,16 @@
                                     <v-col cols="12">
                                         <div class="text-subtitle-1 font-weight-bold mb-2">Categories</div>
                                         <v-select v-model="form.category_ids" :items="availableCategories"
-                                            item-title="name" item-value="id" label="Select Categories" variant="outlined"
-                                            multiple chips :loading="loadingCategories"
-                                            hint="Select categories for this post (type='post')" persistent-hint></v-select>
+                                            item-title="name" item-value="id" label="Select Categories"
+                                            variant="outlined" multiple chips :loading="loadingCategories"
+                                            hint="Select categories for this post (type='post')"
+                                            persistent-hint></v-select>
                                     </v-col>
                                     <v-col cols="12">
                                         <div class="text-subtitle-1 font-weight-bold mb-2">Tags</div>
                                         <v-combobox v-model="form.tag_names" :items="availableTags" label="Tags"
-                                            variant="outlined" multiple chips closable-chips hint="Type to add new tags (type='post')"
-                                            persistent-hint></v-combobox>
+                                            variant="outlined" multiple chips closable-chips
+                                            hint="Type to add new tags (type='post')" persistent-hint></v-combobox>
                                     </v-col>
                                 </v-row>
                             </div>
@@ -199,8 +202,7 @@
 
                                     <v-col cols="12">
                                         <v-text-field v-model="form.meta_keywords" label="Meta Keywords"
-                                            variant="outlined"
-                                            hint="Comma-separated keywords for SEO" persistent-hint
+                                            variant="outlined" hint="Comma-separated keywords for SEO" persistent-hint
                                             prepend-inner-icon="mdi-tag-multiple"></v-text-field>
                                     </v-col>
 
@@ -214,7 +216,8 @@
                                         <v-card variant="outlined" class="pa-4">
                                             <div class="d-flex flex-column flex-md-row align-start">
                                                 <!-- OG Image Preview -->
-                                                <div v-if="ogImagePreview || form.og_image" class="mr-md-4 mb-4 mb-md-0">
+                                                <div v-if="ogImagePreview || form.og_image"
+                                                    class="mr-md-4 mb-4 mb-md-0">
                                                     <v-img :src="ogImagePreview || resolveImageUrl(form.og_image)"
                                                         max-width="300" max-height="300" class="rounded elevation-2"
                                                         cover></v-img>
@@ -343,6 +346,14 @@ export default {
     watch: {
         modelValue(newVal) {
             if (newVal) {
+                // Destroy any existing editor when dialog opens
+                if (this.quillEditor) {
+                    this.destroyEditor();
+                }
+                // Clear container to remove any leftover Quill elements
+                if (this.$refs.editorContainer) {
+                    this.$refs.editorContainer.innerHTML = '';
+                }
                 this.activeTab = 'basic';
                 this.loadCategories();
                 this.loadTags();
@@ -350,6 +361,11 @@ export default {
                     this.loadPostForEdit();
                 } else {
                     this.resetForm();
+                }
+            } else {
+                // Destroy editor when dialog closes
+                if (this.quillEditor) {
+                    this.destroyEditor();
                 }
             }
         },
@@ -363,13 +379,36 @@ export default {
             },
             immediate: false
         },
-        activeTab(newTab) {
-            if (newTab === 'content' && this.dialog && !this.loading) {
-                setTimeout(() => {
-                    this.initEditor();
-                }, 300);
-            } else if (newTab !== 'content' && this.quillEditor) {
+        activeTab(newTab, oldTab) {
+            // Always destroy editor when leaving content tab
+            if (oldTab === 'content' && newTab !== 'content') {
                 this.destroyEditor();
+            }
+
+            // Only initialize if switching TO content tab
+            if (newTab === 'content' && oldTab !== 'content' && this.dialog && !this.loading) {
+                // Ensure editor is destroyed first
+                this.destroyEditor();
+
+                // Wait for tab transition to complete
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        // Final checks before initializing
+                        if (this.activeTab === 'content' &&
+                            this.dialog &&
+                            !this.loading &&
+                            !this.quillEditor &&
+                            this.$refs.editorContainer) {
+
+                            // Double check no Quill elements exist
+                            const container = this.$refs.editorContainer;
+                            if (!container.querySelector('.ql-toolbar') &&
+                                !container.querySelector('.ql-container')) {
+                                this.initEditor();
+                            }
+                        }
+                    }, 350);
+                });
             }
         }
     },
@@ -408,6 +447,15 @@ export default {
         async loadPostForEdit() {
             if (!this.editingPost) return;
 
+            // Destroy any existing editor before loading
+            if (this.quillEditor) {
+                this.destroyEditor();
+            }
+            // Clear container to prevent duplicate toolbars
+            if (this.$refs.editorContainer) {
+                this.$refs.editorContainer.innerHTML = '';
+            }
+
             this.loading = true;
             try {
                 const response = await axios.get(`/api/v1/blog-posts/${this.editingPost.id}`, {
@@ -445,31 +493,33 @@ export default {
                 this.closeDialog();
             } finally {
                 this.loading = false;
+                // If we're on content tab after loading, initialize editor
+                this.$nextTick(() => {
+                    if (this.activeTab === 'content' && !this.quillEditor && this.$refs.editorContainer) {
+                        setTimeout(() => {
+                            if (this.activeTab === 'content' && !this.quillEditor) {
+                                this.initEditor();
+                            }
+                        }, 300);
+                    }
+                });
             }
         },
         async loadCategories() {
             try {
                 this.loadingCategories = true;
-                const response = await axios.get('/api/v1/categories?type=post', {
+                const response = await axios.get('/api/v1/blog-categories', {
                     headers: this.getAuthHeaders()
                 }).catch(() => null);
 
-                if (!response) {
-                    response = await axios.get('/api/v1/categories', {
-                        headers: this.getAuthHeaders()
-                    }).catch(() => null);
-                }
-
                 if (response && response.data) {
                     const categories = response.data?.data || response.data || [];
-                    this.availableCategories = Array.isArray(categories)
-                        ? categories.filter(c => !c.type || c.type === 'post')
-                        : [];
+                    this.availableCategories = Array.isArray(categories) ? categories : [];
                 } else {
                     this.availableCategories = [];
                 }
             } catch (error) {
-                console.error('Error loading categories:', error);
+                console.error('Error loading blog categories:', error);
                 this.availableCategories = [];
             } finally {
                 this.loadingCategories = false;
@@ -509,47 +559,73 @@ export default {
             }
         },
         initEditor() {
+            // Prevent multiple initializations - strict check
             if (this.quillEditor) {
-                this.destroyEditor();
+                console.warn('Editor already exists, skipping initialization');
+                return;
             }
 
-            this.$nextTick(() => {
-                if (this.$refs.editorContainer && this.activeTab === 'content') {
-                    try {
-                        this.$refs.editorContainer.innerHTML = '';
+            // Get container reference
+            const container = this.$refs.editorContainer;
+            if (!container) {
+                console.warn('Editor container not found');
+                return;
+            }
 
-                        this.quillEditor = new Quill(this.$refs.editorContainer, {
-                            theme: 'snow',
-                            modules: {
-                                toolbar: [
-                                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                                    ['bold', 'italic', 'underline', 'strike'],
-                                    [{ 'color': [] }, { 'background': [] }],
-                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                    [{ 'align': [] }],
-                                    ['link', 'image'],
-                                    ['blockquote', 'code-block'],
-                                    ['clean']
-                                ]
-                            },
-                            placeholder: 'Enter blog post content...'
-                        });
-
-                        if (this.form.content) {
-                            this.quillEditor.root.innerHTML = this.form.content;
-                        }
-
-                        this.quillEditor.on('text-change', () => {
-                            this.form.content = this.quillEditor.root.innerHTML;
-                        });
-                    } catch (error) {
-                        console.error('Error initializing Quill editor:', error);
-                        this.showError('Failed to initialize text editor');
-                    }
+            // Check if Quill elements already exist in DOM
+            if (container.querySelector('.ql-toolbar') || container.querySelector('.ql-container')) {
+                console.warn('Quill elements already exist in container, cleaning up first');
+                // Force cleanup
+                while (container.firstChild) {
+                    container.removeChild(container.firstChild);
                 }
-            });
+                container.innerHTML = '';
+            }
+
+            // Ensure we're on content tab
+            if (this.activeTab !== 'content') {
+                return;
+            }
+
+            try {
+                // Clear container completely
+                container.innerHTML = '';
+
+                // Create new Quill instance
+                this.quillEditor = new Quill(container, {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            [{ 'align': [] }],
+                            ['link', 'image'],
+                            ['blockquote', 'code-block'],
+                            ['clean']
+                        ]
+                    },
+                    placeholder: 'Enter blog post content...'
+                });
+
+                // Set content if available
+                if (this.form.content) {
+                    this.quillEditor.root.innerHTML = this.form.content;
+                }
+
+                // Listen for content changes
+                this.quillEditor.on('text-change', () => {
+                    this.form.content = this.quillEditor.root.innerHTML;
+                });
+            } catch (error) {
+                console.error('Error initializing Quill editor:', error);
+                this.showError('Failed to initialize text editor');
+                this.quillEditor = null;
+            }
         },
         destroyEditor() {
+            // Save content before destroying if editor exists
             if (this.quillEditor) {
                 try {
                     if (this.quillEditor.root && this.quillEditor.root.innerHTML) {
@@ -561,19 +637,27 @@ export default {
                 } catch (error) {
                     console.error('Error saving editor content:', error);
                 }
-
-                try {
-                    this.quillEditor = null;
-                    if (this.$refs.editorContainer) {
-                        this.$refs.editorContainer.innerHTML = '';
-                    }
-                } catch (error) {
-                    console.error('Error destroying editor:', error);
-                    this.quillEditor = null;
-                }
-            } else if (this.$refs.editorContainer) {
-                this.$refs.editorContainer.innerHTML = '';
             }
+
+            // Always clear the container
+            const container = this.$refs.editorContainer;
+            if (container) {
+                try {
+                    // Remove all children (toolbar and editor container)
+                    while (container.firstChild) {
+                        container.removeChild(container.firstChild);
+                    }
+                    // Clear innerHTML to ensure complete cleanup
+                    container.innerHTML = '';
+                } catch (error) {
+                    console.error('Error clearing container:', error);
+                    // Force clear
+                    container.innerHTML = '';
+                }
+            }
+
+            // Clear the editor reference
+            this.quillEditor = null;
         },
         generateSlug() {
             if (this.form.title && !this.editingPost) {
@@ -892,4 +976,3 @@ export default {
     min-height: 400px;
 }
 </style>
-

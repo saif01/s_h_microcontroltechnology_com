@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\blog;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Models\Category;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use App\Support\MediaPath;
@@ -105,9 +106,26 @@ class BlogController extends Controller
 
         $post = BlogPost::create($postData);
         
-        // Sync categories (filter by type='post')
+        // Sync categories (filter by type='post' and validate)
         if ($request->has('category_ids') && is_array($request->category_ids)) {
-            $post->categories()->sync($request->category_ids);
+            // Validate that all category IDs are blog categories (type='post')
+            $categoryIds = array_filter($request->category_ids);
+            if (!empty($categoryIds)) {
+                $validCategories = Category::whereIn('id', $categoryIds)
+                    ->where('type', 'post')
+                    ->pluck('id')
+                    ->toArray();
+                
+                if (count($validCategories) !== count($categoryIds)) {
+                    return response()->json([
+                        'error' => 'One or more category IDs are not valid blog categories'
+                    ], 422);
+                }
+                
+                $post->categories()->sync($validCategories);
+            } else {
+                $post->categories()->sync([]);
+            }
         }
         
         // Sync tags - handle both tag_ids and tag_names
@@ -182,9 +200,26 @@ class BlogController extends Controller
         // Update post
         $post->update($postData);
         
-        // Sync categories
+        // Sync categories (filter by type='post' and validate)
         if ($request->has('category_ids')) {
-            $post->categories()->sync($request->category_ids ?? []);
+            $categoryIds = array_filter($request->category_ids ?? []);
+            if (!empty($categoryIds)) {
+                // Validate that all category IDs are blog categories (type='post')
+                $validCategories = Category::whereIn('id', $categoryIds)
+                    ->where('type', 'post')
+                    ->pluck('id')
+                    ->toArray();
+                
+                if (count($validCategories) !== count($categoryIds)) {
+                    return response()->json([
+                        'error' => 'One or more category IDs are not valid blog categories'
+                    ], 422);
+                }
+                
+                $post->categories()->sync($validCategories);
+            } else {
+                $post->categories()->sync([]);
+            }
         }
         
         // Sync tags - handle both tag_ids and tag_names

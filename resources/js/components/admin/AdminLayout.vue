@@ -45,8 +45,16 @@
                 <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
                     value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
 
-                <v-list-item link router prepend-icon="mdi-post" title="Blog" :to="{ name: 'AdminBlog' }"
-                    value="Blog" exact v-if="hasPermission('manage-pages')"></v-list-item>
+                <v-list-group value="blog" prepend-icon="mdi-post" no-action
+                    v-if="hasPermission('manage-pages')">
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" title="Blog"></v-list-item>
+                    </template>
+                    <v-list-item prepend-icon="mdi-post" title="Blog Posts"
+                        :to="{ name: 'AdminBlog' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-folder" title="Categories"
+                        :to="{ name: 'AdminBlogCategories' }"></v-list-item>
+                </v-list-group>
 
                 <!-- ============================================ -->
                 <!-- USER MANAGEMENT -->

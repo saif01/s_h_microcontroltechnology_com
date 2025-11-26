@@ -38,7 +38,10 @@ class BlogPost extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, 'category_post', 'blog_post_id', 'category_id')->where('type', 'post');
+        return $this->belongsToMany(Category::class, 'category_post', 'blog_post_id', 'category_id')
+            ->using(CategoryPost::class)
+            ->where('type', 'post')
+            ->withTimestamps();
     }
 
     public function tags()

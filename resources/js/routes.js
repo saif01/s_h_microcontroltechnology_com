@@ -156,6 +156,12 @@ const routes = [
                 name: 'AdminBlog',
                 meta: { title: 'Blog Management' }
             },
+            {
+                path: 'blog/categories',
+                component: () => import('./components/admin/blog/AdminBlogCategories.vue'),
+                name: 'AdminBlogCategories',
+                meta: { title: 'Blog Categories Management' }
+            },
         ]
     },
 
