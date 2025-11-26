@@ -35,6 +35,10 @@ This is a comprehensive business website platform built according to the SRS doc
 - `products/ProductController.php` - Products management
 - `products/CategoryController.php` - Categories management
 - `products/TagController.php` - Tags management
+- `blog/BlogController.php` - Blog posts management
+- `blog/BlogCategoryController.php` - Blog categories management
+- `career/CareerController.php` - Career listings management
+- `career/JobApplicationController.php` - Job applications management
 - `leads/LeadController.php` - Leads management, export, and statistics
 - `NewsletterController.php` - Newsletter subscriptions management
 - `settings/SettingController.php` - Settings management
@@ -53,6 +57,8 @@ This is a comprehensive business website platform built according to the SRS doc
 - `products/ProductController.php` - Public products listing and details
 - `services/ServiceController.php` - Public services listing and details
 - `about/AboutController.php` - Public about page
+- `blog/BlogController.php` - Public blog posts listing, details, and categories
+- `career/CareerController.php` - Public career listings, details, and job application submission
 
 #### Routes
 - `routes/api.php`: Admin API routes (protected with Sanctum) and public API routes
@@ -143,6 +149,10 @@ This is a comprehensive business website platform built according to the SRS doc
 - `services/ServiceDetailPage.vue` - Service detail page
 - `products/ProductsPage.vue` - Products listing with filters, search, and comparison
 - `products/ProductDetailPage.vue` - Product detail with gallery, specs, FAQs, warranty
+- `blog/BlogPage.vue` - Blog posts listing with search, category filter, and sorting
+- `blog/BlogDetailPage.vue` - Blog post detail with author, categories, tags, and social sharing
+- `career/CareerPage.vue` - Career listings with search, department, location, and employment type filters
+- `career/CareerDetailPage.vue` - Career detail with job application form and Bangladesh phone validation
 
 #### Mixins (`resources/js/mixins/`)
 - **`adminPaginationMixin.js`**: Shared pagination logic for admin components
@@ -321,6 +331,12 @@ npm run dev
 - `GET /api/openapi/about` - Get about page
 - `POST /api/openapi/contact` - Submit contact form (creates lead)
 - `POST /api/openapi/newsletter/subscribe` - Subscribe to newsletter
+- `GET /api/openapi/blog` - List published blog posts (supports search, category filter, tag filter, sorting, pagination)
+- `GET /api/openapi/blog/{slug}` - Get blog post by slug (includes author, categories, tags, auto-increments views)
+- `GET /api/openapi/blog/categories` - List published blog categories
+- `GET /api/openapi/careers` - List published and active careers (supports search, department, location, employment type filters, active_only flag, sorting, pagination, returns filter options)
+- `GET /api/openapi/careers/{slug}` - Get career by slug (includes application count, active status check)
+- `POST /api/openapi/careers/apply` - Submit job application (with resume upload, Bangladesh phone validation, deadline checking)
 
 ## Features Implemented
 
@@ -468,6 +484,87 @@ npm run dev
 #### Services Display
 - Services listing
 - Service detail pages
+
+#### Blog System
+- **Blog Listing Page**:
+  - Modern hero section with animated gradient effects
+  - Real-time search across post titles, excerpts, and content
+  - Category-based filtering with sidebar navigation
+  - Multiple sorting options (Latest, Oldest, Most Views, Title A-Z)
+  - Pagination support with configurable items per page
+  - Responsive card-based layout
+  - Loading states and empty state handling
+  - Category badges and tag display
+  - Author information and view counters
+  - Featured image support
+- **Blog Detail Page**:
+  - Hero section with featured image overlay
+  - Full post content with rich HTML rendering
+  - Breadcrumb navigation
+  - Author information card
+  - Social sharing (Facebook, Twitter, LinkedIn, Copy link)
+  - Tags and categories display
+  - Automatic view counter increment
+  - Related posts placeholder
+  - Styled content typography (headings, lists, blockquotes, code blocks)
+  - Responsive image display
+- **Blog Features**:
+  - SEO-friendly URLs (slug-based)
+  - Meta tags and Open Graph support
+  - Category management
+  - Tag system
+  - Author attribution
+  - Publication date management
+  - Draft/Published status
+  - View tracking
+
+#### Career System
+- **Career Listing Page**:
+  - Modern hero section with animated gradient effects
+  - Real-time search across job titles, departments, locations, and descriptions
+  - Advanced filtering:
+    - Department filter (dynamically populated from available careers)
+    - Location filter (dynamically populated from available careers)
+    - Employment type filter (full-time, part-time, contract, internship, freelance)
+  - Active careers only (automatically filters out expired deadlines)
+  - Responsive card-based layout with hover effects
+  - Career cards displaying:
+    - Job title and department badge
+    - Location and employment type
+    - Application deadline (if set)
+    - Truncated job description
+    - Quick view button
+  - Pagination support
+  - Loading states and empty state handling
+  - Clear filters functionality
+- **Career Detail Page**:
+  - Hero section with job title and key information chips
+  - Comprehensive job information display:
+    - Full job description with rich HTML rendering
+    - Detailed responsibilities section
+    - Job requirements section
+    - Benefits and perks section
+  - **Job Application Form** (sidebar):
+    - Full name field (required)
+    - Email field with validation (required)
+    - Phone field with Bangladesh phone number validation (optional)
+    - Cover letter textarea
+    - Resume upload (PDF, DOC, DOCX, max 5MB)
+    - Application deadline display and validation
+    - Active/inactive status checking
+    - Form validation with user-friendly error messages
+    - Success/error notifications using SweetAlert2
+    - Automatic form reset on successful submission
+  - Back to careers navigation
+  - Responsive layout (details on left, form on right)
+- **Career Features**:
+  - SEO-friendly URLs (slug-based)
+  - Automatic deadline expiration checking
+  - Bangladesh phone number validation (supports local: 01707080401 and international: +8801707080401 formats)
+  - Resume file management with secure uploads
+  - Application tracking and status management
+  - Only published and active careers shown to public
+  - Application count per career
 
 #### Contact & Communication
 - Contact form

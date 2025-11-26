@@ -156,6 +156,32 @@ A comprehensive, generic business website platform built according to SRS specif
   - Display order management
   - SEO optimization
 
+#### Career Management
+- **Career Posting Management**:
+  - Complete CRUD operations for career listings
+  - Job title, slug, and department management
+  - Location and employment type (full-time, part-time, contract, internship, freelance)
+  - Rich text editor for job description, responsibilities, requirements, and benefits
+  - Application deadline management with automatic expiration checking
+  - Published/Draft status control
+  - Display order management
+  - Search and filter functionality (by department, location, employment type, published status)
+  - Sorting by title, department, location, order, deadline, created date
+  - Pagination support
+  - Application count tracking per career
+- **Job Application Management**:
+  - Complete application tracking system
+  - Application status management (new, reviewed, shortlisted, rejected, hired)
+  - Applicant information (name, email, phone with Bangladesh validation)
+  - Cover letter management
+  - Resume file upload and download (PDF, DOC, DOCX)
+  - Application notes and comments
+  - Search and filter functionality (by status, career, applicant name/email)
+  - Sorting by name, email, status, application date
+  - Application details view with notes editing
+  - Statistics dashboard (total, by status, by career)
+  - Resume file management with automatic cleanup on deletion
+
 #### User Management
 - **User Administration**:
   - User creation and editing
@@ -281,6 +307,54 @@ A comprehensive, generic business website platform built according to SRS specif
   - Draft/Published status
   - View tracking
 
+#### Career System
+- **Career Listing Page**:
+  - Modern hero section with animated gradient effects
+  - Real-time search across job titles, departments, locations, and descriptions
+  - Advanced filtering:
+    - Department filter (dynamically populated from available careers)
+    - Location filter (dynamically populated from available careers)
+    - Employment type filter (full-time, part-time, contract, internship, freelance)
+  - Active careers only (automatically filters out expired deadlines)
+  - Responsive card-based layout with hover effects
+  - Career cards displaying:
+    - Job title and department badge
+    - Location and employment type
+    - Application deadline (if set)
+    - Truncated job description
+    - Quick view button
+  - Pagination support
+  - Loading states and empty state handling
+  - Clear filters functionality
+- **Career Detail Page**:
+  - Hero section with job title and key information chips
+  - Comprehensive job information display:
+    - Full job description with rich HTML rendering
+    - Detailed responsibilities section
+    - Job requirements section
+    - Benefits and perks section
+  - **Job Application Form** (sidebar):
+    - Full name field (required)
+    - Email field with validation (required)
+    - Phone field with Bangladesh phone number validation (optional)
+    - Cover letter textarea
+    - Resume upload (PDF, DOC, DOCX, max 5MB)
+    - Application deadline display and validation
+    - Active/inactive status checking
+    - Form validation with user-friendly error messages
+    - Success/error notifications using SweetAlert2
+    - Automatic form reset on successful submission
+  - Back to careers navigation
+  - Responsive layout (details on left, form on right)
+- **Career Features**:
+  - SEO-friendly URLs (slug-based)
+  - Automatic deadline expiration checking
+  - Bangladesh phone number validation (supports local: 01707080401 and international: +8801707080401 formats)
+  - Resume file management with secure uploads
+  - Application tracking and status management
+  - Only published and active careers shown to public
+  - Application count per career
+
 #### Contact & Communication
 - **Contact Form**: 
   - Name, email, phone, subject, message fields
@@ -396,6 +470,20 @@ All admin endpoints require authentication via Bearer token.
 - `PUT /api/v1/blog-categories/{id}` - Update blog category (requires `manage-pages` permission)
 - `DELETE /api/v1/blog-categories/{id}` - Delete blog category (requires `manage-pages` permission)
 
+**Career Management:**
+- `GET /api/v1/careers` - List careers (with pagination, filtering, sorting, search) (requires `manage-pages` permission)
+- `POST /api/v1/careers` - Create career (requires `manage-pages` permission)
+- `GET /api/v1/careers/{id}` - Get career (by ID or slug) (requires `manage-pages` permission)
+- `PUT /api/v1/careers/{id}` - Update career (requires `manage-pages` permission)
+- `DELETE /api/v1/careers/{id}` - Delete career (requires `manage-pages` permission)
+
+**Job Application Management:**
+- `GET /api/v1/job-applications` - List job applications (with pagination, filtering, sorting, search) (requires `view-leads` permission)
+- `GET /api/v1/job-applications/{id}` - Get job application (requires `view-leads` permission)
+- `PUT /api/v1/job-applications/{id}` - Update job application status/notes (requires `manage-leads` permission)
+- `DELETE /api/v1/job-applications/{id}` - Delete job application (requires `manage-leads` permission)
+- `GET /api/v1/job-applications/statistics` - Get application statistics (requires `view-leads` permission)
+
 **Services Management:**
 - `GET /api/v1/services` - List services (with pagination, filtering, sorting)
 - `POST /api/v1/services` - Create service (requires `manage-services` permission)
@@ -493,6 +581,11 @@ All admin endpoints require authentication via Bearer token.
 - `GET /api/openapi/blog` - List published blog posts (supports search, category filter, tag filter, sorting, pagination)
 - `GET /api/openapi/blog/{slug}` - Get blog post by slug (includes author, categories, tags, auto-increments views)
 - `GET /api/openapi/blog/categories` - List published blog categories
+
+**Career (Public):**
+- `GET /api/openapi/careers` - List published and active careers (supports search, department, location, employment type filters, active_only flag, sorting, pagination, returns filter options)
+- `GET /api/openapi/careers/{slug}` - Get career by slug (includes application count, active status check)
+- `POST /api/openapi/careers/apply` - Submit job application (with resume upload, Bangladesh phone validation, deadline checking)
 - `GET /api/openapi/about` - Get about page content
 - `GET /api/openapi/settings` - Get public settings
 - `POST /api/openapi/contact` - Submit contact form (creates lead)
