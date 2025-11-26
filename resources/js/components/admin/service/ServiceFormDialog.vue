@@ -85,9 +85,8 @@
                                 <v-row>
                                     <v-col cols="12">
                                         <v-label class="mb-2">Full Description</v-label>
-                                        <div class="rich-text-editor-wrapper">
-                                            <div ref="editorContainer" class="rich-text-editor"></div>
-                                        </div>
+                                        <RichTextEditor v-model="form.description" :active="activeTab === 'content'"
+                                            placeholder="Enter detailed description of the service..." />
                                     </v-col>
                                     <v-col cols="12">
                                         <v-label class="mb-2">Service Image</v-label>
@@ -403,13 +402,14 @@
 <script>
 import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
-import Quill from 'quill';
+import RichTextEditor from '../../common/RichTextEditor.vue';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
-// Import Quill styles
-import 'quill/dist/quill.snow.css';
 
 export default {
     name: 'ServiceFormDialog',
+    components: {
+        RichTextEditor
+    },
     mixins: [adminPaginationMixin],
     props: {
         modelValue: {
@@ -437,7 +437,6 @@ export default {
             ogImageError: null,
             featuresText: '',
             benefitsText: '',
-            quillEditor: null,
             form: {
                 title: '',
                 slug: '',
@@ -512,25 +511,10 @@ export default {
                 }
             },
             immediate: false
-        },
-        activeTab(newTab) {
-            // Initialize editor when switching to content tab
-            if (newTab === 'content' && this.dialog && !this.loading) {
-                setTimeout(() => {
-                    this.initEditor();
-                }, 300);
-            } else if (newTab !== 'content' && this.quillEditor) {
-                // Save editor content when leaving content tab
-                this.destroyEditor();
-            }
         }
     },
     methods: {
         resetForm() {
-            if (this.quillEditor) {
-                this.destroyEditor();
-            }
-
             this.form = {
                 title: '',
                 slug: '',
@@ -607,80 +591,8 @@ export default {
         },
         closeDialog() {
             if (!this.saving && !this.loading) {
-                this.destroyEditor();
                 this.dialog = false;
                 this.resetForm();
-            }
-        },
-        initEditor() {
-            if (this.quillEditor) {
-                this.destroyEditor();
-            }
-
-            this.$nextTick(() => {
-                if (this.$refs.editorContainer && this.activeTab === 'content') {
-                    try {
-                        this.$refs.editorContainer.innerHTML = '';
-
-                        this.quillEditor = new Quill(this.$refs.editorContainer, {
-                            theme: 'snow',
-                            modules: {
-                                toolbar: [
-                                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                                    ['bold', 'italic', 'underline', 'strike'],
-                                    [{ 'color': [] }, { 'background': [] }],
-                                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                                    [{ 'align': [] }],
-                                    ['link', 'image'],
-                                    ['blockquote', 'code-block'],
-                                    ['clean']
-                                ]
-                            },
-                            placeholder: 'Enter detailed description of the service...'
-                        });
-
-                        if (this.form.description) {
-                            this.quillEditor.root.innerHTML = this.form.description;
-                        }
-
-                        this.quillEditor.on('text-change', () => {
-                            this.form.description = this.quillEditor.root.innerHTML;
-                        });
-
-                        this.quillEditor.on('selection-change', () => {
-                            this.form.description = this.quillEditor.root.innerHTML;
-                        });
-                    } catch (error) {
-                        console.error('Error initializing Quill editor:', error);
-                        this.showError('Failed to initialize text editor');
-                    }
-                }
-            });
-        },
-        destroyEditor() {
-            if (this.quillEditor) {
-                try {
-                    if (this.quillEditor.root && this.quillEditor.root.innerHTML) {
-                        const content = this.quillEditor.root.innerHTML.trim();
-                        if (content && content !== '<p><br></p>') {
-                            this.form.description = content;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error saving editor content:', error);
-                }
-
-                try {
-                    this.quillEditor = null;
-                    if (this.$refs.editorContainer) {
-                        this.$refs.editorContainer.innerHTML = '';
-                    }
-                } catch (error) {
-                    console.error('Error destroying editor:', error);
-                    this.quillEditor = null;
-                }
-            } else if (this.$refs.editorContainer) {
-                this.$refs.editorContainer.innerHTML = '';
             }
         },
         generateSlug() {
@@ -1066,11 +978,6 @@ export default {
             }
         },
         async saveService() {
-            // Save editor content before validation
-            if (this.quillEditor) {
-                this.form.description = this.quillEditor.root.innerHTML;
-            }
-
             // Validate form
             const { valid } = await this.$refs.formRef.validate();
             if (!valid) {
@@ -1155,50 +1062,6 @@ export default {
 </script>
 
 <style scoped>
-.rich-text-editor-wrapper {
-    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    border-radius: 4px;
-    background-color: rgb(var(--v-theme-surface));
-}
-
-.rich-text-editor {
-    min-height: 300px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-container) {
-    min-height: 300px;
-    font-size: 14px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-editor) {
-    min-height: 300px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-toolbar) {
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    background-color: rgb(var(--v-theme-surface));
-}
-
-.rich-text-editor-wrapper :deep(.ql-container) {
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-}
-
-.rich-text-editor-wrapper :deep(.ql-snow) {
-    border: none;
-}
-
-.rich-text-editor-wrapper :deep(.ql-snow .ql-toolbar) {
-    border: none;
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-}
-
-.rich-text-editor-wrapper :deep(.ql-snow .ql-container) {
-    border: none;
-}
-
 /* SEO Preview Styles */
 .search-preview {
     max-width: 600px;
