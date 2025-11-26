@@ -321,7 +321,9 @@
                                 <v-row>
                                     <v-col cols="12">
                                         <v-alert type="info" variant="tonal" class="mb-4" density="compact">
-                                            These settings control how the About page appears in search engine results and when shared on social media.
+                                            These settings control how the About page appears in search engine results
+                                            and when shared on social
+                                            media.
                                         </v-alert>
                                     </v-col>
                                     <v-col cols="12">
@@ -331,8 +333,7 @@
                                             persistent-hint>
                                             <template v-slot:append>
                                                 <v-btn size="small" variant="text" color="primary"
-                                                    @click="generateMetaTitle"
-                                                    :disabled="!form.hero.title">
+                                                    @click="generateMetaTitle" :disabled="!form.hero.title">
                                                     Generate
                                                 </v-btn>
                                             </template>
@@ -389,9 +390,8 @@
                                                         hint="Recommended size: 1200x630px. Max file size: 5MB"
                                                         persistent-hint @update:model-value="handleOgImageSelect">
                                                         <template v-slot:append>
-                                                            <v-progress-circular v-if="uploadingOgImage"
-                                                                indeterminate color="primary"
-                                                                size="24"></v-progress-circular>
+                                                            <v-progress-circular v-if="uploadingOgImage" indeterminate
+                                                                color="primary" size="24"></v-progress-circular>
                                                         </template>
                                                     </v-file-input>
 
@@ -402,7 +402,8 @@
 
                                                     <div v-if="!ogImagePreview && !ogImageFile && !form.og_image"
                                                         class="text-caption text-medium-emphasis mt-2">
-                                                        No image selected. This image will be displayed when the page is shared on social media.
+                                                        No image selected. This image will be displayed when the page is
+                                                        shared on social media.
                                                     </div>
                                                 </div>
                                             </div>
@@ -808,7 +809,7 @@ export default {
                     }
                 });
 
-                if (response.data.success || response.data.path) {
+                if (response.data.success) {
                     const uploadedPath = normalizeUploadPath(response.data.path || response.data.url);
                     this.form.story.image = uploadedPath;
                     this.storyImagePreview = resolveUploadUrl(response.data.url || uploadedPath);
@@ -818,8 +819,11 @@ export default {
                     throw new Error(response.data.message || 'Failed to upload image');
                 }
             } catch (error) {
+                console.error('Error uploading story image:', error);
+                console.error('Error response:', error.response?.data);
                 const errorMessage = error.response?.data?.message ||
                     error.response?.data?.error ||
+                    error.message ||
                     'Failed to upload image';
                 throw new Error(errorMessage);
             } finally {
@@ -923,18 +927,23 @@ export default {
                     }
                 });
 
-                if (response.data.success || response.data.path) {
+                // Check if response is successful
+                if (response.status === 200 && (response.data.success || response.data.path)) {
                     const uploadedPath = normalizeUploadPath(response.data.path || response.data.url);
                     member.image = uploadedPath;
-                    this.$set(member, 'imagePreview', resolveUploadUrl(response.data.url || uploadedPath));
+                    member.imagePreview = resolveUploadUrl(response.data.url || uploadedPath);
                     member.imageFile = null;
                     return uploadedPath;
                 } else {
-                    throw new Error(response.data.message || 'Failed to upload image');
+                    const errorMsg = response.data?.message || response.data?.error || 'Failed to upload image';
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
+                console.error('Error uploading team member image:', error);
+                console.error('Error response:', error.response?.data);
                 const errorMessage = error.response?.data?.message ||
                     error.response?.data?.error ||
+                    error.message ||
                     'Failed to upload image';
                 throw new Error(errorMessage);
             } finally {
@@ -972,7 +981,8 @@ export default {
                     try {
                         await this.uploadStoryImage();
                     } catch (error) {
-                        this.handleApiError(error, 'Failed to upload story image');
+                        const errorMessage = error.message || 'Failed to upload story image';
+                        this.showError(errorMessage);
                         this.saving = false;
                         return;
                     }
@@ -984,7 +994,8 @@ export default {
                         try {
                             await this.uploadTeamMemberImage(i);
                         } catch (error) {
-                            this.handleApiError(error, `Failed to upload image for ${this.form.team[i].name || 'team member'}`);
+                            const errorMessage = error.message || `Failed to upload image for ${this.form.team[i].name || 'team member'}`;
+                            this.showError(errorMessage);
                             this.saving = false;
                             return;
                         }
