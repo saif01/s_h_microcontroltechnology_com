@@ -71,9 +71,8 @@
                                 <v-row>
                                     <v-col cols="12">
                                         <v-label class="mb-2">Post Content *</v-label>
-                                        <div class="rich-text-editor-wrapper">
-                                            <div ref="editorContainer" class="rich-text-editor"></div>
-                                        </div>
+                                        <RichTextEditor v-model="form.content" :active="activeTab === 'content'"
+                                            placeholder="Enter blog post content..." />
                                     </v-col>
                                     <v-col cols="12">
                                         <v-label class="mb-2">Featured Image</v-label>
@@ -281,12 +280,14 @@
 <script>
 import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
-import Quill from 'quill';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
-import 'quill/dist/quill.snow.css';
+import RichTextEditor from '../../common/RichTextEditor.vue';
 
 export default {
     name: 'BlogFormDialog',
+    components: {
+        RichTextEditor
+    },
     mixins: [adminPaginationMixin],
     props: {
         modelValue: {
@@ -312,7 +313,6 @@ export default {
             ogImagePreview: null,
             uploadingOgImage: false,
             ogImageError: null,
-            quillEditor: null,
             availableCategories: [],
             availableTags: [],
             loadingCategories: false,
@@ -346,14 +346,6 @@ export default {
     watch: {
         modelValue(newVal) {
             if (newVal) {
-                // Destroy any existing editor when dialog opens
-                if (this.quillEditor) {
-                    this.destroyEditor();
-                }
-                // Clear container to remove any leftover Quill elements
-                if (this.$refs.editorContainer) {
-                    this.$refs.editorContainer.innerHTML = '';
-                }
                 this.activeTab = 'basic';
                 this.loadCategories();
                 this.loadTags();
@@ -361,11 +353,6 @@ export default {
                     this.loadPostForEdit();
                 } else {
                     this.resetForm();
-                }
-            } else {
-                // Destroy editor when dialog closes
-                if (this.quillEditor) {
-                    this.destroyEditor();
                 }
             }
         },
@@ -379,45 +366,10 @@ export default {
             },
             immediate: false
         },
-        activeTab(newTab, oldTab) {
-            // Always destroy editor when leaving content tab
-            if (oldTab === 'content' && newTab !== 'content') {
-                this.destroyEditor();
-            }
-
-            // Only initialize if switching TO content tab
-            if (newTab === 'content' && oldTab !== 'content' && this.dialog && !this.loading) {
-                // Ensure editor is destroyed first
-                this.destroyEditor();
-
-                // Wait for tab transition to complete
-                this.$nextTick(() => {
-                    setTimeout(() => {
-                        // Final checks before initializing
-                        if (this.activeTab === 'content' &&
-                            this.dialog &&
-                            !this.loading &&
-                            !this.quillEditor &&
-                            this.$refs.editorContainer) {
-
-                            // Double check no Quill elements exist
-                            const container = this.$refs.editorContainer;
-                            if (!container.querySelector('.ql-toolbar') &&
-                                !container.querySelector('.ql-container')) {
-                                this.initEditor();
-                            }
-                        }
-                    }, 350);
-                });
-            }
-        }
+        // activeTab watcher removed - RichTextEditor handles its own lifecycle based on active prop
     },
     methods: {
         resetForm() {
-            if (this.quillEditor) {
-                this.destroyEditor();
-            }
-
             this.form = {
                 title: '',
                 slug: '',
@@ -446,15 +398,6 @@ export default {
         },
         async loadPostForEdit() {
             if (!this.editingPost) return;
-
-            // Destroy any existing editor before loading
-            if (this.quillEditor) {
-                this.destroyEditor();
-            }
-            // Clear container to prevent duplicate toolbars
-            if (this.$refs.editorContainer) {
-                this.$refs.editorContainer.innerHTML = '';
-            }
 
             this.loading = true;
             try {
@@ -493,16 +436,6 @@ export default {
                 this.closeDialog();
             } finally {
                 this.loading = false;
-                // If we're on content tab after loading, initialize editor
-                this.$nextTick(() => {
-                    if (this.activeTab === 'content' && !this.quillEditor && this.$refs.editorContainer) {
-                        setTimeout(() => {
-                            if (this.activeTab === 'content' && !this.quillEditor) {
-                                this.initEditor();
-                            }
-                        }, 300);
-                    }
-                });
             }
         },
         async loadCategories() {
@@ -553,111 +486,9 @@ export default {
         },
         closeDialog() {
             if (!this.saving && !this.loading) {
-                this.destroyEditor();
                 this.dialog = false;
                 this.resetForm();
             }
-        },
-        initEditor() {
-            // Prevent multiple initializations - strict check
-            if (this.quillEditor) {
-                console.warn('Editor already exists, skipping initialization');
-                return;
-            }
-
-            // Get container reference
-            const container = this.$refs.editorContainer;
-            if (!container) {
-                console.warn('Editor container not found');
-                return;
-            }
-
-            // Check if Quill elements already exist in DOM
-            if (container.querySelector('.ql-toolbar') || container.querySelector('.ql-container')) {
-                console.warn('Quill elements already exist in container, cleaning up first');
-                // Force cleanup
-                while (container.firstChild) {
-                    container.removeChild(container.firstChild);
-                }
-                container.innerHTML = '';
-            }
-
-            // Ensure we're on content tab
-            if (this.activeTab !== 'content') {
-                return;
-            }
-
-            try {
-                // Clear container completely
-                container.innerHTML = '';
-
-                // Create new Quill instance
-                this.quillEditor = new Quill(container, {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'color': [] }, { 'background': [] }],
-                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                            [{ 'align': [] }],
-                            ['link', 'image'],
-                            ['blockquote', 'code-block'],
-                            ['clean']
-                        ]
-                    },
-                    placeholder: 'Enter blog post content...'
-                });
-
-                // Set content if available
-                if (this.form.content) {
-                    this.quillEditor.root.innerHTML = this.form.content;
-                }
-
-                // Listen for content changes
-                this.quillEditor.on('text-change', () => {
-                    this.form.content = this.quillEditor.root.innerHTML;
-                });
-            } catch (error) {
-                console.error('Error initializing Quill editor:', error);
-                this.showError('Failed to initialize text editor');
-                this.quillEditor = null;
-            }
-        },
-        destroyEditor() {
-            // Save content before destroying if editor exists
-            if (this.quillEditor) {
-                try {
-                    if (this.quillEditor.root && this.quillEditor.root.innerHTML) {
-                        const content = this.quillEditor.root.innerHTML.trim();
-                        if (content && content !== '<p><br></p>') {
-                            this.form.content = content;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error saving editor content:', error);
-                }
-            }
-
-            // Always clear the container
-            const container = this.$refs.editorContainer;
-            if (container) {
-                try {
-                    // Remove all children (toolbar and editor container)
-                    while (container.firstChild) {
-                        container.removeChild(container.firstChild);
-                    }
-                    // Clear innerHTML to ensure complete cleanup
-                    container.innerHTML = '';
-                } catch (error) {
-                    console.error('Error clearing container:', error);
-                    // Force clear
-                    container.innerHTML = '';
-                }
-            }
-
-            // Clear the editor reference
-            this.quillEditor = null;
         },
         generateSlug() {
             if (this.form.title && !this.editingPost) {
@@ -883,10 +714,6 @@ export default {
             }
         },
         async savePost() {
-            if (this.quillEditor) {
-                this.form.content = this.quillEditor.root.innerHTML;
-            }
-
             const { valid } = await this.$refs.formRef.validate();
             if (!valid) {
                 this.showError('Please fill in all required fields');
@@ -966,13 +793,5 @@ export default {
 </script>
 
 <style scoped>
-.rich-text-editor-wrapper {
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.rich-text-editor {
-    min-height: 400px;
-}
+/* Styles moved to RichTextEditor component */
 </style>

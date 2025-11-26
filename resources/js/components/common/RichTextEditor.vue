@@ -1,5 +1,5 @@
 <template>
-    <div class="rich-text-editor-wrapper">
+    <div ref="editorWrapper" class="rich-text-editor-wrapper">
         <div ref="editorContainer" class="rich-text-editor"></div>
     </div>
 </template>
@@ -40,17 +40,19 @@ export default {
         modelValue(newVal) {
             // Update editor content if it changed externally
             if (this.quillEditor && this.quillEditor.root.innerHTML !== newVal) {
-                this.quillEditor.root.innerHTML = newVal || '';
+                this.quillEditor.clipboard.dangerouslyPasteHTML(newVal || '');
             }
         },
-        active(newVal) {
-            if (newVal && !this.isInitialized) {
-                // Initialize when becoming active
-                this.$nextTick(() => {
-                    this.initEditor();
-                });
-            } else if (!newVal && this.isInitialized) {
-                // Destroy when becoming inactive
+        active(newVal, oldVal) {
+            if (newVal && !oldVal) {
+                // Becoming active - initialize if not already initialized
+                if (!this.isInitialized) {
+                    this.$nextTick(() => {
+                        this.initEditor();
+                    });
+                }
+            } else if (!newVal && oldVal) {
+                // Becoming inactive - destroy editor
                 this.destroyEditor();
             }
         },
@@ -82,14 +84,8 @@ export default {
                 return;
             }
 
-            // Check if Quill elements already exist
-            if (container.querySelector('.ql-toolbar') || container.querySelector('.ql-container')) {
-                // Clean up existing elements
-                while (container.firstChild) {
-                    container.removeChild(container.firstChild);
-                }
-                container.innerHTML = '';
-            }
+            // Ensure we start from a clean slate (toolbar lives outside container)
+            this.cleanupQuillDom();
 
             try {
                 // Clear container
@@ -116,7 +112,9 @@ export default {
 
                 // Set initial content
                 if (this.modelValue) {
-                    this.quillEditor.root.innerHTML = this.modelValue;
+                    this.quillEditor.clipboard.dangerouslyPasteHTML(this.modelValue);
+                } else {
+                    this.quillEditor.setText('');
                 }
 
                 // Listen for content changes
@@ -134,24 +132,27 @@ export default {
         },
         destroyEditor() {
             if (this.quillEditor) {
-                try {
-                    // Get container before destroying
-                    const container = this.$refs.editorContainer;
-                    
-                    if (container) {
-                        // Remove all children (toolbar and editor container)
-                        while (container.firstChild) {
-                            container.removeChild(container.firstChild);
-                        }
-                        container.innerHTML = '';
-                    }
-                } catch (error) {
-                    console.error('Error destroying editor:', error);
-                }
-
+                // Clear editor instance and DOM that Quill adds
                 this.quillEditor = null;
             }
+
+            this.cleanupQuillDom();
             this.isInitialized = false;
+        },
+        // Remove generated toolbar and reset container so re-inits start clean
+        cleanupQuillDom() {
+            const container = this.$refs.editorContainer;
+            const wrapper = this.$refs.editorWrapper || (container ? container.parentElement : null);
+
+            if (wrapper) {
+                const toolbars = wrapper.querySelectorAll('.ql-toolbar');
+                toolbars.forEach(toolbar => toolbar.remove());
+            }
+
+            if (container) {
+                container.innerHTML = '';
+                container.className = 'rich-text-editor';
+            }
         },
         // Public method to get content
         getContent() {
