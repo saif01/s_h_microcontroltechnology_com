@@ -65,6 +65,18 @@ const routes = [
                 name: 'BlogDetail',
                 meta: { title: 'Blog Post' }
             },
+            {
+                path: 'careers',
+                component: () => import('./components/public/career/CareerPage.vue'),
+                name: 'Careers',
+                meta: { title: 'Careers' }
+            },
+            {
+                path: 'careers/:slug',
+                component: () => import('./components/public/career/CareerDetailPage.vue'),
+                name: 'CareerDetail',
+                meta: { title: 'Career Details' }
+            },
         ]
     },
 

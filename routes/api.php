@@ -87,6 +87,11 @@ Route::prefix('openapi')->group(function () {
     Route::get('/blog/categories', [PublicBlogController::class, 'categories']);
     Route::get('/blog/{slug}', [PublicBlogController::class, 'show']);
     
+    // Career routes
+    Route::get('/careers', [\App\Http\Controllers\Public\career\CareerController::class, 'index']);
+    Route::get('/careers/{slug}', [\App\Http\Controllers\Public\career\CareerController::class, 'show']);
+    Route::post('/careers/apply', [\App\Http\Controllers\Public\career\CareerController::class, 'apply']);
+    
     Route::post('/contact', [ContactController::class, 'submit']);
     Route::post('/newsletter/subscribe', [PublicNewsletterController::class, 'subscribe']);
 
