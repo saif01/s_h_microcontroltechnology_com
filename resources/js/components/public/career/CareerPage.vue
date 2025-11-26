@@ -162,6 +162,7 @@ export default {
         async loadCareers() {
             try {
                 this.loading = true;
+                this.careers = [];
                 const params = {
                     page: this.currentPage,
                     per_page: 12,
@@ -186,36 +187,29 @@ export default {
 
                 const response = await axios.get('/api/openapi/careers', { params });
 
-                // Debug logging
-                console.log('Careers API Response:', response.data);
+                // Accept both { data: [...], meta... } and plain arrays
+                const raw = response.data;
+                const items = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
+                this.careers = items;
 
-                if (response.data && response.data.data) {
-                    this.careers = response.data.data;
-                    this.pagination = {
-                        current_page: response.data.current_page || 1,
-                        last_page: response.data.last_page || 1,
-                        per_page: response.data.per_page || 12,
-                        total: response.data.total || 0
-                    };
+                // Prefer meta if available, otherwise fall back to top-level pagination fields or defaults
+                const meta = raw?.meta || {};
+                this.pagination = {
+                    current_page: meta.current_page || raw?.current_page || 1,
+                    last_page: meta.last_page || raw?.last_page || 1,
+                    per_page: meta.per_page || raw?.per_page || 12,
+                    total: meta.total || raw?.total || items.length
+                };
 
-                    // Update filter options
-                    if (response.data.filters) {
-                        this.departmentOptions = (response.data.filters.departments || []).map(d => ({ title: d, value: d }));
-                        this.locationOptions = (response.data.filters.locations || []).map(l => ({ title: l, value: l }));
-                        this.employmentTypeOptions = (response.data.filters.employment_types || []).map(t => ({
-                            title: this.formatEmploymentType(t),
-                            value: t
-                        }));
-                    }
-                } else {
-                    console.warn('Unexpected response structure:', response.data);
-                    this.careers = [];
-                    this.pagination = {
-                        current_page: 1,
-                        last_page: 1,
-                        per_page: 12,
-                        total: 0
-                    };
+                // Update filter options if provided
+                const filters = raw?.filters;
+                if (filters) {
+                    this.departmentOptions = (filters.departments || []).map(d => ({ title: d, value: d }));
+                    this.locationOptions = (filters.locations || []).map(l => ({ title: l, value: l }));
+                    this.employmentTypeOptions = (filters.employment_types || []).map(t => ({
+                        title: this.formatEmploymentType(t),
+                        value: t
+                    }));
                 }
             } catch (error) {
                 console.error('Error loading careers:', error);

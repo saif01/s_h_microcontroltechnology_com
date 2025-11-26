@@ -106,7 +106,7 @@
                                         <v-text-field v-model="applicationForm.phone" label="Phone" variant="outlined"
                                             density="compact" prepend-inner-icon="mdi-phone"
                                             placeholder="01707080401 or +8801707080401"
-                                            :rules="[v => !v || this.validateBangladeshPhone(v) || 'Please enter a valid Bangladesh phone number (e.g., 01707080401 or +8801707080401)']"
+                                            :rules="[v => !v || validateBangladeshPhone(v) || 'Please enter a valid Bangladesh phone number (e.g., 01707080401 or +8801707080401)']"
                                             hint="Bangladesh phone number format" persistent-hint></v-text-field>
 
                                         <v-textarea v-model="applicationForm.cover_letter" label="Cover Letter"
@@ -184,11 +184,13 @@ export default {
         async loadCareer() {
             try {
                 this.loading = true;
+                this.career = null;
                 const slug = this.$route.params.slug;
                 const response = await axios.get(`/api/openapi/careers/${slug}`);
 
-                if (response.data) {
-                    this.career = response.data;
+                const payload = response.data?.data || response.data;
+                if (payload) {
+                    this.career = payload;
                 } else {
                     console.warn('No career data received');
                     this.career = null;
