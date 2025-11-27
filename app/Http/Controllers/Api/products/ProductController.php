@@ -12,56 +12,86 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::query();
+        // Limit payload to the fields the grid needs to reduce response size
+        $baseSelect = [
+            'id',
+            'title',
+            'slug',
+            'sku',
+            'price',
+            'price_range',
+            'published',
+            'featured',
+            'stock',
+            'order',
+            'thumbnail',
+            'images',
+            'created_at',
+        ];
+
+        $query = Product::query()->select($baseSelect);
 
         // Search functionality
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('short_description', 'like', "%{$search}%");
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('short_description', 'like', "%{$search}%");
             });
         }
 
-        // Filter by published status
+        // Filter by published status (accepts truthy/falsey strings)
         if ($request->has('published')) {
-            $query->where('published', $request->published);
+            $published = filter_var($request->published, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if (!is_null($published)) {
+                $query->where('published', $published);
+            }
         }
 
         // Filter by featured
         if ($request->has('featured')) {
-            $query->where('featured', $request->featured);
+            $featured = filter_var($request->featured, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if (!is_null($featured)) {
+                $query->where('featured', $featured);
+            }
         }
 
         // Sorting
         $sortBy = $request->get('sort_by', 'order');
         $sortDirection = $request->get('sort_direction', 'asc');
-        
+
         $allowedSortFields = ['id', 'title', 'slug', 'sku', 'price', 'published', 'featured', 'stock', 'order', 'created_at', 'updated_at'];
         if (!in_array($sortBy, $allowedSortFields)) {
             $sortBy = 'order';
         }
-        
+
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
-        
+
         $query->orderBy($sortBy, $sortDirection);
-        
+
         if ($sortBy !== 'title' && $sortBy !== 'order') {
             $query->orderBy('title', 'asc');
         }
 
-        // Paginate results
-        $perPage = $request->get('per_page', 10);
-        $products = $query->with(['categories', 'tags'])->paginate($perPage);
+        // Paginate results with sane limit to avoid massive payloads
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = max(1, min($perPage, 100));
+
+        $products = $query
+            ->with([
+                'categories:id,name',
+                'tags:id,name',
+            ])
+            ->paginate($perPage);
 
         $products->getCollection()->transform(function ($product) {
             return $this->transformProductWithImages($product);
         });
-        
+
         return response()->json($products);
     }
 
@@ -146,7 +176,7 @@ class ProductController extends Controller
         }
         
         return response()->json(
-            $this->transformProductWithImages($product->load(['categories', 'tags'])),
+            $this->transformProductWithImages($product->load(['categories:id,name', 'tags:id,name'])),
             201
         );
     }
@@ -155,7 +185,7 @@ class ProductController extends Controller
     {
         // Support both id and slug for route model binding
         $product = Product::where('id', $id)->orWhere('slug', $id)->firstOrFail();
-        $product = $product->load(['categories', 'tags']);
+        $product = $product->load(['categories:id,name', 'tags:id,name']);
         
         // Extract key_features, faqs, warranty_info from specifications
         $specs = $product->specifications ?? [];
@@ -299,7 +329,7 @@ class ProductController extends Controller
             $product->tags()->sync($tagIds);
         }
         
-        return response()->json($this->transformProductWithImages($product->load(['categories', 'tags'])));
+        return response()->json($this->transformProductWithImages($product->load(['categories:id,name', 'tags:id,name'])));
     }
 
     private function transformProductWithImages(Product $product): Product

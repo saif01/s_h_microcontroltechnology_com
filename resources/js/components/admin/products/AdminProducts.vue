@@ -28,7 +28,7 @@
                     <v-col cols="12" md="3">
                         <v-text-field v-model="search" label="Search products" prepend-inner-icon="mdi-magnify"
                             variant="outlined" density="compact" clearable
-                            @update:model-value="loadProducts"></v-text-field>
+                            @update:model-value="onSearchChange"></v-text-field>
                     </v-col>
                 </v-row>
             </v-card-text>
@@ -295,6 +295,7 @@ export default {
                 coverage: [],
                 terms: ''
             },
+            searchDebounceTimer: null,
             downloadTypes: ['PDF', 'ZIP', 'DOC', 'DOCX', 'XLS', 'XLSX', 'Other'],
             detailsSpecificationsList: [],
             detailsFeaturesList: [],
@@ -313,7 +314,9 @@ export default {
             galleryPreviews: [],
             thumbnailError: null,
             galleryError: null,
-            imageUrlInputs: []
+            imageUrlInputs: [],
+            // Cache product details to avoid re-fetching when opening edit dialog repeatedly
+            productDetailsCache: {}
         };
     },
     async mounted() {
@@ -355,6 +358,19 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        onSearchChange(value) {
+            // Debounce search requests to avoid hammering the API on every keystroke
+            this.search = value;
+            this.resetPagination();
+
+            if (this.searchDebounceTimer) {
+                clearTimeout(this.searchDebounceTimer);
+            }
+
+            this.searchDebounceTimer = setTimeout(() => {
+                this.loadProducts();
+            }, 350);
         },
         async loadCategories() {
             try {
@@ -434,7 +450,13 @@ export default {
         async loadProductForEdit(product) {
             this.loadingProduct = true;
             try {
-                // Use product.id for the API call
+                // Use cached details if available to avoid another API call
+                const cached = this.productDetailsCache[product.id];
+                if (cached) {
+                    this.applyProductDataToForm(cached);
+                    return;
+                }
+
                 const response = await this.$axios.get(`/api/v1/products/${product.id}`, {
                     headers: this.getAuthHeaders()
                 });
@@ -446,98 +468,8 @@ export default {
                     throw new Error('No product data received from server');
                 }
 
-                console.log('Loaded product data:', data);
-
-                const normalizedThumbnail = this.normalizeImageInput(data.thumbnail || '');
-                const normalizedImages = Array.isArray(data.images)
-                    ? data.images.map(img => this.normalizeImageInput(img))
-                    : [];
-
-                this.form = {
-                    title: data.title || '',
-                    slug: data.slug || '',
-                    sku: data.sku || '',
-                    short_description: data.short_description || '',
-                    description: data.description || '',
-                    thumbnail: normalizedThumbnail,
-                    images: normalizedImages,
-                    price: data.price || null,
-                    price_range: data.price_range || '',
-                    show_price: data.show_price !== false,
-                    category_ids: (data.categories || []).map(c => c.id),
-                    tag_names: (data.tags || []).map(t => t.name),
-                    published: data.published || false,
-                    featured: data.featured || false,
-                    stock: data.stock || null,
-                    order: data.order || 0,
-                    meta_title: data.meta_title || '',
-                    meta_description: data.meta_description || '',
-                    meta_keywords: data.meta_keywords || '',
-                    og_image: data.og_image || ''
-                };
-
-                // Reset image URL inputs (existing images are in form.images)
-                this.imageUrlInputs = [];
-
-                // Parse specifications (excluding special fields)
-                this.specificationsList = [];
-                if (data.specifications && typeof data.specifications === 'object') {
-                    Object.keys(data.specifications).forEach(key => {
-                        // Skip special fields stored in specifications
-                        // Also skip pure numeric keys (likely from corrupted array data)
-                        if (!key.startsWith('_') && !/^\d+$/.test(String(key))) {
-                            this.specificationsList.push({
-                                key: key,
-                                value: data.specifications[key]
-                            });
-                        }
-                    });
-                }
-
-                // Parse features (from key_features or specifications._key_features)
-                if (data.key_features && Array.isArray(data.key_features)) {
-                    this.featuresList = [...data.key_features];
-                } else if (data.specifications?._key_features && Array.isArray(data.specifications._key_features)) {
-                    this.featuresList = [...data.specifications._key_features];
-                } else {
-                    this.featuresList = [];
-                }
-
-                // Parse downloads
-                this.downloadsList = Array.isArray(data.downloads) ? [...data.downloads] : [];
-
-                // Parse FAQs (from faqs or specifications._faqs)
-                if (data.faqs && Array.isArray(data.faqs)) {
-                    this.faqsList = [...data.faqs];
-                } else if (data.specifications?._faqs && Array.isArray(data.specifications._faqs)) {
-                    this.faqsList = [...data.specifications._faqs];
-                } else {
-                    this.faqsList = [];
-                }
-
-                // Parse warranty info (from warranty_info or specifications._warranty_info)
-                if (data.warranty_info && typeof data.warranty_info === 'object') {
-                    this.warrantyInfo = {
-                        period: data.warranty_info.period || '2 Years',
-                        coverage: Array.isArray(data.warranty_info.coverage) ? [...data.warranty_info.coverage] : [],
-                        terms: data.warranty_info.terms || ''
-                    };
-                } else if (data.specifications?._warranty_info && typeof data.specifications._warranty_info === 'object') {
-                    this.warrantyInfo = {
-                        period: data.specifications._warranty_info.period || '2 Years',
-                        coverage: Array.isArray(data.specifications._warranty_info.coverage) ? [...data.specifications._warranty_info.coverage] : [],
-                        terms: data.specifications._warranty_info.terms || ''
-                    };
-                } else {
-                    this.warrantyInfo = {
-                        period: '2 Years',
-                        coverage: [],
-                        terms: ''
-                    };
-                }
-
-                // Reset form tab to basic after loading
-                this.formTab = 'basic';
+                this.productDetailsCache[data.id] = data;
+                this.applyProductDataToForm(data);
             } catch (error) {
                 console.error('Error loading product:', error);
                 const errorMessage = error.response?.data?.message ||
@@ -1155,6 +1087,10 @@ export default {
                 }
 
                 this.productDetails = data;
+                // Cache details for reuse when opening edit dialog
+                if (data.id) {
+                    this.productDetailsCache[data.id] = data;
+                }
 
                 // Parse specifications
                 this.detailsSpecificationsList = [];
@@ -1259,94 +1195,11 @@ export default {
                         await this.$nextTick(); // Ensure dialog is rendered
 
                         // Use the already loaded productDetails data
-                        const normalizedThumbnail = this.normalizeImageInput(productData.thumbnail || '');
-                        const normalizedImages = Array.isArray(productData.images)
-                            ? productData.images.map(img => this.normalizeImageInput(img))
-                            : [];
-
-                        this.form = {
-                            title: productData.title || '',
-                            slug: productData.slug || '',
-                            sku: productData.sku || '',
-                            short_description: productData.short_description || '',
-                            description: productData.description || '',
-                            thumbnail: normalizedThumbnail,
-                            images: normalizedImages,
-                            price: productData.price || null,
-                            price_range: productData.price_range || '',
-                            show_price: productData.show_price !== false,
-                            category_ids: (productData.categories || []).map(c => c.id),
-                            tag_names: (productData.tags || []).map(t => t.name),
-                            published: productData.published || false,
-                            featured: productData.featured || false,
-                            stock: productData.stock || null,
-                            order: productData.order || 0,
-                            meta_title: productData.meta_title || '',
-                            meta_description: productData.meta_description || '',
-                            meta_keywords: productData.meta_keywords || '',
-                            og_image: productData.og_image || ''
-                        };
-
-                        // Reset image URL inputs (existing images are in form.images)
-                        this.imageUrlInputs = [];
-
-                        // Parse specifications
-                        this.specificationsList = [];
-                        if (productData.specifications && typeof productData.specifications === 'object') {
-                            Object.keys(productData.specifications).forEach(key => {
-                                // Skip special fields and pure numeric keys (likely from corrupted array data)
-                                if (!key.startsWith('_') && !/^\d+$/.test(String(key))) {
-                                    this.specificationsList.push({
-                                        key: key,
-                                        value: productData.specifications[key]
-                                    });
-                                }
-                            });
+                        // Cache the details and reuse the same application path as the fetch flow
+                        if (productData.id) {
+                            this.productDetailsCache[productData.id] = productData;
                         }
-
-                        // Parse features
-                        if (productData.key_features && Array.isArray(productData.key_features)) {
-                            this.featuresList = [...productData.key_features];
-                        } else if (productData.specifications?._key_features && Array.isArray(productData.specifications._key_features)) {
-                            this.featuresList = [...productData.specifications._key_features];
-                        } else {
-                            this.featuresList = [];
-                        }
-
-                        // Parse downloads
-                        this.downloadsList = Array.isArray(productData.downloads) ? [...productData.downloads] : [];
-
-                        // Parse FAQs
-                        if (productData.faqs && Array.isArray(productData.faqs)) {
-                            this.faqsList = [...productData.faqs];
-                        } else if (productData.specifications?._faqs && Array.isArray(productData.specifications._faqs)) {
-                            this.faqsList = [...productData.specifications._faqs];
-                        } else {
-                            this.faqsList = [];
-                        }
-
-                        // Parse warranty info
-                        if (productData.warranty_info && typeof productData.warranty_info === 'object') {
-                            this.warrantyInfo = {
-                                period: productData.warranty_info.period || '2 Years',
-                                coverage: Array.isArray(productData.warranty_info.coverage) ? [...productData.warranty_info.coverage] : [],
-                                terms: productData.warranty_info.terms || ''
-                            };
-                        } else if (productData.specifications?._warranty_info && typeof productData.specifications._warranty_info === 'object') {
-                            this.warrantyInfo = {
-                                period: productData.specifications._warranty_info.period || '2 Years',
-                                coverage: Array.isArray(productData.specifications._warranty_info.coverage) ? [...productData.specifications._warranty_info.coverage] : [],
-                                terms: productData.specifications._warranty_info.terms || ''
-                            };
-                        } else {
-                            this.warrantyInfo = {
-                                period: '2 Years',
-                                coverage: [],
-                                terms: ''
-                            };
-                        }
-
-                        this.formTab = 'basic';
+                        this.applyProductDataToForm(productData);
                     } catch (error) {
                         console.error('Error populating edit form:', error);
                         this.showError('Failed to load product data for editing');
@@ -1398,6 +1251,98 @@ export default {
         },
         resolveImageUrl(imageValue) {
             return resolveUploadUrl(imageValue);
+        },
+        applyProductDataToForm(data) {
+            const normalizedThumbnail = this.normalizeImageInput(data.thumbnail || '');
+            const normalizedImages = Array.isArray(data.images)
+                ? data.images.map(img => this.normalizeImageInput(img))
+                : [];
+
+            this.form = {
+                title: data.title || '',
+                slug: data.slug || '',
+                sku: data.sku || '',
+                short_description: data.short_description || '',
+                description: data.description || '',
+                thumbnail: normalizedThumbnail,
+                images: normalizedImages,
+                price: data.price || null,
+                price_range: data.price_range || '',
+                show_price: data.show_price !== false,
+                category_ids: (data.categories || []).map(c => c.id),
+                tag_names: (data.tags || []).map(t => t.name),
+                published: data.published || false,
+                featured: data.featured || false,
+                stock: data.stock || null,
+                order: data.order || 0,
+                meta_title: data.meta_title || '',
+                meta_description: data.meta_description || '',
+                meta_keywords: data.meta_keywords || '',
+                og_image: data.og_image || ''
+            };
+
+            // Reset image URL inputs (existing images are in form.images)
+            this.imageUrlInputs = [];
+
+            // Parse specifications (excluding special fields)
+            this.specificationsList = [];
+            if (data.specifications && typeof data.specifications === 'object') {
+                Object.keys(data.specifications).forEach(key => {
+                    // Skip special fields stored in specifications
+                    // Also skip pure numeric keys (likely from corrupted array data)
+                    if (!key.startsWith('_') && !/^\d+$/.test(String(key))) {
+                        this.specificationsList.push({
+                            key: key,
+                            value: data.specifications[key]
+                        });
+                    }
+                });
+            }
+
+            // Parse features (from key_features or specifications._key_features)
+            if (data.key_features && Array.isArray(data.key_features)) {
+                this.featuresList = [...data.key_features];
+            } else if (data.specifications?._key_features && Array.isArray(data.specifications._key_features)) {
+                this.featuresList = [...data.specifications._key_features];
+            } else {
+                this.featuresList = [];
+            }
+
+            // Parse downloads
+            this.downloadsList = Array.isArray(data.downloads) ? [...data.downloads] : [];
+
+            // Parse FAQs (from faqs or specifications._faqs)
+            if (data.faqs && Array.isArray(data.faqs)) {
+                this.faqsList = [...data.faqs];
+            } else if (data.specifications?._faqs && Array.isArray(data.specifications._faqs)) {
+                this.faqsList = [...data.specifications._faqs];
+            } else {
+                this.faqsList = [];
+            }
+
+            // Parse warranty info (from warranty_info or specifications._warranty_info)
+            if (data.warranty_info && typeof data.warranty_info === 'object') {
+                this.warrantyInfo = {
+                    period: data.warranty_info.period || '2 Years',
+                    coverage: Array.isArray(data.warranty_info.coverage) ? [...data.warranty_info.coverage] : [],
+                    terms: data.warranty_info.terms || ''
+                };
+            } else if (data.specifications?._warranty_info && typeof data.specifications._warranty_info === 'object') {
+                this.warrantyInfo = {
+                    period: data.specifications._warranty_info.period || '2 Years',
+                    coverage: Array.isArray(data.specifications._warranty_info.coverage) ? [...data.specifications._warranty_info.coverage] : [],
+                    terms: data.specifications._warranty_info.terms || ''
+                };
+            } else {
+                this.warrantyInfo = {
+                    period: '2 Years',
+                    coverage: [],
+                    terms: ''
+                };
+            }
+
+            // Reset form tab to basic after loading
+            this.formTab = 'basic';
         }
     }
 };

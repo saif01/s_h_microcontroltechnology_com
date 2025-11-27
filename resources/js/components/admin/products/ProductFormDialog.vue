@@ -227,12 +227,10 @@
 
                                     <!-- Add Image URLs -->
                                     <div class="text-subtitle-2 text-medium-emphasis mb-2">Or Add Image URLs</div>
-                                    <div v-for="(img, index) in localImageUrlInputs" :key="`url-${index}`"
-                                        class="mb-3">
+                                    <div v-for="(img, index) in localImageUrlInputs" :key="`url-${index}`" class="mb-3">
                                         <v-text-field v-model="localImageUrlInputs[index]"
-                                            :label="`Image URL ${index + 1}`"
-                                            variant="outlined" prepend-inner-icon="mdi-link"
-                                            placeholder="https://example.com/image.jpg"
+                                            :label="`Image URL ${index + 1}`" variant="outlined"
+                                            prepend-inner-icon="mdi-link" placeholder="https://example.com/image.jpg"
                                             @update:model-value="handleImageUrlChange(index, $event)">
                                             <template v-slot:append>
                                                 <v-btn icon="mdi-delete" size="small" variant="text" color="error"
@@ -474,29 +472,75 @@
 
                         <!-- SEO Tab -->
                         <v-window-item value="seo">
-                            <v-row>
-                                <v-col cols="12">
-                                    <v-text-field v-model="localForm.meta_title" label="Meta Title" variant="outlined"
-                                        hint="SEO title (50-60 characters recommended)"
-                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-textarea v-model="localForm.meta_description" label="Meta Description"
-                                        variant="outlined" rows="3"
-                                        hint="SEO description (150-160 characters recommended)"
-                                        @update:model-value="$emit('update:form', localForm)"></v-textarea>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-text-field v-model="localForm.meta_keywords" label="Meta Keywords"
-                                        variant="outlined" hint="Comma-separated keywords"
-                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
-                                </v-col>
-                                <v-col cols="12">
-                                    <v-text-field v-model="localForm.og_image" label="Open Graph Image URL"
-                                        variant="outlined" hint="Image for social media sharing"
-                                        @update:model-value="$emit('update:form', localForm)"></v-text-field>
-                                </v-col>
-                            </v-row>
+                            <div class="pa-6">
+                                <v-alert type="info" variant="tonal" class="mb-6" density="compact">
+                                    <div class="text-body-2">
+                                        <strong>SEO Best Practices:</strong> Fill in these fields to improve your
+                                        product visibility in search engines and social media.
+                                    </div>
+                                </v-alert>
+
+                                <v-row>
+                                    <v-col cols="12">
+                                        <v-text-field v-model="localForm.meta_title" label="Meta Title"
+                                            variant="outlined"
+                                            hint="SEO title for search engines (recommended: 50-60 characters)"
+                                            persistent-hint :counter="60" :color="getMetaTitleColor()"
+                                            prepend-inner-icon="mdi-format-title"
+                                            @update:model-value="$emit('update:form', localForm)">
+                                            <template v-slot:append>
+                                                <v-btn icon="mdi-refresh" size="small" variant="text"
+                                                    @click="generateMetaTitle" :disabled="!localForm.title"
+                                                    title="Auto-generate from product title">
+                                                </v-btn>
+                                            </template>
+                                        </v-text-field>
+                                        <div class="text-caption" :class="getMetaTitleColor() + '--text'">
+                                            {{ (localForm.meta_title || '').length }}/60 characters
+                                        </div>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-textarea v-model="localForm.meta_description" label="Meta Description"
+                                            variant="outlined" rows="4"
+                                            hint="SEO description for search results (recommended: 150-160 characters)"
+                                            persistent-hint :counter="160" :color="getMetaDescriptionColor()"
+                                            prepend-inner-icon="mdi-text"
+                                            @update:model-value="$emit('update:form', localForm)">
+                                            <template v-slot:append>
+                                                <v-btn icon="mdi-refresh" size="small" variant="text"
+                                                    @click="generateMetaDescription"
+                                                    :disabled="!localForm.short_description"
+                                                    title="Auto-generate from short description">
+                                                </v-btn>
+                                            </template>
+                                        </v-textarea>
+                                        <div class="text-caption" :class="getMetaDescriptionColor() + '--text'">
+                                            {{ (localForm.meta_description || '').length }}/160 characters
+                                        </div>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-text-field v-model="localForm.meta_keywords" label="Meta Keywords"
+                                            variant="outlined" hint="Comma-separated keywords for SEO" persistent-hint
+                                            prepend-inner-icon="mdi-tag-multiple"
+                                            @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-divider class="my-4"></v-divider>
+                                        <h3 class="text-h6 font-weight-bold mb-4">Open Graph (Social Media)</h3>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-text-field v-model="localForm.og_image" label="Open Graph Image URL"
+                                            variant="outlined"
+                                            hint="Image for social media sharing (recommended size: 1200x630px)"
+                                            persistent-hint prepend-inner-icon="mdi-image"
+                                            @update:model-value="$emit('update:form', localForm)"></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </div>
                         </v-window-item>
 
                         <!-- Settings Tab -->
@@ -837,6 +881,44 @@ export default {
             this.updateDownloadsList();
             // Also emit the event for parent to handle
             this.$emit('remove-download', index);
+        },
+        generateMetaTitle() {
+            if (this.localForm.title) {
+                this.localForm.meta_title = this.localForm.title.length > 60
+                    ? this.localForm.title.substring(0, 57) + '...'
+                    : this.localForm.title;
+                this.$emit('update:form', this.localForm);
+            }
+        },
+        generateMetaDescription() {
+            if (this.localForm.short_description) {
+                let description = this.localForm.short_description;
+                if (description.length > 160) {
+                    description = description.substring(0, 157);
+                    const lastSpace = description.lastIndexOf(' ');
+                    if (lastSpace > 120) {
+                        description = description.substring(0, lastSpace) + '...';
+                    } else {
+                        description += '...';
+                    }
+                }
+                this.localForm.meta_description = description;
+                this.$emit('update:form', this.localForm);
+            }
+        },
+        getMetaTitleColor() {
+            const length = this.localForm.meta_title ? this.localForm.meta_title.length : 0;
+            if (length === 0) return 'primary';
+            if (length < 50) return 'warning';
+            if (length > 60) return 'error';
+            return 'success';
+        },
+        getMetaDescriptionColor() {
+            const length = this.localForm.meta_description ? this.localForm.meta_description.length : 0;
+            if (length === 0) return 'primary';
+            if (length < 120) return 'warning';
+            if (length > 160) return 'error';
+            return 'success';
         }
     }
 };

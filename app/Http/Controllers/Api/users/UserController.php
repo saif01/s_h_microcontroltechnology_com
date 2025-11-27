@@ -184,7 +184,7 @@ class UserController extends Controller
         }
 
         // Prevent deleting the last admin
-        $isAdmin = $user->roles()->where('slug', 'administrator')->exists();
+            $isAdmin = $user->roles()->where('slug', 'administrator')->exists();
         
         if ($isAdmin) {
             // Count other admins
