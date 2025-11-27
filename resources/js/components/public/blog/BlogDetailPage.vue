@@ -243,7 +243,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
@@ -265,7 +264,7 @@ const loadPost = async () => {
         loading.value = true;
         error.value = null;
         const slug = route.params.slug;
-        const response = await axios.get(`/api/openapi/blog/${slug}`);
+        const response = await this.$axios.get(`/api/openapi/blog/${slug}`);
         post.value = response.data;
     } catch (err) {
         console.error('Error loading blog post:', err);

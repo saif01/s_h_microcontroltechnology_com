@@ -122,7 +122,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import RichTextEditor from '../../common/RichTextEditor.vue';
 
@@ -229,7 +228,7 @@ export default {
 
             this.loading = true;
             try {
-                const response = await axios.get(`/api/v1/careers/${this.editingCareer.id}`, {
+                const response = await this.$axios.get(`/api/v1/careers/${this.editingCareer.id}`, {
                     headers: this.getAuthHeaders()
                 });
                 const data = response.data;
@@ -298,12 +297,12 @@ export default {
 
                 // Save career
                 if (this.editingCareer) {
-                    await axios.put(`/api/v1/careers/${this.editingCareer.id}`, payload, {
+                    await this.$axios.put(`/api/v1/careers/${this.editingCareer.id}`, payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Career updated successfully');
                 } else {
-                    await axios.post('/api/v1/careers', payload, {
+                    await this.$axios.post('/api/v1/careers', payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Career created successfully');

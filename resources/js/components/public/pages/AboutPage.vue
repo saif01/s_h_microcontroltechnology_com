@@ -158,7 +158,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
@@ -184,7 +183,7 @@ export default {
             this.error = null;
 
             try {
-                const response = await axios.get('/api/openapi/about');
+                const response = await this.$axios.get('/api/openapi/about');
                 this.aboutData = response.data || {};
             } catch (error) {
                 console.error('Error loading about data:', error);

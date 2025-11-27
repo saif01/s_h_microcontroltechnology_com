@@ -225,7 +225,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 import ProductDetailsDialog from './ProductDetailsDialog.vue';
@@ -340,7 +339,7 @@ export default {
                     params.featured = this.featuredFilter;
                 }
 
-                const response = await axios.get('/api/v1/products', {
+                const response = await this.$axios.get('/api/v1/products', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -361,13 +360,13 @@ export default {
             try {
                 this.loadingCategories = true;
                 // Try multiple possible endpoints
-                let response = await axios.get('/api/v1/categories?type=product', {
+                let response = await this.$axios.get('/api/v1/categories?type=product', {
                     headers: this.getAuthHeaders()
                 }).catch(() => null);
 
                 if (!response) {
                     // Try without type filter
-                    response = await axios.get('/api/v1/categories', {
+                    response = await this.$axios.get('/api/v1/categories', {
                         headers: this.getAuthHeaders()
                     }).catch(() => null);
                 }
@@ -391,13 +390,13 @@ export default {
         async loadTags() {
             try {
                 // Try multiple possible endpoints
-                let response = await axios.get('/api/v1/tags?type=product', {
+                let response = await this.$axios.get('/api/v1/tags?type=product', {
                     headers: this.getAuthHeaders()
                 }).catch(() => null);
 
                 if (!response) {
                     // Try without type filter
-                    response = await axios.get('/api/v1/tags', {
+                    response = await this.$axios.get('/api/v1/tags', {
                         headers: this.getAuthHeaders()
                     }).catch(() => null);
                 }
@@ -436,7 +435,7 @@ export default {
             this.loadingProduct = true;
             try {
                 // Use product.id for the API call
-                const response = await axios.get(`/api/v1/products/${product.id}`, {
+                const response = await this.$axios.get(`/api/v1/products/${product.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -752,7 +751,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -819,7 +818,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/images', formData, {
+                const response = await this.$axios.post('/api/v1/upload/images', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -942,7 +941,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/file', formData, {
+                const response = await this.$axios.post('/api/v1/upload/file', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -1092,12 +1091,12 @@ export default {
                 };
 
                 if (this.editingProduct) {
-                    const response = await axios.put(`/api/v1/products/${this.editingProduct.id}`, formData, {
+                    const response = await this.$axios.put(`/api/v1/products/${this.editingProduct.id}`, formData, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Product updated successfully');
                 } else {
-                    const response = await axios.post('/api/v1/products', formData, {
+                    const response = await this.$axios.post('/api/v1/products', formData, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Product created successfully');
@@ -1134,7 +1133,7 @@ export default {
             this.detailsTab = 'basic';
 
             try {
-                const response = await axios.get(`/api/v1/products/${product.id}`, {
+                const response = await this.$axios.get(`/api/v1/products/${product.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -1360,7 +1359,7 @@ export default {
         async deleteProduct(id) {
             if (confirm('Are you sure you want to delete this product?')) {
                 try {
-                    await axios.delete(`/api/v1/products/${id}`, {
+                    await this.$axios.delete(`/api/v1/products/${id}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Product deleted successfully');

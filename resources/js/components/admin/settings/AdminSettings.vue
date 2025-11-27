@@ -133,7 +133,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import GeneralSettings from './sections/GeneralSettings.vue';
 import HomePageSettings from './sections/HomePageSettings.vue';
 import ContactPageSettings from './sections/ContactPageSettings.vue';
@@ -254,7 +253,7 @@ export default {
         async loadSettings() {
             try {
                 const token = localStorage.getItem('admin_token');
-                const response = await axios.get('/api/v1/settings', {
+                const response = await this.$axios.get('/api/v1/settings', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -314,7 +313,7 @@ export default {
                     });
                 });
 
-                await axios.post('/api/v1/settings', {
+                await this.$axios.post('/api/v1/settings', {
                     settings: settingsToSave
                 }, {
                     headers: { Authorization: `Bearer ${token}` }

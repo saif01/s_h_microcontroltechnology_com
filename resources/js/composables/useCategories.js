@@ -1,5 +1,4 @@
 import { ref, computed } from 'vue';
-import axios from 'axios';
 
 /**
  * Composable for managing product categories
@@ -50,7 +49,7 @@ export function useCategories() {
         error.value = null;
         
         try {
-            const response = await axios.get('/api/openapi/categories?type=product');
+            const response = await window.axios.get('/api/openapi/categories?type=product');
             
             // Handle different response structures
             const categoriesData = Array.isArray(response.data)

@@ -135,7 +135,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
     name: 'CareerPage',
@@ -185,7 +184,7 @@ export default {
                     params.employment_type = this.selectedEmploymentType;
                 }
 
-                const response = await axios.get('/api/openapi/careers', { params });
+                const response = await this.$axios.get('/api/openapi/careers', { params });
 
                 // Accept both { data: [...], meta... } and plain arrays
                 const raw = response.data;

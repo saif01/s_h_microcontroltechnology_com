@@ -400,7 +400,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import RichTextEditor from '../../common/RichTextEditor.vue';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
@@ -550,7 +549,7 @@ export default {
 
             this.loading = true;
             try {
-                const response = await axios.get(`/api/v1/services/${this.editingService.id}`, {
+                const response = await this.$axios.get(`/api/v1/services/${this.editingService.id}`, {
                     headers: this.getAuthHeaders()
                 });
                 const data = response.data;
@@ -872,7 +871,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -932,7 +931,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -1032,12 +1031,12 @@ export default {
 
                 // Save service
                 if (this.editingService) {
-                    await axios.put(`/api/v1/services/${this.editingService.id}`, payload, {
+                    await this.$axios.put(`/api/v1/services/${this.editingService.id}`, payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Service updated successfully');
                 } else {
-                    await axios.post('/api/v1/services', payload, {
+                    await this.$axios.post('/api/v1/services', payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Service created successfully');

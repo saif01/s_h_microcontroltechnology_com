@@ -180,7 +180,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import BlogFormDialog from './BlogFormDialog.vue';
 
@@ -218,7 +217,7 @@ export default {
                     params.published = this.publishedFilter;
                 }
 
-                const response = await axios.get('/api/v1/blog-posts', {
+                const response = await this.$axios.get('/api/v1/blog-posts', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -248,7 +247,7 @@ export default {
         async deletePost(id) {
             if (confirm('Are you sure you want to delete this blog post?')) {
                 try {
-                    await axios.delete(`/api/v1/blog-posts/${id}`, {
+                    await this.$axios.delete(`/api/v1/blog-posts/${id}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Blog post deleted successfully');

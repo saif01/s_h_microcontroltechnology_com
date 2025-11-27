@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -160,7 +159,7 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             this.loading = true;
             try {
-                const response = await axios.post('/api/v1/auth/login', credentials);
+                const response = await window.axios.post('/api/v1/auth/login', credentials);
 
                 if (response.data.token && response.data.user) {
                     this.setAuth({
@@ -190,7 +189,7 @@ export const useAuthStore = defineStore('auth', {
             try {
                 // Call logout endpoint to revoke token on server
                 if (this.token) {
-                    await axios.post('/api/v1/auth/logout', {}, {
+                    await window.axios.post('/api/v1/auth/logout', {}, {
                         headers: {
                             Authorization: `Bearer ${this.token}`
                         }
@@ -223,7 +222,7 @@ export const useAuthStore = defineStore('auth', {
 
             this.loading = true;
             try {
-                const response = await axios.get('/api/v1/auth/user', {
+                const response = await window.axios.get('/api/v1/auth/user', {
                     headers: {
                         'Authorization': `Bearer ${this.token}`
                     }

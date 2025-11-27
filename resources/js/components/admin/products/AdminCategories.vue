@@ -308,7 +308,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 
@@ -397,7 +396,7 @@ export default {
                     params.published = this.publishedFilter;
                 }
 
-                const response = await axios.get('/api/v1/categories', {
+                const response = await this.$axios.get('/api/v1/categories', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -417,7 +416,7 @@ export default {
         async loadAllCategories() {
             try {
                 // Load all categories for parent selection (without pagination)
-                const response = await axios.get('/api/v1/categories', {
+                const response = await this.$axios.get('/api/v1/categories', {
                     params: { per_page: 1000 },
                     headers: this.getAuthHeaders()
                 }).catch(() => ({ data: { data: [] } }));
@@ -440,7 +439,7 @@ export default {
             try {
                 // Use slug for route model binding (Category model uses slug as route key)
                 const identifier = category.slug || category.id;
-                const response = await axios.get(`/api/v1/categories/${identifier}`, {
+                const response = await this.$axios.get(`/api/v1/categories/${identifier}`, {
                     headers: this.getAuthHeaders()
                 });
                 const data = response.data;
@@ -549,7 +548,7 @@ export default {
                     formData.append('prefix', this.form.name);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -606,12 +605,12 @@ export default {
                 if (this.editingCategory) {
                     // Use original slug for route model binding (Category model uses slug as route key)
                     const identifier = this.originalSlug || this.editingCategory.slug || this.editingCategory.id;
-                    await axios.put(`/api/v1/categories/${identifier}`, payload, {
+                    await this.$axios.put(`/api/v1/categories/${identifier}`, payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Category updated successfully');
                 } else {
-                    await axios.post('/api/v1/categories', payload, {
+                    await this.$axios.post('/api/v1/categories', payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Category created successfully');
@@ -636,7 +635,7 @@ export default {
                 try {
                     // Use slug for route model binding (Category model uses slug as route key)
                     const identifier = category.slug || category.id;
-                    await axios.delete(`/api/v1/categories/${identifier}`, {
+                    await this.$axios.delete(`/api/v1/categories/${identifier}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Category deleted successfully');

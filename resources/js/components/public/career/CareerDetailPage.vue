@@ -156,7 +156,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
     name: 'CareerDetailPage',
@@ -188,7 +187,7 @@ export default {
                 this.loading = true;
                 this.career = null;
                 const slug = this.$route.params.slug;
-                const response = await axios.get(`/api/openapi/careers/${slug}`);
+                const response = await this.$axios.get(`/api/openapi/careers/${slug}`);
 
                 const payload = response.data?.data || response.data;
                 if (payload) {
@@ -231,7 +230,7 @@ export default {
                     formData.append('resume', this.applicationForm.resume);
                 }
 
-                const response = await axios.post('/api/openapi/careers/apply', formData, {
+                const response = await this.$axios.post('/api/openapi/careers/apply', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }

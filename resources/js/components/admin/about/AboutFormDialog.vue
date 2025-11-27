@@ -569,7 +569,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import RichTextEditor from '../../common/RichTextEditor.vue';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
@@ -870,7 +869,7 @@ export default {
                 formData.append('image', fileToUpload);
                 formData.append('folder', 'about');
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -1014,7 +1013,7 @@ export default {
                     formData.append('prefix', member.name);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -1118,7 +1117,7 @@ export default {
                 const payload = { ...this.form };
 
                 try {
-                    await axios.put('/api/v1/about', payload, {
+                    await this.$axios.put('/api/v1/about', payload, {
                         headers: this.getAuthHeaders()
                     });
 
@@ -1128,7 +1127,7 @@ export default {
                 } catch (putError) {
                     // If 404, try POST instead
                     if (putError.response?.status === 404) {
-                        await axios.post('/api/v1/about', payload, {
+                        await this.$axios.post('/api/v1/about', payload, {
                             headers: this.getAuthHeaders()
                         });
 
@@ -1331,7 +1330,7 @@ export default {
                 formData.append('image', fileToUpload);
                 formData.append('folder', 'about/og');
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'

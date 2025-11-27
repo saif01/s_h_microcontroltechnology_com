@@ -182,7 +182,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import CareerFormDialog from './CareerFormDialog.vue';
 import CareerDetailsDialog from './CareerDetailsDialog.vue';
@@ -231,7 +230,7 @@ export default {
                     params.department = this.departmentFilter;
                 }
 
-                const response = await axios.get('/api/v1/careers', {
+                const response = await this.$axios.get('/api/v1/careers', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -246,7 +245,7 @@ export default {
         },
         async loadDepartments() {
             try {
-                const response = await axios.get('/api/v1/careers', {
+                const response = await this.$axios.get('/api/v1/careers', {
                     params: { per_page: 1000 },
                     headers: this.getAuthHeaders()
                 });
@@ -282,7 +281,7 @@ export default {
         async deleteCareer(id) {
             if (confirm('Are you sure you want to delete this career? This will also delete all associated job applications.')) {
                 try {
-                    await axios.delete(`/api/v1/careers/${id}`, {
+                    await this.$axios.delete(`/api/v1/careers/${id}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Career deleted successfully');

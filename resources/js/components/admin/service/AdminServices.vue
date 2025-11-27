@@ -152,7 +152,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import ServiceFormDialog from './ServiceFormDialog.vue';
 import ServiceDetailsDialog from './ServiceDetailsDialog.vue';
@@ -194,7 +193,7 @@ export default {
                     params.published = this.publishedFilter;
                 }
 
-                const response = await axios.get('/api/v1/services', {
+                const response = await this.$axios.get('/api/v1/services', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -230,7 +229,7 @@ export default {
         async deleteService(id) {
             if (confirm('Are you sure you want to delete this service?')) {
                 try {
-                    await axios.delete(`/api/v1/services/${id}`, {
+                    await this.$axios.delete(`/api/v1/services/${id}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Service deleted successfully');

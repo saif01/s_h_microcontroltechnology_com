@@ -326,7 +326,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import moment from 'moment';
 
@@ -367,7 +366,7 @@ export default {
     methods: {
         async loadStatistics() {
             try {
-                const response = await axios.get('/api/v1/visitor-logs/statistics', {
+                const response = await this.$axios.get('/api/v1/visitor-logs/statistics', {
                     headers: this.getAuthHeaders()
                 });
                 this.statistics = response.data;
@@ -404,7 +403,7 @@ export default {
                     params.is_bot = this.botFilter;
                 }
 
-                const response = await axios.get('/api/v1/visitor-logs', {
+                const response = await this.$axios.get('/api/v1/visitor-logs', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -427,7 +426,7 @@ export default {
             }
 
             try {
-                await axios.delete(`/api/v1/visitor-logs/${log.id}`, {
+                await this.$axios.delete(`/api/v1/visitor-logs/${log.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -448,7 +447,7 @@ export default {
             }
 
             try {
-                await axios.post('/api/v1/visitor-logs/delete-multiple', {
+                await this.$axios.post('/api/v1/visitor-logs/delete-multiple', {
                     ids: this.selectedLogs
                 }, {
                     headers: this.getAuthHeaders()

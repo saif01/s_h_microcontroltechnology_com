@@ -1,5 +1,4 @@
 import { ref, computed } from 'vue';
-import axios from 'axios';
 
 /**
  * Composable for managing products data and operations
@@ -17,7 +16,7 @@ export function useProducts() {
         error.value = null;
         
         try {
-            const response = await axios.get('/api/openapi/products');
+            const response = await window.axios.get('/api/openapi/products');
             products.value = Array.isArray(response.data) ? response.data : [];
             return products.value;
         } catch (err) {

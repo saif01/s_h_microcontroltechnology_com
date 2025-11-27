@@ -125,7 +125,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
 import BlogCard from './BlogCard.vue';
 
 const posts = ref([]);
@@ -180,7 +179,7 @@ const loadPosts = async () => {
             params.sort_direction = sortBy.value === 'title' ? 'asc' : 'desc';
         }
 
-        const response = await axios.get('/api/openapi/blog', { params });
+        const response = await this.$axios.get('/api/openapi/blog', { params });
         posts.value = response.data.data || [];
         pagination.value = {
             total: response.data.total || 0,
@@ -199,7 +198,7 @@ const loadPosts = async () => {
 
 const loadCategories = async () => {
     try {
-        const response = await axios.get('/api/openapi/blog/categories');
+        const response = await this.$axios.get('/api/openapi/blog/categories');
         categories.value = response.data || [];
     } catch (error) {
         console.error('Error loading categories:', error);

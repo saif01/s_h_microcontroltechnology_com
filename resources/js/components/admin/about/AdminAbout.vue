@@ -350,7 +350,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import AboutFormDialog from './AboutFormDialog.vue';
 import { resolveUploadUrl } from '../../../utils/uploads';
@@ -377,7 +376,7 @@ export default {
             this.error = null;
 
             try {
-                const response = await axios.get('/api/v1/about', {
+                const response = await this.$axios.get('/api/v1/about', {
                     headers: this.getAuthHeaders()
                 });
                 this.aboutData = response.data || null;

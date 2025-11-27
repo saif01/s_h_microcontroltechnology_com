@@ -244,7 +244,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 
 export default {
@@ -284,7 +283,7 @@ export default {
                     params.status = this.statusFilter;
                 }
 
-                const response = await axios.get('/api/v1/newsletters', {
+                const response = await this.$axios.get('/api/v1/newsletters', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -299,7 +298,7 @@ export default {
         },
         async viewSubscription(subscription) {
             try {
-                const response = await axios.get(`/api/v1/newsletters/${subscription.id}`, {
+                const response = await this.$axios.get(`/api/v1/newsletters/${subscription.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -316,7 +315,7 @@ export default {
         async unsubscribe(subscription) {
             try {
                 this.saving = true;
-                await axios.put(`/api/v1/newsletters/${subscription.id}`, {
+                await this.$axios.put(`/api/v1/newsletters/${subscription.id}`, {
                     status: 'unsubscribed'
                 }, {
                     headers: this.getAuthHeaders()
@@ -333,7 +332,7 @@ export default {
         async resubscribe(subscription) {
             try {
                 this.saving = true;
-                await axios.put(`/api/v1/newsletters/${subscription.id}`, {
+                await this.$axios.put(`/api/v1/newsletters/${subscription.id}`, {
                     status: 'active'
                 }, {
                     headers: this.getAuthHeaders()
@@ -366,7 +365,7 @@ export default {
 
             try {
                 this.saving = true;
-                await axios.delete(`/api/v1/newsletters/${this.subscriptionToDelete.id}`, {
+                await this.$axios.delete(`/api/v1/newsletters/${this.subscriptionToDelete.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -382,7 +381,7 @@ export default {
         },
         async exportSubscriptions() {
             try {
-                const response = await axios.get('/api/v1/newsletters/export/csv', {
+                const response = await this.$axios.get('/api/v1/newsletters/export/csv', {
                     headers: this.getAuthHeaders(),
                     responseType: 'blob'
                 });

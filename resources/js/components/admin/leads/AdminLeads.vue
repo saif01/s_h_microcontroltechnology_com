@@ -335,7 +335,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 
 export default {
@@ -394,7 +393,7 @@ export default {
                     params.is_read = true;
                 }
 
-                const response = await axios.get('/api/v1/leads', {
+                const response = await this.$axios.get('/api/v1/leads', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -410,7 +409,7 @@ export default {
         async viewLead(lead) {
             try {
                 // Fetch full lead details and mark as read
-                const response = await axios.get(`/api/v1/leads/${lead.id}`, {
+                const response = await this.$axios.get(`/api/v1/leads/${lead.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -436,7 +435,7 @@ export default {
             if (!this.selectedLead) return;
 
             try {
-                await axios.post(`/api/v1/leads/${this.selectedLead.id}/mark-as-read`, {}, {
+                await this.$axios.post(`/api/v1/leads/${this.selectedLead.id}/mark-as-read`, {}, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -457,7 +456,7 @@ export default {
         },
         async markAsRead(lead) {
             try {
-                await axios.post(`/api/v1/leads/${lead.id}/mark-as-read`, {}, {
+                await this.$axios.post(`/api/v1/leads/${lead.id}/mark-as-read`, {}, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -474,7 +473,7 @@ export default {
         },
         async exportLeads() {
             try {
-                const response = await axios.get('/api/v1/leads/export/csv', {
+                const response = await this.$axios.get('/api/v1/leads/export/csv', {
                     headers: this.getAuthHeaders(),
                     responseType: 'blob'
                 });

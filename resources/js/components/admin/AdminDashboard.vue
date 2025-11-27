@@ -266,7 +266,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { Line, Bar, Pie, Doughnut } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend } from 'chart.js';
 import moment from 'moment';
@@ -504,23 +503,23 @@ export default {
 
                 // Load all data in parallel
                 const [servicesRes, productsRes, leadsRes, visitorStatsRes, loginStatsRes] = await Promise.all([
-                    axios.get('/api/v1/services', {
+                    this.$axios.get('/api/v1/services', {
                         params: { per_page: 1 },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
-                    axios.get('/api/v1/products', {
+                    this.$axios.get('/api/v1/products', {
                         params: { per_page: 1 },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
-                    axios.get('/api/v1/leads', {
+                    this.$axios.get('/api/v1/leads', {
                         params: { per_page: 10, sort_direction: 'desc' },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
-                    axios.get('/api/v1/visitor-logs/statistics', {
+                    this.$axios.get('/api/v1/visitor-logs/statistics', {
                         params: { time_range: this.timeRange },
                         headers: { Authorization: `Bearer ${token}` }
                     }),
-                    axios.get('/api/v1/login-logs/statistics', {
+                    this.$axios.get('/api/v1/login-logs/statistics', {
                         params: { time_range: this.timeRange },
                         headers: { Authorization: `Bearer ${token}` }
                     })
@@ -531,7 +530,7 @@ export default {
                 this.stats.products = productsRes.data.total || 0;
 
                 // Count new leads
-                const allLeadsRes = await axios.get('/api/v1/leads', {
+                const allLeadsRes = await this.$axios.get('/api/v1/leads', {
                     params: { status: 'new', per_page: 1 },
                     headers: { Authorization: `Bearer ${token}` }
                 });

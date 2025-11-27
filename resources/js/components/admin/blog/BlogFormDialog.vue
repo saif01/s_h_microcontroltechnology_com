@@ -278,7 +278,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 import RichTextEditor from '../../common/RichTextEditor.vue';
@@ -401,7 +400,7 @@ export default {
 
             this.loading = true;
             try {
-                const response = await axios.get(`/api/v1/blog-posts/${this.editingPost.id}`, {
+                const response = await this.$axios.get(`/api/v1/blog-posts/${this.editingPost.id}`, {
                     headers: this.getAuthHeaders()
                 });
                 const data = response.data;
@@ -441,7 +440,7 @@ export default {
         async loadCategories() {
             try {
                 this.loadingCategories = true;
-                const response = await axios.get('/api/v1/blog-categories', {
+                const response = await this.$axios.get('/api/v1/blog-categories', {
                     headers: this.getAuthHeaders()
                 }).catch(() => null);
 
@@ -460,12 +459,12 @@ export default {
         },
         async loadTags() {
             try {
-                const response = await axios.get('/api/v1/tags?type=post', {
+                const response = await this.$axios.get('/api/v1/tags?type=post', {
                     headers: this.getAuthHeaders()
                 }).catch(() => null);
 
                 if (!response) {
-                    response = await axios.get('/api/v1/tags', {
+                    response = await this.$axios.get('/api/v1/tags', {
                         headers: this.getAuthHeaders()
                     }).catch(() => null);
                 }
@@ -642,7 +641,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -685,7 +684,7 @@ export default {
                     formData.append('prefix', this.form.title);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -763,12 +762,12 @@ export default {
                 };
 
                 if (this.editingPost) {
-                    await axios.put(`/api/v1/blog-posts/${this.editingPost.id}`, payload, {
+                    await this.$axios.put(`/api/v1/blog-posts/${this.editingPost.id}`, payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Blog post updated successfully');
                 } else {
-                    await axios.post('/api/v1/blog-posts', payload, {
+                    await this.$axios.post('/api/v1/blog-posts', payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Blog post created successfully');

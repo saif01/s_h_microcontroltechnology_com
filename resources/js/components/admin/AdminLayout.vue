@@ -186,7 +186,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import moment from 'moment';
 import { useAuthStore } from '../../stores/auth';
 import { resolveUploadUrl } from '../../utils/uploads';
@@ -232,7 +231,7 @@ export default {
 
                 // Fetch current user data from API
                 // Backend returns user with roles and their associated permissions
-                const response = await axios.get('/api/v1/auth/user', {
+                const response = await this.$axios.get('/api/v1/auth/user', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -277,7 +276,7 @@ export default {
                     return;
                 }
 
-                const response = await axios.get('/api/v1/settings', {
+                const response = await this.$axios.get('/api/v1/settings', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -359,7 +358,7 @@ export default {
                 const token = localStorage.getItem('admin_token');
                 if (!token) return;
 
-                const response = await axios.get('/api/v1/leads/unread-count', {
+                const response = await this.$axios.get('/api/v1/leads/unread-count', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

@@ -151,7 +151,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 export default {
     name: 'CareerDetailsDialog',
     props: {
@@ -203,7 +202,7 @@ export default {
             this.tab = 'basic';
 
             try {
-                const response = await axios.get(`/api/v1/careers/${this.careerId}`, {
+                const response = await this.$axios.get(`/api/v1/careers/${this.careerId}`, {
                     headers: this.getAuthHeaders()
                 });
 

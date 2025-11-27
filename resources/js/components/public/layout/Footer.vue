@@ -114,7 +114,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
     name: 'Footer',
@@ -193,7 +192,7 @@ export default {
             this.newsletterMessage = '';
 
             try {
-                const response = await axios.post('/api/openapi/newsletter/subscribe', {
+                const response = await this.$axios.post('/api/openapi/newsletter/subscribe', {
                     email: this.newsletterEmail.trim()
                 });
 

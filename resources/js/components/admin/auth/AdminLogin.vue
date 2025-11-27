@@ -71,7 +71,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { useAuthStore } from '../../../stores/auth';
 import { mapActions } from 'pinia';
 import { resolveUploadUrl } from '../../../utils/uploads';
@@ -147,7 +146,7 @@ export default {
         async loadBrandingSettings() {
             try {
                 // Use public endpoint since user is not authenticated yet
-                const response = await axios.get('/api/openapi/settings?group=branding');
+                const response = await this.$axios.get('/api/openapi/settings?group=branding');
                 if (response.data && response.data.logo) {
                     this.brandingLogo = response.data.logo;
                 }

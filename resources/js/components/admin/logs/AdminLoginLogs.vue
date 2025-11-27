@@ -304,7 +304,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import moment from 'moment';
 
@@ -336,7 +335,7 @@ export default {
     methods: {
         async loadStatistics() {
             try {
-                const response = await axios.get('/api/v1/login-logs/statistics', {
+                const response = await this.$axios.get('/api/v1/login-logs/statistics', {
                     headers: this.getAuthHeaders()
                 });
                 this.statistics = response.data;
@@ -357,7 +356,7 @@ export default {
                     params.status = this.statusFilter;
                 }
 
-                const response = await axios.get('/api/v1/login-logs', {
+                const response = await this.$axios.get('/api/v1/login-logs', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -380,7 +379,7 @@ export default {
             }
 
             try {
-                await axios.delete(`/api/v1/login-logs/${log.id}`, {
+                await this.$axios.delete(`/api/v1/login-logs/${log.id}`, {
                     headers: this.getAuthHeaders()
                 });
 

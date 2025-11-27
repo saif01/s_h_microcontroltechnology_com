@@ -34,7 +34,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import HeroSection from './home_page_sections/HeroSection.vue';
 import StatsSection from './home_page_sections/StatsSection.vue';
 import TrustedBySection from './home_page_sections/TrustedBySection.vue';
@@ -155,7 +154,7 @@ export default {
     methods: {
         async loadHomeData() {
             try {
-                const response = await axios.get('/api/openapi/home');
+                const response = await this.$axios.get('/api/openapi/home');
                 const data = response.data;
 
                 // Store home page settings if available

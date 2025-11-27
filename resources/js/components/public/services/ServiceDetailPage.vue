@@ -132,7 +132,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
@@ -243,7 +242,7 @@ export default {
 
             try {
                 const slug = this.$route.params.slug;
-                const response = await axios.get(`/api/openapi/services/${slug}`);
+                const response = await this.$axios.get(`/api/openapi/services/${slug}`);
                 this.service = response.data;
 
                 // Update SEO meta tags after service loads
@@ -272,7 +271,7 @@ export default {
             this.loadingOtherServices = true;
 
             try {
-                const response = await axios.get('/api/openapi/services');
+                const response = await this.$axios.get('/api/openapi/services');
                 const allServices = response.data || [];
                 const currentSlug = this.$route.params.slug;
 

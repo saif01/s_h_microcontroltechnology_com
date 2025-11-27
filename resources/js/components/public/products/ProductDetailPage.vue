@@ -513,7 +513,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import ShareDialog from './ShareDialog.vue';
 import { resolveUploadUrl } from '../../../utils/uploads';
 
@@ -726,7 +725,7 @@ export default {
         async loadProduct() {
             const slug = this.$route.params.slug;
             try {
-                const response = await axios.get(`/api/openapi/products/${slug}`);
+                const response = await this.$axios.get(`/api/openapi/products/${slug}`);
                 this.product = response.data || {};
                 this.activeImage = this.productImages[0];
                 this.breadcrumbs[2].title = this.product.title;
@@ -775,7 +774,7 @@ export default {
         },
         async loadRelatedProducts() {
             try {
-                const response = await axios.get('/api/openapi/products');
+                const response = await this.$axios.get('/api/openapi/products');
                 const allProducts = response.data || [];
                 // Filter out current product and get related ones
                 this.relatedProducts = allProducts

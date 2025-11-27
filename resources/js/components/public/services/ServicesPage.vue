@@ -142,7 +142,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
@@ -246,7 +245,7 @@ export default {
             this.error = null;
 
             try {
-                const response = await axios.get('/api/openapi/services');
+                const response = await this.$axios.get('/api/openapi/services');
                 this.services = response.data || [];
             } catch (error) {
                 console.error('Error loading services:', error);

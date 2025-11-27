@@ -242,7 +242,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 
 export default {
@@ -294,7 +293,7 @@ export default {
                     params.career_id = this.careerFilter;
                 }
 
-                const response = await axios.get('/api/v1/job-applications', {
+                const response = await this.$axios.get('/api/v1/job-applications', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -309,7 +308,7 @@ export default {
         },
         async loadCareers() {
             try {
-                const response = await axios.get('/api/v1/careers', {
+                const response = await this.$axios.get('/api/v1/careers', {
                     params: { per_page: 1000 },
                     headers: this.getAuthHeaders()
                 });
@@ -325,7 +324,7 @@ export default {
         },
         async updateStatus(application) {
             try {
-                await axios.put(`/api/v1/job-applications/${application.id}`, {
+                await this.$axios.put(`/api/v1/job-applications/${application.id}`, {
                     status: application.status
                 }, {
                     headers: this.getAuthHeaders()
@@ -347,7 +346,7 @@ export default {
             
             this.savingNotes = true;
             try {
-                await axios.put(`/api/v1/job-applications/${this.selectedApplication.id}`, {
+                await this.$axios.put(`/api/v1/job-applications/${this.selectedApplication.id}`, {
                     notes: this.notesText
                 }, {
                     headers: this.getAuthHeaders()
@@ -364,7 +363,7 @@ export default {
         async deleteApplication(id) {
             if (confirm('Are you sure you want to delete this application?')) {
                 try {
-                    await axios.delete(`/api/v1/job-applications/${id}`, {
+                    await this.$axios.delete(`/api/v1/job-applications/${id}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Application deleted successfully');

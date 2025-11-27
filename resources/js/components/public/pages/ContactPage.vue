@@ -195,7 +195,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
     name: 'ContactPage',
@@ -481,7 +480,7 @@ export default {
         },
         async loadContactInfo() {
             try {
-                const response = await axios.get('/api/openapi/settings', {
+                const response = await this.$axios.get('/api/openapi/settings', {
                     params: { group: 'contact_page' }
                 });
                 // Response is a key-value object, merge it with contactInfo
@@ -531,7 +530,7 @@ export default {
             this.loading = true;
             try {
                 // Submit form to API
-                const response = await axios.post('/api/openapi/contact', {
+                const response = await this.$axios.post('/api/openapi/contact', {
                     name: this.form.name,
                     email: this.form.email,
                     phone: this.form.phone,

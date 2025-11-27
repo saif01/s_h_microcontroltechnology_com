@@ -80,7 +80,8 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-wrap gap-1">
-                                    <v-skeleton-loader type="chip" width="80" height="24" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="chip" width="80" height="24"
+                                        class="mr-1"></v-skeleton-loader>
                                     <v-skeleton-loader type="chip" width="70" height="24"></v-skeleton-loader>
                                 </div>
                             </td>
@@ -89,7 +90,8 @@
                             </td>
                             <td>
                                 <div class="d-flex">
-                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"
+                                        class="mr-1"></v-skeleton-loader>
                                     <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
                                 </div>
                             </td>
@@ -101,7 +103,8 @@
                                     <div class="d-flex align-center gap-2">
                                         <v-avatar size="32" color="primary">
                                             <v-img v-if="user.avatar" :src="user.avatar" :alt="user.name"></v-img>
-                                            <span v-else class="text-white">{{ user.name.charAt(0).toUpperCase() }}</span>
+                                            <span v-else class="text-white">{{ user.name.charAt(0).toUpperCase()
+                                                }}</span>
                                         </v-avatar>
                                         {{ user.name }}
                                     </div>
@@ -109,8 +112,8 @@
                                 <td>{{ user.email }}</td>
                                 <td>
                                     <div v-if="user.roles && user.roles.length > 0" class="d-flex flex-wrap gap-1">
-                                        <v-chip v-for="role in user.roles" :key="role.id" :color="getRoleColor(role.slug)"
-                                            size="small">
+                                        <v-chip v-for="role in user.roles" :key="role.id"
+                                            :color="getRoleColor(role.slug)" size="small">
                                             {{ role.name }}
                                         </v-chip>
                                     </div>
@@ -118,7 +121,8 @@
                                 </td>
                                 <td>{{ formatDate(user.created_at) }}</td>
                                 <td>
-                                    <v-btn size="small" icon="mdi-pencil" @click="openDialog(user)" variant="text"></v-btn>
+                                    <v-btn size="small" icon="mdi-pencil" @click="openDialog(user)"
+                                        variant="text"></v-btn>
                                     <v-btn size="small" icon="mdi-delete" @click="deleteUser(user)" variant="text"
                                         color="error" :disabled="user.id === currentUserId"></v-btn>
                                 </td>
@@ -131,11 +135,12 @@
                 </v-table>
 
                 <!-- Pagination and Records Info -->
-                <div class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
+                <div
+                    class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
                     <div class="text-caption text-grey">
                         <span v-if="users.length > 0 && pagination.total > 0">
-                            Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to 
-                            <strong>{{ Math.min(currentPage * perPage, pagination.total) }}</strong> of 
+                            Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                            <strong>{{ Math.min(currentPage * perPage, pagination.total) }}</strong> of
                             <strong>{{ pagination.total.toLocaleString() }}</strong> records
                             <span v-if="pagination.last_page > 1" class="ml-2">
                                 (Page {{ currentPage }} of {{ pagination.last_page }})
@@ -146,12 +151,8 @@
                         </span>
                     </div>
                     <div v-if="pagination.last_page > 1" class="d-flex align-center gap-2">
-                        <v-pagination 
-                            v-model="currentPage" 
-                            :length="pagination.last_page"
-                            :total-visible="7"
-                            density="comfortable"
-                            @update:model-value="loadUsers">
+                        <v-pagination v-model="currentPage" :length="pagination.last_page" :total-visible="7"
+                            density="comfortable" @update:model-value="loadUsers">
                         </v-pagination>
                     </div>
                 </div>
@@ -273,7 +274,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 
@@ -337,7 +337,7 @@ export default {
                     params.role = this.roleFilter;
                 }
 
-                const response = await axios.get('/api/v1/users', {
+                const response = await this.$axios.get('/api/v1/users', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -354,7 +354,7 @@ export default {
         },
         async loadRoles() {
             try {
-                const response = await axios.get('/api/v1/users/roles', {
+                const response = await this.$axios.get('/api/v1/users/roles', {
                     headers: this.getAuthHeaders()
                 });
                 this.roles = response.data.roles;
@@ -372,7 +372,7 @@ export default {
             // Get current user ID from token or API
             // For now, we'll get it from the auth user endpoint
             const token = localStorage.getItem('admin_token');
-            axios.get('/api/v1/auth/user', {
+            this.$axios.get('/api/v1/auth/user', {
                 headers: { Authorization: `Bearer ${token}` }
             }).then(response => {
                 this.currentUserId = response.data.id;
@@ -467,7 +467,7 @@ export default {
                 }
 
                 const token = localStorage.getItem('admin_token');
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
@@ -598,7 +598,7 @@ export default {
 
             try {
                 const token = localStorage.getItem('admin_token');
-                await axios.delete(`/api/v1/users/${user.id}`, {
+                await this.$axios.delete(`/api/v1/users/${user.id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

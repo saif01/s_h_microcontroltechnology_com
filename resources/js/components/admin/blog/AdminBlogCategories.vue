@@ -294,7 +294,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 
@@ -376,7 +375,7 @@ export default {
                     params.published = this.publishedFilter;
                 }
 
-                const response = await axios.get('/api/v1/blog-categories', {
+                const response = await this.$axios.get('/api/v1/blog-categories', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -396,7 +395,7 @@ export default {
         async loadAllCategories() {
             try {
                 // Load all blog categories for parent selection (without pagination)
-                const response = await axios.get('/api/v1/blog-categories', {
+                const response = await this.$axios.get('/api/v1/blog-categories', {
                     params: { per_page: 1000 },
                     headers: this.getAuthHeaders()
                 }).catch(() => ({ data: { data: [] } }));
@@ -420,7 +419,7 @@ export default {
                 this.loading = true;
                 // Use ID first, fallback to slug (controller supports both)
                 const identifier = category.id || category.slug;
-                const response = await axios.get(`/api/v1/blog-categories/${identifier}`, {
+                const response = await this.$axios.get(`/api/v1/blog-categories/${identifier}`, {
                     headers: this.getAuthHeaders()
                 });
                 const data = response.data;
@@ -533,7 +532,7 @@ export default {
                     formData.append('prefix', this.form.name);
                 }
 
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         ...this.getAuthHeaders(),
                         'Content-Type': 'multipart/form-data'
@@ -591,12 +590,12 @@ export default {
                 if (this.editingCategory) {
                     // Use ID first, fallback to slug (controller supports both)
                     const identifier = this.originalId || this.editingCategory.id || this.originalSlug || this.editingCategory.slug;
-                    await axios.put(`/api/v1/blog-categories/${identifier}`, payload, {
+                    await this.$axios.put(`/api/v1/blog-categories/${identifier}`, payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Blog category updated successfully');
                 } else {
-                    await axios.post('/api/v1/blog-categories', payload, {
+                    await this.$axios.post('/api/v1/blog-categories', payload, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Blog category created successfully');
@@ -621,7 +620,7 @@ export default {
                 try {
                     // Use ID first, fallback to slug (controller supports both)
                     const identifier = category.id || category.slug;
-                    await axios.delete(`/api/v1/blog-categories/${identifier}`, {
+                    await this.$axios.delete(`/api/v1/blog-categories/${identifier}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Blog category deleted successfully');

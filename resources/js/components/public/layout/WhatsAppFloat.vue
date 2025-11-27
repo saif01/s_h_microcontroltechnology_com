@@ -6,7 +6,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
     name: 'WhatsAppFloat',
@@ -26,7 +25,7 @@ export default {
     methods: {
         async loadSettings() {
             try {
-                const response = await axios.get('/api/openapi/settings');
+                const response = await this.$axios.get('/api/openapi/settings');
                 const data = response.data;
 
                 // Update settings

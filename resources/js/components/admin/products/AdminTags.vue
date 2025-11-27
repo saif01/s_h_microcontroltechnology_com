@@ -210,7 +210,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 
 export default {
@@ -252,7 +251,7 @@ export default {
                     params.type = this.typeFilter;
                 }
 
-                const response = await axios.get('/api/v1/tags', {
+                const response = await this.$axios.get('/api/v1/tags', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -282,7 +281,7 @@ export default {
         },
         async loadTagForEdit(tag) {
             try {
-                const response = await axios.get(`/api/v1/tags/${tag.id}`, {
+                const response = await this.$axios.get(`/api/v1/tags/${tag.id}`, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -344,12 +343,12 @@ export default {
                 }
 
                 if (this.editingTag) {
-                    await axios.put(`/api/v1/tags/${this.editingTag.id}`, formData, {
+                    await this.$axios.put(`/api/v1/tags/${this.editingTag.id}`, formData, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Tag updated successfully');
                 } else {
-                    await axios.post('/api/v1/tags', formData, {
+                    await this.$axios.post('/api/v1/tags', formData, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Tag created successfully');
@@ -369,7 +368,7 @@ export default {
         async deleteTag(id) {
             if (confirm('Are you sure you want to delete this tag? This action cannot be undone.')) {
                 try {
-                    await axios.delete(`/api/v1/tags/${id}`, {
+                    await this.$axios.delete(`/api/v1/tags/${id}`, {
                         headers: this.getAuthHeaders()
                     });
                     this.showSuccess('Tag deleted successfully');

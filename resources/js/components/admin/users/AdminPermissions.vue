@@ -332,7 +332,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 
 export default {
@@ -390,7 +389,7 @@ export default {
                     params.per_page = this.perPage;
                 }
 
-                const response = await axios.get('/api/v1/permissions', {
+                const response = await this.$axios.get('/api/v1/permissions', {
                     params,
                     headers: this.getAuthHeaders()
                 });
@@ -450,7 +449,7 @@ export default {
          */
         async loadGroups() {
             try {
-                const response = await axios.get('/api/v1/permissions/groups', {
+                const response = await this.$axios.get('/api/v1/permissions/groups', {
                     headers: this.getAuthHeaders()
                 });
                 // Handle both old format (array of strings) and new format (array of objects)
@@ -580,7 +579,7 @@ export default {
                     description: this.form.description ? this.form.description.trim() : null,
                 };
 
-                await axios[method](url, data, {
+                await this.$axios[method](url, data, {
                     headers: this.getAuthHeaders()
                 });
 
@@ -611,7 +610,7 @@ export default {
             }
 
             try {
-                await axios.delete(`/api/v1/permissions/${permission.id}`, {
+                await this.$axios.delete(`/api/v1/permissions/${permission.id}`, {
                     headers: this.getAuthHeaders()
                 });
 

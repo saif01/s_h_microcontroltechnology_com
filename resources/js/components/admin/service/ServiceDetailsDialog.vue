@@ -160,7 +160,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 export default {
     name: 'ServiceDetailsDialog',
     props: {
@@ -212,7 +211,7 @@ export default {
             this.tab = 'basic';
 
             try {
-                const response = await axios.get(`/api/v1/services/${this.serviceId}`, {
+                const response = await this.$axios.get(`/api/v1/services/${this.serviceId}`, {
                     headers: this.getAuthHeaders()
                 });
 

@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import AppBar from './layout/AppBar.vue';
 import MobileDrawer from './layout/MobileDrawer.vue';
 import Footer from './layout/Footer.vue';
@@ -85,7 +84,7 @@ export default {
     methods: {
         async loadSettings() {
             try {
-                const response = await axios.get('/api/openapi/settings');
+                const response = await this.$axios.get('/api/openapi/settings');
                 const data = response.data;
 
                 // Update settings object
@@ -125,7 +124,7 @@ export default {
         },
         async loadBrandingSettings() {
             try {
-                const response = await axios.get('/api/openapi/settings?group=branding');
+                const response = await this.$axios.get('/api/openapi/settings?group=branding');
                 if (response.data && response.data.logo) {
                     this.brandingLogo = response.data.logo;
                 }

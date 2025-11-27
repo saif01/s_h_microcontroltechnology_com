@@ -70,7 +70,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../../../utils/uploads';
 
 export default {
@@ -143,7 +142,7 @@ export default {
                 formData.append('folder', 'clients');
 
                 const token = localStorage.getItem('admin_token');
-                const response = await axios.post('/api/v1/upload/image', formData, {
+                const response = await this.$axios.post('/api/v1/upload/image', formData, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data'
