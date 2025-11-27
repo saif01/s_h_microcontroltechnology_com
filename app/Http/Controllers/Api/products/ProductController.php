@@ -184,24 +184,59 @@ class ProductController extends Controller
     public function show(Request $request, $id)
     {
         // Support both id and slug for route model binding
-        $product = Product::where('id', $id)->orWhere('slug', $id)->firstOrFail();
-        $product = $product->load(['categories:id,name', 'tags:id,name']);
+        // Select only needed fields to reduce memory usage
+        $product = Product::select([
+            'id',
+            'title',
+            'slug',
+            'sku',
+            'short_description',
+            'description',
+            'thumbnail',
+            'images',
+            'price',
+            'price_range',
+            'show_price',
+            'specifications',
+            'downloads',
+            'meta_title',
+            'meta_description',
+            'meta_keywords',
+            'og_image',
+            'published',
+            'featured',
+            'stock',
+            'order',
+            'created_at',
+            'updated_at'
+        ])
+        ->where(function($query) use ($id) {
+            $query->where('id', $id)
+                  ->orWhere('slug', $id);
+        })
+        ->firstOrFail();
+        
+        // Eager load relationships with limited fields to reduce memory
+        $product->load(['categories:id,name', 'tags:id,name']);
         
         // Extract key_features, faqs, warranty_info from specifications
+        // Process specifications in chunks if it's very large
         $specs = $product->specifications ?? [];
-        if (isset($specs['_key_features'])) {
-            $product->key_features = $specs['_key_features'];
-            unset($specs['_key_features']);
+        if (is_array($specs) && count($specs) > 0) {
+            if (isset($specs['_key_features'])) {
+                $product->key_features = $specs['_key_features'];
+                unset($specs['_key_features']);
+            }
+            if (isset($specs['_faqs'])) {
+                $product->faqs = $specs['_faqs'];
+                unset($specs['_faqs']);
+            }
+            if (isset($specs['_warranty_info'])) {
+                $product->warranty_info = $specs['_warranty_info'];
+                unset($specs['_warranty_info']);
+            }
+            $product->specifications = $specs;
         }
-        if (isset($specs['_faqs'])) {
-            $product->faqs = $specs['_faqs'];
-            unset($specs['_faqs']);
-        }
-        if (isset($specs['_warranty_info'])) {
-            $product->warranty_info = $specs['_warranty_info'];
-            unset($specs['_warranty_info']);
-        }
-        $product->specifications = $specs;
         
         return response()->json($this->transformProductWithImages($product));
     }

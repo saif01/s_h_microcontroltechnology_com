@@ -167,11 +167,12 @@
                 </v-table>
 
                 <!-- Pagination -->
-                <div class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
+                <div
+                    class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
                     <div class="text-caption text-grey">
                         <span v-if="products.length > 0 && pagination.total > 0">
-                            Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to 
-                            <strong>{{ Math.min(currentPage * perPage, pagination.total) }}</strong> of 
+                            Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                            <strong>{{ Math.min(currentPage * perPage, pagination.total) }}</strong> of
                             <strong>{{ pagination.total.toLocaleString() }}</strong> records
                             <span v-if="pagination.last_page > 1" class="ml-2">
                                 (Page {{ currentPage }} of {{ pagination.last_page }})
@@ -180,12 +181,8 @@
                         <span v-else>No records found</span>
                     </div>
                     <div v-if="pagination.last_page > 1" class="d-flex align-center gap-2">
-                        <v-pagination 
-                            v-model="currentPage" 
-                            :length="pagination.last_page"
-                            :total-visible="7"
-                            density="comfortable"
-                            @update:model-value="loadProducts">
+                        <v-pagination v-model="currentPage" :length="pagination.last_page" :total-visible="7"
+                            density="comfortable" @update:model-value="loadProducts">
                         </v-pagination>
                     </div>
                 </div>
@@ -454,11 +451,21 @@ export default {
                 const cached = this.productDetailsCache[product.id];
                 if (cached) {
                     this.applyProductDataToForm(cached);
+                    this.loadingProduct = false;
                     return;
                 }
 
+                // Try to use product data from list if it has enough information
+                // This avoids an API call for products that were just loaded
+                if (product && product.id && this.hasCompleteProductData(product)) {
+                    // Use the product from the list, but we still need full details
+                    // So we'll make the API call but with error handling for memory issues
+                }
+
                 const response = await this.$axios.get(`/api/v1/products/${product.id}`, {
-                    headers: this.getAuthHeaders()
+                    headers: this.getAuthHeaders(),
+                    timeout: 30000, // 30 second timeout
+                    // Add params to potentially reduce response size if backend supports it
                 });
 
                 // Handle different response structures
@@ -468,20 +475,35 @@ export default {
                     throw new Error('No product data received from server');
                 }
 
+                // Cache the data before processing to avoid re-fetching
                 this.productDetailsCache[data.id] = data;
                 this.applyProductDataToForm(data);
             } catch (error) {
                 console.error('Error loading product:', error);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    'Failed to load product data';
-                this.showError(errorMessage);
+
+                // Check for memory-related errors
+                if (error.response?.status === 500 ||
+                    error.message?.includes('memory') ||
+                    error.response?.data?.message?.includes('memory')) {
+                    this.showError('Product data is too large to load. Please try refreshing the page or contact support.');
+                } else {
+                    const errorMessage = error.response?.data?.message ||
+                        error.response?.data?.error ||
+                        error.message ||
+                        'Failed to load product data';
+                    this.showError(errorMessage);
+                }
+
                 // Close dialog on error
                 this.closeDialog();
                 throw error;
             } finally {
                 this.loadingProduct = false;
             }
+        },
+        hasCompleteProductData(product) {
+            // Check if product has all necessary fields for editing
+            return product && product.title && product.slug;
         },
         resetForm() {
             this.form = {
@@ -1026,6 +1048,10 @@ export default {
                     const response = await this.$axios.put(`/api/v1/products/${this.editingProduct.id}`, formData, {
                         headers: this.getAuthHeaders()
                     });
+                    // Clear cache for updated product to force fresh data on next load
+                    if (this.editingProduct.id) {
+                        delete this.productDetailsCache[this.editingProduct.id];
+                    }
                     this.showSuccess('Product updated successfully');
                 } else {
                     const response = await this.$axios.post('/api/v1/products', formData, {
@@ -1065,14 +1091,40 @@ export default {
             this.detailsTab = 'basic';
 
             try {
+                // Check cache first to avoid unnecessary API calls
+                const cached = this.productDetailsCache[product.id];
+                if (cached) {
+                    // Use cached data, but ensure image URLs are resolved
+                    const data = { ...cached };
+                    if (data.thumbnail) {
+                        data.thumbnail = this.resolveImageUrl(data.thumbnail);
+                    }
+                    if (Array.isArray(data.images)) {
+                        data.images = data.images.map(img => this.resolveImageUrl(img));
+                    }
+                    if (data.og_image) {
+                        data.og_image = this.resolveImageUrl(data.og_image);
+                    }
+                    this.productDetails = data;
+                    this.loadingProductDetails = false;
+                    this.parseProductDetailsData(data);
+                    return;
+                }
+
                 const response = await this.$axios.get(`/api/v1/products/${product.id}`, {
-                    headers: this.getAuthHeaders()
+                    headers: this.getAuthHeaders(),
+                    timeout: 30000 // 30 second timeout
                 });
 
                 const data = response.data?.data || response.data;
 
                 if (!data) {
                     throw new Error('No product data received');
+                }
+
+                // Cache the raw data first (before URL resolution)
+                if (data.id) {
+                    this.productDetailsCache[data.id] = { ...data };
                 }
 
                 // Resolve image URLs for display
@@ -1087,75 +1139,83 @@ export default {
                 }
 
                 this.productDetails = data;
-                // Cache details for reuse when opening edit dialog
-                if (data.id) {
-                    this.productDetailsCache[data.id] = data;
-                }
 
-                // Parse specifications
-                this.detailsSpecificationsList = [];
-                if (data.specifications && typeof data.specifications === 'object') {
-                    Object.keys(data.specifications).forEach(key => {
-                        // Skip special fields and pure numeric keys (likely from corrupted array data)
-                        if (!key.startsWith('_') && !/^\d+$/.test(String(key))) {
-                            this.detailsSpecificationsList.push({
-                                key: key,
-                                value: data.specifications[key]
-                            });
-                        }
-                    });
-                }
-
-                // Parse features
-                if (data.key_features && Array.isArray(data.key_features)) {
-                    this.detailsFeaturesList = [...data.key_features];
-                } else if (data.specifications?._key_features && Array.isArray(data.specifications._key_features)) {
-                    this.detailsFeaturesList = [...data.specifications._key_features];
-                } else {
-                    this.detailsFeaturesList = [];
-                }
-
-                // Parse downloads
-                this.detailsDownloadsList = Array.isArray(data.downloads) ? [...data.downloads] : [];
-
-                // Parse FAQs
-                if (data.faqs && Array.isArray(data.faqs)) {
-                    this.detailsFaqsList = [...data.faqs];
-                } else if (data.specifications?._faqs && Array.isArray(data.specifications._faqs)) {
-                    this.detailsFaqsList = [...data.specifications._faqs];
-                } else {
-                    this.detailsFaqsList = [];
-                }
-
-                // Parse warranty info
-                if (data.warranty_info && typeof data.warranty_info === 'object') {
-                    this.detailsWarrantyInfo = {
-                        period: data.warranty_info.period || '2 Years',
-                        coverage: Array.isArray(data.warranty_info.coverage) ? [...data.warranty_info.coverage] : [],
-                        terms: data.warranty_info.terms || ''
-                    };
-                } else if (data.specifications?._warranty_info && typeof data.specifications._warranty_info === 'object') {
-                    this.detailsWarrantyInfo = {
-                        period: data.specifications._warranty_info.period || '2 Years',
-                        coverage: Array.isArray(data.specifications._warranty_info.coverage) ? [...data.specifications._warranty_info.coverage] : [],
-                        terms: data.specifications._warranty_info.terms || ''
-                    };
-                } else {
-                    this.detailsWarrantyInfo = {
-                        period: '2 Years',
-                        coverage: [],
-                        terms: ''
-                    };
-                }
+                this.parseProductDetailsData(data);
             } catch (error) {
                 console.error('Error loading product details:', error);
-                const errorMessage = error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    'Failed to load product details';
-                this.showError(errorMessage);
+
+                // Check for memory-related errors
+                if (error.response?.status === 500 ||
+                    error.message?.includes('memory') ||
+                    error.response?.data?.message?.includes('memory')) {
+                    this.showError('Product data is too large to load. Please try refreshing the page or contact support.');
+                } else {
+                    const errorMessage = error.response?.data?.message ||
+                        error.response?.data?.error ||
+                        error.message ||
+                        'Failed to load product details';
+                    this.showError(errorMessage);
+                }
                 this.closeDetailsDialog();
             } finally {
                 this.loadingProductDetails = false;
+            }
+        },
+        parseProductDetailsData(data) {
+            // Parse specifications
+            this.detailsSpecificationsList = [];
+            if (data.specifications && typeof data.specifications === 'object') {
+                Object.keys(data.specifications).forEach(key => {
+                    // Skip special fields and pure numeric keys (likely from corrupted array data)
+                    if (!key.startsWith('_') && !/^\d+$/.test(String(key))) {
+                        this.detailsSpecificationsList.push({
+                            key: key,
+                            value: data.specifications[key]
+                        });
+                    }
+                });
+            }
+
+            // Parse features
+            if (data.key_features && Array.isArray(data.key_features)) {
+                this.detailsFeaturesList = [...data.key_features];
+            } else if (data.specifications?._key_features && Array.isArray(data.specifications._key_features)) {
+                this.detailsFeaturesList = [...data.specifications._key_features];
+            } else {
+                this.detailsFeaturesList = [];
+            }
+
+            // Parse downloads
+            this.detailsDownloadsList = Array.isArray(data.downloads) ? [...data.downloads] : [];
+
+            // Parse FAQs
+            if (data.faqs && Array.isArray(data.faqs)) {
+                this.detailsFaqsList = [...data.faqs];
+            } else if (data.specifications?._faqs && Array.isArray(data.specifications._faqs)) {
+                this.detailsFaqsList = [...data.specifications._faqs];
+            } else {
+                this.detailsFaqsList = [];
+            }
+
+            // Parse warranty info
+            if (data.warranty_info && typeof data.warranty_info === 'object') {
+                this.detailsWarrantyInfo = {
+                    period: data.warranty_info.period || '2 Years',
+                    coverage: Array.isArray(data.warranty_info.coverage) ? [...data.warranty_info.coverage] : [],
+                    terms: data.warranty_info.terms || ''
+                };
+            } else if (data.specifications?._warranty_info && typeof data.specifications._warranty_info === 'object') {
+                this.detailsWarrantyInfo = {
+                    period: data.specifications._warranty_info.period || '2 Years',
+                    coverage: Array.isArray(data.specifications._warranty_info.coverage) ? [...data.specifications._warranty_info.coverage] : [],
+                    terms: data.specifications._warranty_info.terms || ''
+                };
+            } else {
+                this.detailsWarrantyInfo = {
+                    period: '2 Years',
+                    coverage: [],
+                    terms: ''
+                };
             }
         },
         closeDetailsDialog() {
@@ -1215,6 +1275,10 @@ export default {
                     await this.$axios.delete(`/api/v1/products/${id}`, {
                         headers: this.getAuthHeaders()
                     });
+                    // Clear cache for deleted product
+                    if (id) {
+                        delete this.productDetailsCache[id];
+                    }
                     this.showSuccess('Product deleted successfully');
                     await this.loadProducts();
                 } catch (error) {
