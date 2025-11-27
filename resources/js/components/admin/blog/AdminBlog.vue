@@ -77,7 +77,14 @@
                         <!-- Skeleton Loaders -->
                         <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
-                                <v-skeleton-loader type="text" width="200"></v-skeleton-loader>
+                                <div class="d-flex align-center">
+                                    <v-skeleton-loader type="avatar" width="50" height="50"
+                                        class="mr-3"></v-skeleton-loader>
+                                    <div class="flex-grow-1">
+                                        <v-skeleton-loader type="text" width="200" class="mb-1"></v-skeleton-loader>
+                                        <v-skeleton-loader type="text" width="150"></v-skeleton-loader>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 <v-skeleton-loader type="text" width="120"></v-skeleton-loader>
@@ -93,8 +100,10 @@
                             </td>
                             <td>
                                 <div class="d-flex">
-                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
-                                    <v-skeleton-loader type="button" width="32" height="32" class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"
+                                        class="mr-1"></v-skeleton-loader>
+                                    <v-skeleton-loader type="button" width="32" height="32"
+                                        class="mr-1"></v-skeleton-loader>
                                     <v-skeleton-loader type="button" width="32" height="32"></v-skeleton-loader>
                                 </div>
                             </td>
@@ -104,8 +113,12 @@
                             <tr v-for="post in posts" :key="post.id">
                                 <td>
                                     <div class="d-flex align-center">
-                                        <v-img v-if="post.featured_image" :src="post.featured_image" width="50" height="50"
-                                            class="mr-3 rounded" cover></v-img>
+                                        <v-avatar size="50" v-if="post.featured_image" class="mr-3">
+                                            <v-img :src="post.featured_image" cover></v-img>
+                                        </v-avatar>
+                                        <v-avatar size="50" v-else color="grey-lighten-2" class="mr-3">
+                                            <v-icon icon="mdi-file-image"></v-icon>
+                                        </v-avatar>
                                         <div>
                                             <div class="font-weight-medium">{{ post.title }}</div>
                                             <div class="text-caption text-grey">{{ post.slug }}</div>
@@ -147,11 +160,12 @@
                 </v-table>
 
                 <!-- Pagination and Records Info -->
-                <div class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
+                <div
+                    class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
                     <div class="text-caption text-grey">
                         <span v-if="posts.length > 0 && pagination.total > 0">
-                            Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to 
-                            <strong>{{ Math.min(currentPage * perPage, pagination.total) }}</strong> of 
+                            Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
+                            <strong>{{ Math.min(currentPage * perPage, pagination.total) }}</strong> of
                             <strong>{{ pagination.total.toLocaleString() }}</strong> records
                             <span v-if="pagination.last_page > 1" class="ml-2">
                                 (Page {{ currentPage }} of {{ pagination.last_page }})
@@ -162,12 +176,8 @@
                         </span>
                     </div>
                     <div v-if="pagination.last_page > 1" class="d-flex align-center gap-2">
-                        <v-pagination 
-                            v-model="currentPage" 
-                            :length="pagination.last_page"
-                            :total-visible="7"
-                            density="comfortable"
-                            @update:model-value="loadPosts">
+                        <v-pagination v-model="currentPage" :length="pagination.last_page" :total-visible="7"
+                            density="comfortable" @update:model-value="loadPosts">
                         </v-pagination>
                     </div>
                 </div>
@@ -291,4 +301,3 @@ export default {
     background-color: rgba(0, 0, 0, 0.04);
 }
 </style>
-
