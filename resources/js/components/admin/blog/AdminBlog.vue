@@ -74,14 +74,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Skeleton Loaders -->
+                        <!-- Skeleton Loaders: Show loading placeholders while fetching data -->
                         <tr v-if="loading" v-for="n in 5" :key="`skeleton-${n}`">
                             <td>
+                                <!-- Skeleton for post title column with image placeholder -->
                                 <div class="d-flex align-center">
+                                    <!-- Avatar skeleton matching the 50x50px featured image size -->
                                     <v-skeleton-loader type="avatar" width="50" height="50"
                                         class="mr-3"></v-skeleton-loader>
                                     <div class="flex-grow-1">
+                                        <!-- Title skeleton -->
                                         <v-skeleton-loader type="text" width="200" class="mb-1"></v-skeleton-loader>
+                                        <!-- Slug skeleton -->
                                         <v-skeleton-loader type="text" width="150"></v-skeleton-loader>
                                     </div>
                                 </div>
@@ -112,10 +116,14 @@
                         <template v-else>
                             <tr v-for="post in posts" :key="post.id">
                                 <td>
+                                    <!-- Post Title with Featured Image -->
+                                    <!-- Using v-avatar wrapper to ensure fixed 50x50px image size with proper aspect ratio handling -->
                                     <div class="d-flex align-center">
+                                        <!-- Featured image avatar: Fixed size container ensures consistent image dimensions -->
                                         <v-avatar size="50" v-if="post.featured_image" class="mr-3">
                                             <v-img :src="post.featured_image" cover></v-img>
                                         </v-avatar>
+                                        <!-- Fallback placeholder when no featured image is available -->
                                         <v-avatar size="50" v-else color="grey-lighten-2" class="mr-3">
                                             <v-icon icon="mdi-file-image"></v-icon>
                                         </v-avatar>
@@ -152,6 +160,7 @@
                                         color="error" title="Delete Post"></v-btn>
                                 </td>
                             </tr>
+                            <!-- Empty state: Show message when no posts are found -->
                             <tr v-if="posts.length === 0">
                                 <td colspan="6" class="text-center py-4">No blog posts found</td>
                             </tr>
@@ -160,8 +169,10 @@
                 </v-table>
 
                 <!-- Pagination and Records Info -->
+                <!-- Display pagination controls and current page information -->
                 <div
                     class="d-flex flex-column flex-md-row justify-space-between align-center align-md-start gap-3 mt-4">
+                    <!-- Records count and current page information -->
                     <div class="text-caption text-grey">
                         <span v-if="posts.length > 0 && pagination.total > 0">
                             Showing <strong>{{ ((currentPage - 1) * perPage) + 1 }}</strong> to
@@ -175,6 +186,7 @@
                             No records found
                         </span>
                     </div>
+                    <!-- Pagination controls: Only show if there's more than one page -->
                     <div v-if="pagination.last_page > 1" class="d-flex align-center gap-2">
                         <v-pagination v-model="currentPage" :length="pagination.last_page" :total-visible="7"
                             density="comfortable" @update:model-value="loadPosts">
@@ -193,6 +205,11 @@
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import BlogFormDialog from './BlogFormDialog.vue';
 
+/**
+ * AdminBlog Component
+ * Manages the blog posts listing, filtering, sorting, and CRUD operations
+ * Uses adminPaginationMixin for pagination, sorting, and search functionality
+ */
 export default {
     components: {
         BlogFormDialog
@@ -200,29 +217,43 @@ export default {
     mixins: [adminPaginationMixin],
     data() {
         return {
+            // Array of blog post objects loaded from API
             posts: [],
+            // Controls visibility of the blog post form dialog
             showDialog: false,
+            // Currently editing post object, null when creating new post
             editingPost: null,
+            // Current filter value for published status (null = all posts)
             publishedFilter: null,
+            // Options for published status filter dropdown
             publishedOptions: [
                 { title: 'Published', value: true },
                 { title: 'Draft', value: false }
             ]
         };
     },
+    /**
+     * Lifecycle hook: Load posts when component is mounted
+     */
     async mounted() {
         await this.loadPosts();
     },
     methods: {
+        /**
+         * Load blog posts from API with pagination, search, and filter parameters
+         * Updates the posts array and pagination state
+         */
         async loadPosts() {
             try {
                 this.loading = true;
                 const params = this.buildPaginationParams();
 
+                // Add search parameter if search query exists
                 if (this.search) {
                     params.search = this.search;
                 }
 
+                // Add published filter parameter if filter is selected
                 if (this.publishedFilter !== null) {
                     params.published = this.publishedFilter;
                 }
@@ -240,20 +271,41 @@ export default {
                 this.loading = false;
             }
         },
+        /**
+         * Open the blog post form dialog
+         * @param {Object|null} post - Post object to edit, or null to create new post
+         */
         openDialog(post = null) {
             this.editingPost = post;
             this.showDialog = true;
         },
+        /**
+         * Open dialog in edit mode for the given post
+         * @param {Object} post - Post object to edit
+         */
         editPost(post) {
             this.openDialog(post);
         },
+        /**
+         * View post details (currently opens in edit mode)
+         * TODO: Can add a view-only dialog later for read-only viewing
+         * @param {Object} post - Post object to view
+         */
         viewPost(post) {
-            // For now, just open in edit mode. Can add a view-only dialog later
             this.openDialog(post);
         },
+        /**
+         * Handle post saved event from BlogFormDialog
+         * Reloads the posts list to reflect changes
+         */
         handlePostSaved() {
             this.loadPosts();
         },
+        /**
+         * Delete a blog post by ID
+         * Shows confirmation dialog before deletion
+         * @param {Number} id - ID of the post to delete
+         */
         async deletePost(id) {
             if (confirm('Are you sure you want to delete this blog post?')) {
                 try {
@@ -267,14 +319,27 @@ export default {
                 }
             }
         },
+        /**
+         * Handle items per page change
+         * Resets pagination to first page and reloads posts
+         */
         onPerPageChange() {
             this.resetPagination();
             this.loadPosts();
         },
+        /**
+         * Handle column sorting
+         * @param {String} field - Field name to sort by
+         */
         onSort(field) {
             this.handleSort(field);
             this.loadPosts();
         },
+        /**
+         * Format date to readable string format
+         * @param {String|Date} date - Date to format
+         * @returns {String} Formatted date string or empty string if date is invalid
+         */
         formatDate(date) {
             if (!date) return '';
             const d = new Date(date);
@@ -285,6 +350,7 @@ export default {
 </script>
 
 <style scoped>
+/* Page header layout: Title and action button */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -292,11 +358,13 @@ export default {
     margin-bottom: 24px;
 }
 
+/* Sortable table headers: Indicate interactive columns */
 .sortable {
     cursor: pointer;
     user-select: none;
 }
 
+/* Hover effect for sortable headers */
 .sortable:hover {
     background-color: rgba(0, 0, 0, 0.04);
 }
