@@ -16,78 +16,84 @@
 
             <v-divider class="my-0 divider-glow"></v-divider>
 
-            <v-list density="compact" nav>
+            <v-list density="compact" nav v-if="currentUser && userPermissions.length > 0">
                 <!-- ============================================ -->
                 <!-- OVERVIEW -->
                 <!-- ============================================ -->
-                <v-list-item link router prepend-icon="mdi-view-dashboard" title="Dashboard"
-                    :to="{ name: 'AdminDashboard' }" value="Dashboard" exact
-                    v-if="hasPermission('access-dashboard')"></v-list-item>
+                <v-list-item v-if="hasPermission('access-dashboard')" link router prepend-icon="mdi-view-dashboard"
+                    title="Dashboard" :to="{ name: 'AdminDashboard' }" value="Dashboard" exact>
+                </v-list-item>
 
                 <!-- ============================================ -->
                 <!-- CONTENT MANAGEMENT -->
                 <!-- ============================================ -->
-                <v-list-group value="products" prepend-icon="mdi-package-variant" no-action
-                    v-if="hasPermission('manage-products')">
+                <v-list-group v-if="hasPermission('manage-products')" value="products"
+                    prepend-icon="mdi-package-variant" no-action>
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Products"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-package-variant" title="Products"
-                        :to="{ name: 'AdminProducts' }"></v-list-item>
-                    <v-list-item prepend-icon="mdi-folder" title="Categories"
-                        :to="{ name: 'AdminCategories' }"></v-list-item>
-                    <v-list-item prepend-icon="mdi-tag" title="Tags" :to="{ name: 'AdminTags' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-package-variant" title="Products" :to="{ name: 'AdminProducts' }">
+                    </v-list-item>
+                    <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminCategories' }">
+                    </v-list-item>
+                    <v-list-item prepend-icon="mdi-tag" title="Tags" :to="{ name: 'AdminTags' }">
+                    </v-list-item>
                 </v-list-group>
 
-                <v-list-item link router prepend-icon="mdi-wrench" title="Services" :to="{ name: 'AdminServices' }"
-                    value="Services" exact v-if="hasPermission('manage-services')"></v-list-item>
+                <v-list-item v-if="hasPermission('manage-services')" link router prepend-icon="mdi-wrench"
+                    title="Services" :to="{ name: 'AdminServices' }" value="Services" exact>
+                </v-list-item>
 
-                <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
-                    value="About" exact v-if="hasPermission('manage-about')"></v-list-item>
+                <v-list-item v-if="hasPermission('manage-about')" link router prepend-icon="mdi-information"
+                    title="About Page" :to="{ name: 'AdminAbout' }" value="About" exact>
+                </v-list-item>
 
-                <v-list-group value="blog" prepend-icon="mdi-post" no-action v-if="hasPermission('manage-blog')">
+                <v-list-group v-if="hasPermission('manage-blog')" value="blog" prepend-icon="mdi-post" no-action>
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Blog"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-post" title="Blog Posts" :to="{ name: 'AdminBlog' }"></v-list-item>
-                    <v-list-item prepend-icon="mdi-folder" title="Categories"
-                        :to="{ name: 'AdminBlogCategories' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-post" title="Blog Posts" :to="{ name: 'AdminBlog' }">
+                    </v-list-item>
+                    <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminBlogCategories' }">
+                    </v-list-item>
                 </v-list-group>
 
-                <v-list-group value="careers" prepend-icon="mdi-briefcase" no-action
-                    v-if="hasPermission('manage-careers') || hasPermission('manage-applications')">
+                <v-list-group v-if="hasPermission('manage-careers') || hasPermission('manage-applications')"
+                    value="careers" prepend-icon="mdi-briefcase" no-action>
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Careers"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-briefcase" title="Careers" :to="{ name: 'AdminCareers' }"
-                        v-if="hasPermission('manage-careers')"></v-list-item>
-                    <v-list-item prepend-icon="mdi-file-document-edit" title="Job Applications"
-                        :to="{ name: 'AdminJobApplications' }"
-                        v-if="hasPermission('manage-applications')"></v-list-item>
+                    <v-list-item v-if="hasPermission('manage-careers')" prepend-icon="mdi-briefcase" title="Careers"
+                        :to="{ name: 'AdminCareers' }">
+                    </v-list-item>
+                    <v-list-item v-if="hasPermission('manage-applications')" prepend-icon="mdi-file-document-edit"
+                        title="Job Applications" :to="{ name: 'AdminJobApplications' }">
+                    </v-list-item>
                 </v-list-group>
 
                 <!-- ============================================ -->
                 <!-- USER MANAGEMENT -->
                 <!-- ============================================ -->
-                <v-list-item link router prepend-icon="mdi-account-group" title="Users" :to="{ name: 'AdminUsers' }"
-                    value="Users" exact v-if="hasPermission('manage-users')"></v-list-item>
+                <v-list-item v-if="hasPermission('manage-users')" link router prepend-icon="mdi-account-group"
+                    title="Users" :to="{ name: 'AdminUsers' }" value="Users" exact>
+                </v-list-item>
 
-                <v-list-group value="roles" prepend-icon="mdi-shield-account" no-action
-                    v-if="hasPermission('manage-roles')">
+                <v-list-group v-if="hasPermission('manage-roles')" value="roles" prepend-icon="mdi-shield-account"
+                    no-action>
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Roles & Permissions"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-shield-account" title="Roles"
-                        :to="{ name: 'AdminRoles' }"></v-list-item>
-                    <v-list-item prepend-icon="mdi-key" title="Permissions"
-                        :to="{ name: 'AdminPermissions' }"></v-list-item>
+                    <v-list-item prepend-icon="mdi-shield-account" title="Roles" :to="{ name: 'AdminRoles' }">
+                    </v-list-item>
+                    <v-list-item prepend-icon="mdi-key" title="Permissions" :to="{ name: 'AdminPermissions' }">
+                    </v-list-item>
                 </v-list-group>
 
                 <!-- ============================================ -->
                 <!-- COMMUNICATION -->
                 <!-- ============================================ -->
-                <v-list-item link router prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }" value="Leads" exact
-                    v-if="canAccessLeads()" class="leads-menu-item">
+                <v-list-item v-if="canAccessLeads()" link router prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }"
+                    value="Leads" exact class="leads-menu-item">
                     <template v-slot:title>
                         <div class="d-flex align-center justify-space-between w-100">
                             <span>Leads</span>
@@ -98,25 +104,28 @@
                     </template>
                 </v-list-item>
 
-                <v-list-item link router prepend-icon="mdi-email-newsletter" :to="{ name: 'AdminNewsletters' }"
-                    value="Newsletters" exact v-if="hasPermission('manage-newsletters')"
-                    title="Newsletters"></v-list-item>
+                <v-list-item v-if="hasPermission('manage-newsletters')" link router prepend-icon="mdi-email-newsletter"
+                    :to="{ name: 'AdminNewsletters' }" value="Newsletters" exact title="Newsletters">
+                </v-list-item>
 
                 <!-- ============================================ -->
                 <!-- SYSTEM & ADMINISTRATION -->
                 <!-- ============================================ -->
-                <v-list-item link router prepend-icon="mdi-cog" title="Settings" :to="{ name: 'AdminSettings' }"
-                    value="Settings" exact v-if="hasPermission('manage-settings')"></v-list-item>
+                <v-list-item v-if="hasPermission('manage-settings')" link router prepend-icon="mdi-cog" title="Settings"
+                    :to="{ name: 'AdminSettings' }" value="Settings" exact>
+                </v-list-item>
 
-                <v-list-group value="logs" prepend-icon="mdi-file-document-multiple" no-action
-                    v-if="hasPermission('view-login-logs') || hasPermission('view-visitor-logs')">
+                <v-list-group v-if="hasPermission('view-login-logs') || hasPermission('view-visitor-logs')" value="logs"
+                    prepend-icon="mdi-file-document-multiple" no-action>
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Logs"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-login" title="Login Logs" :to="{ name: 'AdminLoginLogs' }"
-                        v-if="hasPermission('view-login-logs')"></v-list-item>
-                    <v-list-item prepend-icon="mdi-account-group" title="Visitor Logs"
-                        :to="{ name: 'AdminVisitorLogs' }" v-if="hasPermission('view-visitor-logs')"></v-list-item>
+                    <v-list-item v-if="hasPermission('view-login-logs')" prepend-icon="mdi-login" title="Login Logs"
+                        :to="{ name: 'AdminLoginLogs' }">
+                    </v-list-item>
+                    <v-list-item v-if="hasPermission('view-visitor-logs')" prepend-icon="mdi-account-group"
+                        title="Visitor Logs" :to="{ name: 'AdminVisitorLogs' }">
+                    </v-list-item>
                 </v-list-group>
             </v-list>
 
@@ -196,6 +205,7 @@ export default {
     data() {
         return {
             drawer: true, // Sidebar drawer state (open/closed)
+            authStore: null, // Shared auth store (roles/permissions)
             currentUser: null, // Current authenticated user object
             userRoles: [], // Array of roles assigned to the current user
             userPermissions: [], // Array of all permissions extracted from user's roles
@@ -242,6 +252,14 @@ export default {
                 // Store user data
                 this.currentUser = response.data;
                 this.userRoles = response.data.roles || [];
+
+                // Sync auth store state so sidebar uses the same permissions as route guards
+                if (this.authStore) {
+                    this.authStore.user = response.data;
+                    this.authStore.token = token;
+                    this.authStore.isAuthenticated = true;
+                    this.authStore.extractRolesAndPermissions(response.data);
+                }
 
                 // Extract all unique permissions from user's roles
                 // A user can have multiple roles, each with different permissions
@@ -319,36 +337,56 @@ export default {
             // Redirect to login page
             this.$router.push('/admin/login');
         },
-            /**
-             * Check if the current user has a specific permission
-             * 
-            * @param {string} permissionSlug - The permission slug to check (e.g., 'manage-about', 'view-leads')
-            * @returns {boolean} - True if user has the permission, false otherwise
-            * 
-            * Permission hierarchy:
-            * 1. Administrator role (legacy 'admin' or new 'administrator') has full access to everything
-            * 2. Otherwise, check if user has the specific permission through any of their roles
+        /**
+         * Check if the current user has a specific permission
+         * 
+         * @param {string} permissionSlug - The permission slug to check (e.g., 'manage-about', 'view-leads')
+         * @returns {boolean} - True if user has the permission, false otherwise
+         * 
+         * Permission hierarchy:
+         * 1. Administrator role (legacy 'admin' or new 'administrator') has full access to everything
+         * 2. Otherwise, check if user has the specific permission through any of their roles
+         * 
+         * Returns false if:
+         * - User is not loaded
+         * - Permissions are not loaded yet
+         * - User doesn't have the permission
          */
         hasPermission(permissionSlug) {
-            // First check: Administrator role grants full access (bypasses all permission checks)
-            if (this.currentUser) {
-                // Check legacy admin role (backward compatibility)
-                if (this.currentUser.role === 'admin') {
+            // Prefer shared auth store checks for consistency across app
+            if (this.authStore) {
+                if (this.authStore.hasRole && this.authStore.hasRole(['administrator'])) {
                     return true;
                 }
+                if (this.authStore.hasPermission && this.authStore.hasPermission(permissionSlug)) {
+                    return true;
+                }
+            }
 
-                // Check if user has administrator role in new role-based system
-                // Administrator role has all permissions by default
-                if (this.userRoles && this.userRoles.some(role => role.slug === 'administrator')) {
-                    return true;
-                }
+            // Safety check: If user or permissions are not loaded, deny access
+            if (!this.currentUser || !this.userPermissions || this.userPermissions.length === 0) {
+                return false;
+            }
+
+            // Administrator role grants full access
+            if (this.userRoles && this.userRoles.length > 0 && this.userRoles.some(role => role.slug === 'administrator')) {
+                return true;
             }
 
             // Second check: Verify if user has the specific permission through their assigned roles
             // This checks the flattened permissions array we created in loadUser()
             return this.userPermissions.includes(permissionSlug);
         },
+        /**
+         * Check if user can access leads section
+         * User needs at least one of: view-leads, manage-leads, or export-leads
+         * 
+         * @returns {boolean} - True if user has any lead-related permission
+         */
         canAccessLeads() {
+            if (!this.currentUser || !this.userPermissions || this.userPermissions.length === 0) {
+                return false;
+            }
             return this.hasPermission('view-leads') ||
                 this.hasPermission('manage-leads') ||
                 this.hasPermission('export-leads');
@@ -406,6 +444,9 @@ export default {
      * Initializes the layout by checking authentication and loading user data
      */
     mounted() {
+        // Initialize shared auth store reference
+        this.authStore = useAuthStore();
+
         // Check if user is authenticated before loading data
         if (!localStorage.getItem('admin_token')) {
             // No authentication token found, redirect to login
