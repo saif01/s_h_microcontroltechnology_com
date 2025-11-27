@@ -113,8 +113,8 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        // Load roles relationship
-        $user->load('roles');
+        // Load roles with permissions relationship
+        $user->load('roles.permissions');
         
         // Remove password from response
         unset($user->password);

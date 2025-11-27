@@ -146,10 +146,13 @@
                                 </td>
                                 <td>{{ formatDate(user.created_at) }}</td>
                                 <td>
-                                    <v-btn size="small" icon="mdi-pencil" @click="openDialog(user)"
-                                        variant="text"></v-btn>
+                                    <v-btn size="small" icon="mdi-eye" @click="viewUserProfile(user)" variant="text"
+                                        color="info" :title="'View Profile'"></v-btn>
+                                    <v-btn size="small" icon="mdi-pencil" @click="openDialog(user)" variant="text"
+                                        :title="'Edit User'"></v-btn>
                                     <v-btn size="small" icon="mdi-delete" @click="deleteUser(user)" variant="text"
-                                        color="error" :disabled="user.id === currentUserId"></v-btn>
+                                        color="error" :disabled="user.id === currentUserId"
+                                        :title="'Delete User'"></v-btn>
                                 </td>
                             </tr>
                             <tr v-if="users.length === 0">
@@ -364,14 +367,21 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <!-- User Profile View Dialog -->
+        <UserProfileDialog v-model="profileDialogVisible" :user="selectedUser" />
     </div>
 </template>
 
 <script>
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
+import UserProfileDialog from './UserProfileDialog.vue';
 
 export default {
+    components: {
+        UserProfileDialog
+    },
     mixins: [adminPaginationMixin],
     data() {
         return {
@@ -425,7 +435,9 @@ export default {
             showPassword: false,
             showPasswordConfirmation: false,
             avatarFile: null,
-            uploadingAvatar: false
+            uploadingAvatar: false,
+            profileDialogVisible: false, // User profile dialog visibility
+            selectedUser: null // User selected for profile view
         };
     },
     async mounted() {
@@ -773,6 +785,28 @@ export default {
         },
         resolveImageUrl(value) {
             return resolveUploadUrl(value);
+        },
+        /**
+         * View user profile
+         */
+        async viewUserProfile(user) {
+            try {
+                // Fetch full user details with roles and permissions
+                const token = localStorage.getItem('admin_token');
+                const response = await this.$axios.get(`/api/v1/users/${user.id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                // Use the full user data with permissions loaded
+                this.selectedUser = response.data;
+                this.profileDialogVisible = true;
+            } catch (error) {
+                console.error('Error loading user profile:', error);
+                // Fallback to the user data from the list if API call fails
+                this.selectedUser = user;
+                this.profileDialogVisible = true;
+                this.handleApiError(error, 'Failed to load user profile details');
+            }
         }
     }
 };
