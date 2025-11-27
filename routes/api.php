@@ -110,8 +110,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/user', [AuthController::class, 'user']);
 
-        // About page management (singleton - only one record) - requires manage-pages permission
-        Route::middleware('permission:manage-pages')->group(function () {
+        // About page management (singleton - only one record) - requires manage-about permission
+        Route::middleware('permission:manage-about')->group(function () {
             Route::get('about', [AboutController::class, 'index']);
             Route::post('about', [AboutController::class, 'store']);
             Route::put('about', [AboutController::class, 'update']);
@@ -129,30 +129,28 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('tags', TagController::class);
         });
 
-        // Blog Posts - requires manage-pages permission
-        Route::middleware('permission:manage-pages')->group(function () {
+        // Blog Posts - requires manage-blog permission
+        Route::middleware('permission:manage-blog')->group(function () {
             Route::apiResource('blog-posts', BlogController::class);
             Route::apiResource('blog-categories', \App\Http\Controllers\Api\blog\BlogCategoryController::class);
         });
 
-        // Careers - requires manage-pages permission (or create new permission: manage-careers)
-        Route::middleware('permission:manage-pages')->group(function () {
+        // Careers - requires manage-careers permission
+        Route::middleware('permission:manage-careers')->group(function () {
             Route::apiResource('careers', CareerController::class);
         });
 
-        // Job Applications - requires view-leads permission for viewing, manage-leads for updates/deletes
-        Route::middleware('permission:view-leads')->group(function () {
+        // Job Applications - requires manage-applications permission
+        Route::middleware('permission:manage-applications')->group(function () {
             Route::get('job-applications', [JobApplicationController::class, 'index']);
             Route::get('job-applications/statistics', [JobApplicationController::class, 'statistics']);
             Route::get('job-applications/{jobApplication}', [JobApplicationController::class, 'show']);
-        });
-        Route::middleware('permission:manage-leads')->group(function () {
             Route::put('job-applications/{jobApplication}', [JobApplicationController::class, 'update']);
             Route::delete('job-applications/{jobApplication}', [JobApplicationController::class, 'destroy']);
         });
 
-        // Upload routes - requires authentication
-        Route::middleware('auth:sanctum')->group(function () {
+        // Upload routes - requires manage-media permission
+        Route::middleware('permission:manage-media')->group(function () {
             Route::post('upload/image', [UploadController::class, 'uploadImage']);
             Route::post('upload/images', [UploadController::class, 'uploadMultipleImages']);
             Route::post('upload/file', [UploadController::class, 'uploadFile']);
@@ -176,12 +174,10 @@ Route::prefix('v1')->group(function () {
             Route::get('leads/export/csv', [LeadController::class, 'exportCsv']);
         });
 
-        // Newsletter Subscriptions - requires view-leads permission (reusing leads permission)
-        Route::middleware('permission:view-leads')->group(function () {
+        // Newsletter Subscriptions - requires manage-newsletters permission
+        Route::middleware('permission:manage-newsletters')->group(function () {
             Route::get('newsletters', [NewsletterController::class, 'index']);
             Route::get('newsletters/{newsletterSubscription}', [NewsletterController::class, 'show']);
-        });
-        Route::middleware('permission:manage-leads')->group(function () {
             Route::put('newsletters/{newsletterSubscription}', [NewsletterController::class, 'update']);
             Route::delete('newsletters/{newsletterSubscription}', [NewsletterController::class, 'destroy']);
             Route::get('newsletters/export/csv', [NewsletterController::class, 'exportCsv']);

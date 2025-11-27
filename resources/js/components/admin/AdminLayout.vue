@@ -43,9 +43,9 @@
                     value="Services" exact v-if="hasPermission('manage-services')"></v-list-item>
 
                 <v-list-item link router prepend-icon="mdi-information" title="About Page" :to="{ name: 'AdminAbout' }"
-                    value="About" exact v-if="hasPermission('manage-pages')"></v-list-item>
+                    value="About" exact v-if="hasPermission('manage-about')"></v-list-item>
 
-                <v-list-group value="blog" prepend-icon="mdi-post" no-action v-if="hasPermission('manage-pages')">
+                <v-list-group value="blog" prepend-icon="mdi-post" no-action v-if="hasPermission('manage-blog')">
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Blog"></v-list-item>
                     </template>
@@ -55,14 +55,15 @@
                 </v-list-group>
 
                 <v-list-group value="careers" prepend-icon="mdi-briefcase" no-action
-                    v-if="hasPermission('manage-pages') || hasPermission('view-leads')">
+                    v-if="hasPermission('manage-careers') || hasPermission('manage-applications')">
                     <template v-slot:activator="{ props }">
                         <v-list-item v-bind="props" title="Careers"></v-list-item>
                     </template>
                     <v-list-item prepend-icon="mdi-briefcase" title="Careers" :to="{ name: 'AdminCareers' }"
-                        v-if="hasPermission('manage-pages')"></v-list-item>
+                        v-if="hasPermission('manage-careers')"></v-list-item>
                     <v-list-item prepend-icon="mdi-file-document-edit" title="Job Applications"
-                        :to="{ name: 'AdminJobApplications' }" v-if="hasPermission('view-leads')"></v-list-item>
+                        :to="{ name: 'AdminJobApplications' }"
+                        v-if="hasPermission('manage-applications')"></v-list-item>
                 </v-list-group>
 
                 <!-- ============================================ -->
@@ -86,7 +87,7 @@
                 <!-- COMMUNICATION -->
                 <!-- ============================================ -->
                 <v-list-item link router prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }" value="Leads" exact
-                    v-if="hasPermission('view-leads')" class="leads-menu-item">
+                    v-if="canAccessLeads()" class="leads-menu-item">
                     <template v-slot:title>
                         <div class="d-flex align-center justify-space-between w-100">
                             <span>Leads</span>
@@ -98,7 +99,8 @@
                 </v-list-item>
 
                 <v-list-item link router prepend-icon="mdi-email-newsletter" :to="{ name: 'AdminNewsletters' }"
-                    value="Newsletters" exact v-if="hasPermission('view-leads')" title="Newsletters"></v-list-item>
+                    value="Newsletters" exact v-if="hasPermission('manage-newsletters')"
+                    title="Newsletters"></v-list-item>
 
                 <!-- ============================================ -->
                 <!-- SYSTEM & ADMINISTRATION -->
@@ -317,15 +319,15 @@ export default {
             // Redirect to login page
             this.$router.push('/admin/login');
         },
-        /**
-         * Check if the current user has a specific permission
-         * 
-         * @param {string} permissionSlug - The permission slug to check (e.g., 'manage-pages', 'view-leads')
-         * @returns {boolean} - True if user has the permission, false otherwise
-         * 
-         * Permission hierarchy:
-         * 1. Administrator role (legacy 'admin' or new 'administrator') has full access to everything
-         * 2. Otherwise, check if user has the specific permission through any of their roles
+            /**
+             * Check if the current user has a specific permission
+             * 
+            * @param {string} permissionSlug - The permission slug to check (e.g., 'manage-about', 'view-leads')
+            * @returns {boolean} - True if user has the permission, false otherwise
+            * 
+            * Permission hierarchy:
+            * 1. Administrator role (legacy 'admin' or new 'administrator') has full access to everything
+            * 2. Otherwise, check if user has the specific permission through any of their roles
          */
         hasPermission(permissionSlug) {
             // First check: Administrator role grants full access (bypasses all permission checks)
@@ -346,11 +348,16 @@ export default {
             // This checks the flattened permissions array we created in loadUser()
             return this.userPermissions.includes(permissionSlug);
         },
+        canAccessLeads() {
+            return this.hasPermission('view-leads') ||
+                this.hasPermission('manage-leads') ||
+                this.hasPermission('export-leads');
+        },
         /**
          * Load unread leads count
          */
         async loadUnreadCount() {
-            if (!this.hasPermission('view-leads')) {
+            if (!this.canAccessLeads()) {
                 return;
             }
 

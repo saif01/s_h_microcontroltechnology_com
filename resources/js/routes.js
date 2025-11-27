@@ -94,109 +94,109 @@ const routes = [
                 path: 'dashboard',
                 component: () => import('./components/admin/AdminDashboard.vue'),
                 name: 'AdminDashboard',
-                meta: { title: 'Admin Dashboard' }
+                meta: { title: 'Admin Dashboard', permissions: ['access-dashboard'] }
             },
             {
                 path: 'services',
                 component: () => import('./components/admin/service/AdminServices.vue'),
                 name: 'AdminServices',
-                meta: { title: 'Services Management' }
+                meta: { title: 'Services Management', permissions: ['manage-services'] }
             },
             {
                 path: 'about',
                 component: () => import('./components/admin/about/AdminAbout.vue'),
                 name: 'AdminAbout',
-                meta: { title: 'About Page Management' }
+                meta: { title: 'About Page Management', permissions: ['manage-about'] }
             },
             {
                 path: 'products',
                 component: () => import('./components/admin/products/AdminProducts.vue'),
                 name: 'AdminProducts',
-                meta: { title: 'Products Management' }
+                meta: { title: 'Products Management', permissions: ['manage-products'] }
             },
             {
                 path: 'categories',
                 component: () => import('./components/admin/products/AdminCategories.vue'),
                 name: 'AdminCategories',
-                meta: { title: 'Categories Management' }
+                meta: { title: 'Categories Management', permissions: ['manage-products'] }
             },
             {
                 path: 'tags',
                 component: () => import('./components/admin/products/AdminTags.vue'),
                 name: 'AdminTags',
-                meta: { title: 'Tags Management' }
+                meta: { title: 'Tags Management', permissions: ['manage-products'] }
             },
             {
                 path: 'leads',
                 component: () => import('./components/admin/leads/AdminLeads.vue'),
                 name: 'AdminLeads',
-                meta: { title: 'Leads Management' }
+                meta: { title: 'Leads Management', permissions: ['view-leads', 'manage-leads', 'export-leads'] }
             },
             {
                 path: 'newsletters',
                 component: () => import('./components/admin/newsletters/AdminNewsletters.vue'),
                 name: 'AdminNewsletters',
-                meta: { title: 'Newsletter Subscriptions' }
+                meta: { title: 'Newsletter Subscriptions', permissions: ['manage-newsletters'] }
             },
             {
                 path: 'users',
                 component: () => import('./components/admin/users/AdminUsers.vue'),
                 name: 'AdminUsers',
-                meta: { title: 'User Management' }
+                meta: { title: 'User Management', permissions: ['manage-users'] }
             },
             {
                 path: 'roles',
                 component: () => import('./components/admin/users/AdminRoles.vue'),
                 name: 'AdminRoles',
-                meta: { title: 'Role Management' }
+                meta: { title: 'Role Management', permissions: ['manage-roles'] }
             },
             {
                 path: 'permissions',
                 component: () => import('./components/admin/users/AdminPermissions.vue'),
                 name: 'AdminPermissions',
-                meta: { title: 'Permission Management' }
+                meta: { title: 'Permission Management', permissions: ['manage-roles'] }
             },
             {
                 path: 'settings',
                 component: () => import('./components/admin/settings/AdminSettings.vue'),
                 name: 'AdminSettings',
-                meta: { title: 'Settings' }
+                meta: { title: 'Settings', permissions: ['manage-settings'] }
             },
             {
                 path: 'login-logs',
                 component: () => import('./components/admin/logs/AdminLoginLogs.vue'),
                 name: 'AdminLoginLogs',
-                meta: { title: 'Login Logs Management' }
+                meta: { title: 'Login Logs Management', permissions: ['view-login-logs'] }
             },
             {
                 path: 'visitor-logs',
                 component: () => import('./components/admin/logs/AdminVisitorLogs.vue'),
                 name: 'AdminVisitorLogs',
-                meta: { title: 'Visitor Logs Management' }
+                meta: { title: 'Visitor Logs Management', permissions: ['view-visitor-logs'] }
             },
             {
                 path: 'blog',
                 component: () => import('./components/admin/blog/AdminBlog.vue'),
                 name: 'AdminBlog',
-                meta: { title: 'Blog Management' }
+                meta: { title: 'Blog Management', permissions: ['manage-blog'] }
             },
             {
                 path: 'blog/categories',
                 component: () => import('./components/admin/blog/AdminBlogCategories.vue'),
                 name: 'AdminBlogCategories',
-                meta: { title: 'Blog Categories Management' }
+                meta: { title: 'Blog Categories Management', permissions: ['manage-blog'] }
             },
             {
                 path: 'careers',
                 component: () => import('./components/admin/career/AdminCareers.vue'),
                 name: 'AdminCareers',
-                meta: { title: 'Careers Management' }
+                meta: { title: 'Careers Management', permissions: ['manage-careers'] }
             },
             {
                 path: 'job-applications',
                 component: () => import('./components/admin/career/AdminJobApplications.vue'),
                 name: 'AdminJobApplications',
-                meta: { title: 'Job Applications Management' }
+                meta: { title: 'Job Applications Management', permissions: ['manage-applications'] }
             },
         ]
     },
@@ -291,6 +291,23 @@ router.beforeEach(async (to, from, next) => {
             } else {
                 progressBar.finish();
                 next({ name: 'AdminLogin' });
+                return;
+            }
+        }
+
+        // Permission check for admin routes
+        if (to.meta.permissions && authStore.isAuthenticated) {
+            const requiredPermissions = Array.isArray(to.meta.permissions) ? to.meta.permissions : [to.meta.permissions];
+
+            const hasPermission = requiredPermissions.some((permission) =>
+                authStore.hasPermission(permission)
+            );
+
+            const isAdministrator = authStore.hasRole && authStore.hasRole(['admin', 'administrator']);
+
+            if (!hasPermission && !isAdministrator) {
+                progressBar.finish();
+                next({ name: 'AdminDashboard' });
                 return;
             }
         }

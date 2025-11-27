@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Role;
 use App\Models\Permission;
-use Illuminate\Support\Str;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -17,13 +16,10 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'Access Dashboard', 'slug' => 'access-dashboard', 'group' => 'general', 'description' => 'Access to admin dashboard'],
             
             // Content Permissions
-            ['name' => 'Manage Pages', 'slug' => 'manage-pages', 'group' => 'content', 'description' => 'Create, edit, delete pages'],
+            ['name' => 'Manage About Page', 'slug' => 'manage-about', 'group' => 'content', 'description' => 'Create, edit, delete the About page'],
             ['name' => 'Manage Services', 'slug' => 'manage-services', 'group' => 'content', 'description' => 'Create, edit, delete services'],
-            ['name' => 'Manage Products', 'slug' => 'manage-products', 'group' => 'content', 'description' => 'Create, edit, delete products'],
-            ['name' => 'Manage Portfolio', 'slug' => 'manage-portfolio', 'group' => 'content', 'description' => 'Create, edit, delete portfolio items'],
-            ['name' => 'Manage Blog Posts', 'slug' => 'manage-blog', 'group' => 'content', 'description' => 'Create, edit, delete blog posts'],
-            ['name' => 'Manage FAQs', 'slug' => 'manage-faqs', 'group' => 'content', 'description' => 'Create, edit, delete FAQs'],
-            ['name' => 'Manage Categories', 'slug' => 'manage-categories', 'group' => 'content', 'description' => 'Manage categories and tags'],
+            ['name' => 'Manage Products', 'slug' => 'manage-products', 'group' => 'content', 'description' => 'Create, edit, delete products, categories, and tags'],
+            ['name' => 'Manage Blog Posts', 'slug' => 'manage-blog', 'group' => 'content', 'description' => 'Create, edit, delete blog posts and blog categories'],
             ['name' => 'Manage Media', 'slug' => 'manage-media', 'group' => 'content', 'description' => 'Upload and manage media files'],
             
             // User & Role Permissions
@@ -35,17 +31,17 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'Manage Leads', 'slug' => 'manage-leads', 'group' => 'leads', 'description' => 'Update and delete leads'],
             ['name' => 'Export Leads', 'slug' => 'export-leads', 'group' => 'leads', 'description' => 'Export leads to CSV'],
             
+            // Newsletter Permissions
+            ['name' => 'Manage Newsletters', 'slug' => 'manage-newsletters', 'group' => 'newsletters', 'description' => 'View, manage, and export newsletter subscriptions'],
+            
             // Career Permissions
             ['name' => 'Manage Careers', 'slug' => 'manage-careers', 'group' => 'careers', 'description' => 'Manage job postings'],
-            ['name' => 'Manage Applications', 'slug' => 'manage-applications', 'group' => 'careers', 'description' => 'Manage job applications'],
+            ['name' => 'Manage Applications', 'slug' => 'manage-applications', 'group' => 'careers', 'description' => 'View and manage job applications'],
             
             // Settings Permissions
             ['name' => 'Manage Settings', 'slug' => 'manage-settings', 'group' => 'settings', 'description' => 'Manage site settings'],
-            ['name' => 'Manage Modules', 'slug' => 'manage-modules', 'group' => 'settings', 'description' => 'Enable/disable modules'],
-            ['name' => 'Manage Menus', 'slug' => 'manage-menus', 'group' => 'settings', 'description' => 'Manage navigation menus'],
             
             // System Permissions
-            ['name' => 'System Administration', 'slug' => 'system-admin', 'group' => 'system', 'description' => 'Full system access'],
             ['name' => 'View Login Logs', 'slug' => 'view-login-logs', 'group' => 'system', 'description' => 'View and manage login logs'],
             ['name' => 'View Visitor Logs', 'slug' => 'view-visitor-logs', 'group' => 'system', 'description' => 'View and manage visitor logs'],
         ];
@@ -70,49 +66,60 @@ class RolePermissionSeeder extends Seeder
                 'permissions' => array_keys($createdPermissions), // All permissions
             ],
             [
-                'name' => 'Editor',
-                'slug' => 'editor',
-                'description' => 'Can manage content (pages, posts, services, products) but not system settings',
+                'name' => 'Content Manager',
+                'slug' => 'content-manager',
+                'description' => 'Manage site content (about, services, products, blog) and media assets',
                 'is_system' => true,
                 'is_active' => true,
                 'order' => 2,
                 'permissions' => [
                     'access-dashboard',
-                    'manage-pages',
+                    'manage-about',
                     'manage-services',
                     'manage-products',
-                    'manage-portfolio',
                     'manage-blog',
-                    'manage-faqs',
-                    'manage-categories',
                     'manage-media',
-                    'view-leads',
                 ],
             ],
             [
-                'name' => 'HR User',
-                'slug' => 'hr-user',
-                'description' => 'Can manage careers and job applications',
+                'name' => 'Marketing Manager',
+                'slug' => 'marketing-manager',
+                'description' => 'Handle inbound leads, newsletters, and marketing content',
                 'is_system' => true,
                 'is_active' => true,
                 'order' => 3,
                 'permissions' => [
                     'access-dashboard',
-                    'manage-careers',
-                    'manage-applications',
+                    'manage-blog',
+                    'manage-media',
                     'view-leads',
+                    'manage-leads',
+                    'export-leads',
+                    'manage-newsletters',
                 ],
             ],
             [
-                'name' => 'Staff',
-                'slug' => 'staff',
-                'description' => 'Limited access, typically for branch managers or content creators',
+                'name' => 'HR Manager',
+                'slug' => 'hr-manager',
+                'description' => 'Manage careers and job applications',
                 'is_system' => true,
                 'is_active' => true,
                 'order' => 4,
                 'permissions' => [
                     'access-dashboard',
-                    'manage-media',
+                    'manage-careers',
+                    'manage-applications',
+                ],
+            ],
+            [
+                'name' => 'Support Staff',
+                'slug' => 'support-staff',
+                'description' => 'Read-only operational access for monitoring leads',
+                'is_system' => true,
+                'is_active' => true,
+                'order' => 5,
+                'permissions' => [
+                    'access-dashboard',
                     'view-leads',
                 ],
             ],
