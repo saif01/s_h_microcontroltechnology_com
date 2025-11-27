@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\upload\UploadController;
 use App\Http\Controllers\Api\users\UserController;
 use App\Http\Controllers\Api\logs\VisitorLogController;
 use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Public\NewsletterController as PublicNewsletterController;
 use App\Http\Controllers\Public\pages\ContactController;
 use App\Http\Controllers\Public\pages\HomeController;
@@ -109,6 +110,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/user', [AuthController::class, 'user']);
+
+        // Dashboard - no permissions required, only authentication
+        Route::get('/dashboard', [DashboardController::class, 'index']);
 
         // About page management (singleton - only one record) - requires manage-about permission
         Route::middleware('permission:manage-about')->group(function () {

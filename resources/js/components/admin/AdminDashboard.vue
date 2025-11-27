@@ -501,48 +501,25 @@ export default {
             try {
                 const token = localStorage.getItem('admin_token');
 
-                // Load all data in parallel
-                const [servicesRes, productsRes, leadsRes, visitorStatsRes, loginStatsRes] = await Promise.all([
-                    this.$axios.get('/api/v1/services', {
-                        params: { per_page: 1 },
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    this.$axios.get('/api/v1/products', {
-                        params: { per_page: 1 },
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    this.$axios.get('/api/v1/leads', {
-                        params: { per_page: 10, sort_direction: 'desc' },
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    this.$axios.get('/api/v1/visitor-logs/statistics', {
-                        params: { time_range: this.timeRange },
-                        headers: { Authorization: `Bearer ${token}` }
-                    }),
-                    this.$axios.get('/api/v1/login-logs/statistics', {
-                        params: { time_range: this.timeRange },
-                        headers: { Authorization: `Bearer ${token}` }
-                    })
-                ]);
-
-                // Process stats
-                this.stats.services = servicesRes.data.total || 0;
-                this.stats.products = productsRes.data.total || 0;
-
-                // Count new leads
-                const allLeadsRes = await this.$axios.get('/api/v1/leads', {
-                    params: { status: 'new', per_page: 1 },
+                // Load all dashboard data from dedicated endpoint
+                const response = await this.$axios.get('/api/v1/dashboard', {
+                    params: { time_range: this.timeRange },
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                this.stats.leads = allLeadsRes.data.total || 0;
+
+                const data = response.data;
+
+                // Process stats
+                this.stats.services = data.stats?.services || 0;
+                this.stats.products = data.stats?.products || 0;
+                this.stats.leads = data.stats?.leads || 0;
 
                 // Get recent leads
-                const leadsData = leadsRes.data.data || [];
-                this.recentLeads = Array.isArray(leadsData) ? leadsData.slice(0, 10) : [];
+                this.recentLeads = Array.isArray(data.recent_leads) ? data.recent_leads : [];
 
                 // Visitor and login stats
-                this.visitorStats = visitorStatsRes.data;
-                this.loginStats = loginStatsRes.data;
+                this.visitorStats = data.visitor_stats || {};
+                this.loginStats = data.login_stats || {};
 
                 // Calculate trends and generate insights
                 this.calculateTrends();
