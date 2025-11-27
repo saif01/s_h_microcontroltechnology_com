@@ -500,7 +500,20 @@ class DemoDataSeeder extends Seeder
 
     private function seedBlogPosts($categories, $tags): void
     {
-        $author = User::where('email', 'admin@example.com')->first();
+        // Get any user with administrator role, or fallback to first user
+        $author = User::whereHas('roles', function ($q) {
+            $q->where('slug', 'administrator');
+        })->first();
+        
+        // Fallback to first user if no admin found
+        if (!$author) {
+            $author = User::first();
+        }
+        
+        if (!$author) {
+            $this->command->warn('No users found. Please run AdminUserSeeder first.');
+            return;
+        }
 
         $posts = [
             [

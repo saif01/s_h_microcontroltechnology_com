@@ -73,6 +73,15 @@ class UserController extends Controller
             'role_ids' => 'required|array|min:1',
             'role_ids.*' => 'exists:roles,id',
             'avatar' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:1000',
         ]);
 
         if (!empty($validated['avatar'])) {
@@ -119,6 +128,15 @@ class UserController extends Controller
             'role_ids' => 'sometimes|required|array|min:1',
             'role_ids.*' => 'exists:roles,id',
             'avatar' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:100',
+            'state' => 'nullable|string|max:100',
+            'country' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'bio' => 'nullable|string|max:1000',
         ]);
 
         // Only hash password if it's being updated
@@ -162,25 +180,17 @@ class UserController extends Controller
             return response()->json(['message' => 'You cannot delete your own account'], 403);
         }
 
-        // Prevent deleting the last admin (check both legacy role and new role system)
-        $isAdmin = false;
-        if ($user->role === 'admin') {
-            $isAdmin = true;
-        } else {
-            // Check if user has administrator role in new role system
-            $isAdmin = $user->roles()->where('slug', 'administrator')->exists();
-        }
+        // Prevent deleting the last admin
+        $isAdmin = $user->roles()->where('slug', 'administrator')->exists();
         
         if ($isAdmin) {
-            // Count admins using both systems (legacy role and new role system)
-            $legacyAdminCount = User::where('role', 'admin')->where('id', '!=', $user->id)->count();
-            
-            $newAdminCount = User::whereHas('roles', function ($q) {
+            // Count other admins
+            $adminCount = User::whereHas('roles', function ($q) {
                 $q->where('slug', 'administrator');
             })->where('id', '!=', $user->id)->count();
             
-            // If this user is the only admin (either legacy or new system), prevent deletion
-            if ($legacyAdminCount === 0 && $newAdminCount === 0) {
+            // If this user is the only admin, prevent deletion
+            if ($adminCount === 0) {
                 return response()->json(['message' => 'Cannot delete the last admin user'], 403);
             }
         }

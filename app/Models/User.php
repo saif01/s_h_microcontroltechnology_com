@@ -21,8 +21,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',
         'avatar',
+        'phone',
+        'date_of_birth',
+        'gender',
+        'address',
+        'city',
+        'state',
+        'country',
+        'postal_code',
+        'bio',
     ];
 
     /**
@@ -45,22 +53,23 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
         ];
     }
 
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        return $this->roles()->where('slug', 'administrator')->exists();
     }
 
     public function isEditor()
     {
-        return in_array($this->role, ['admin', 'editor']);
+        return $this->roles()->whereIn('slug', ['administrator', 'content-manager', 'marketing-manager'])->exists();
     }
 
     public function isHR()
     {
-        return in_array($this->role, ['admin', 'hr']);
+        return $this->roles()->whereIn('slug', ['administrator', 'hr-manager'])->exists();
     }
 
     // New role management relationships
@@ -71,19 +80,6 @@ class User extends Authenticatable
 
     public function hasRole($roleSlug)
     {
-        if ($this->role) {
-            // Check legacy role field first
-            $legacyRoles = [
-                'admin' => 'administrator',
-                'editor' => 'editor',
-                'hr' => 'hr-user',
-                'staff' => 'staff'
-            ];
-            if (isset($legacyRoles[$this->role]) && $legacyRoles[$this->role] === $roleSlug) {
-                return true;
-            }
-        }
-        // Check new role system
         return $this->roles()->where('slug', $roleSlug)->exists();
     }
 
@@ -96,7 +92,7 @@ class User extends Authenticatable
 
     public function assignRole($roleId)
     {
-        if (!$this->roles()->where('role_id', $roleId)->exists()) {
+        if (!$this->roles()->where('roles.id', $roleId)->exists()) {
             $this->roles()->attach($roleId);
         }
     }

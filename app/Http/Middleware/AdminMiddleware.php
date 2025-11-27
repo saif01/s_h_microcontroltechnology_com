@@ -22,17 +22,7 @@ class AdminMiddleware
         }
 
         // Check if user has administrator role or access-dashboard permission
-        $hasAccess = false;
-        
-        // Check legacy admin role
-        if ($user->role === 'admin') {
-            $hasAccess = true;
-        }
-        
-        // Check new role system - administrator role or access-dashboard permission
-        if ($user->hasRole('administrator') || $user->hasPermission('access-dashboard')) {
-            $hasAccess = true;
-        }
+        $hasAccess = $user->hasRole('administrator') || $user->hasPermission('access-dashboard');
 
         if (!$hasAccess) {
             return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);

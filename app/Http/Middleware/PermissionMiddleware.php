@@ -35,7 +35,7 @@ class PermissionMiddleware
         $hasPermission = false;
         
         // Check if user has administrator role (full access)
-        if ($user->hasRole('administrator') || $user->role === 'admin') {
+        if ($user->hasRole('administrator')) {
             $hasPermission = true;
         } else {
             // Check if user has any of the required permissions through their roles

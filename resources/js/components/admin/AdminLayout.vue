@@ -145,7 +145,7 @@
 
             <v-spacer></v-spacer>
             <v-chip prepend-icon="mdi-shield-account"
-                v-if="currentUser && (currentUser.role === 'admin' || (userRoles && userRoles.some(r => r.slug === 'administrator')))">Administrator</v-chip>
+                v-if="currentUser && userRoles && userRoles.some(r => r.slug === 'administrator')">Administrator</v-chip>
             <v-spacer></v-spacer>
 
             <div class="d-flex align-center mr-4" v-if="currentUser">
@@ -158,9 +158,15 @@
                     </template>
                     <v-list>
                         <v-list-item>
+                            <template v-slot:prepend>
+                                <v-icon>mdi-account</v-icon>
+                            </template>
                             <v-list-item-title>{{ currentUser.name }}</v-list-item-title>
                         </v-list-item>
                         <v-list-item link router @click="logout()">
+                            <template v-slot:prepend>
+                                <v-icon>mdi-logout</v-icon>
+                            </template>
                             <v-list-item-title>Logout</v-list-item-title>
                         </v-list-item>
                     </v-list>
@@ -188,11 +194,12 @@
                 <div class="footer-divider"></div>
 
                 <div class="footer-info">
-                    <span class="version-badge">v2.0</span>
+                    <span class="version-badge">v1.0</span>
                     <span class="copyright-text">© {{ currentYear }} All Rights Reserved</span>
                 </div>
             </div>
         </v-footer>
+
     </div>
 </template>
 

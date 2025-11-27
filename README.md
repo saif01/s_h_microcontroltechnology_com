@@ -166,7 +166,10 @@ npm run build
 #### Authentication & Security
 - **Laravel Sanctum Authentication**: Secure API token-based authentication for admin panel
 - **Role-Based Access Control (RBAC)**: Granular permission system with roles and permissions
-- **User Management**: Complete user administration with role assignment
+- **User Management**: Complete user administration with:
+  - Multiple role assignment per user
+  - Profile information (phone, address, bio, etc.)
+  - Avatar management
 - **Permission Management**: Fine-grained permission control for all features
 - **Login Logging**: Track all login attempts (successful and failed) with IP addresses and user agents
 - **Visitor Logging**: Comprehensive visitor tracking with device, browser, OS, and bot detection
@@ -342,8 +345,14 @@ npm run build
 #### User Management
 - **User Administration**:
   - User creation and editing
-  - Role assignment
+  - Role assignment (multiple roles per user)
   - Avatar upload
+  - Profile information management:
+    - Phone number
+    - Date of birth
+    - Gender (male, female, other)
+    - Address, city, state, country, postal code
+    - Bio/description
   - Account status management
   - Password reset functionality
 
@@ -571,7 +580,9 @@ php artisan db:seed
 This will create:
 - All database tables
 - Module definitions (disabled by default)
-- Default admin user
+- 5 roles (Administrator, Content Manager, Marketing Manager, HR Manager, Support Staff)
+- 5 demo users (one for each role) with profile information
+- Demo content (products, services, blog posts, etc.)
 
 ### 4. Build Assets
 
@@ -592,10 +603,15 @@ Visit:
 - Public website: `http://localhost:8000`
 - Admin panel: `http://localhost:8000/admin/login`
 
-## 🔑 Default Admin Credentials
+## 🔑 Default User Credentials
 
-- **Email**: admin@example.com
-- **Password**: password
+The seeder creates demo users for all 5 roles. All users have the password: `password`
+
+- **Administrator**: admin@mail.com
+- **Content Manager**: content@mail.com
+- **Marketing Manager**: marketing@mail.com
+- **HR Manager**: hr@mail.com
+- **Support Staff**: support@mail.com
 
 ⚠️ **Change these immediately in production!**
 
@@ -694,10 +710,11 @@ All admin endpoints require authentication via Bearer token.
 
 **User Management:**
 - `GET /api/v1/users` - List users (requires `manage-users` permission)
-- `POST /api/v1/users` - Create user (requires `manage-users` permission)
+- `POST /api/v1/users` - Create user with profile fields and role assignment (requires `manage-users` permission)
 - `GET /api/v1/users/{id}` - Get user (requires `manage-users` permission)
-- `PUT /api/v1/users/{id}` - Update user (requires `manage-users` permission)
+- `PUT /api/v1/users/{id}` - Update user including profile fields and roles (requires `manage-users` permission)
 - `DELETE /api/v1/users/{id}` - Delete user (requires `manage-users` permission)
+- `GET /api/v1/users/roles` - Get available roles for assignment (requires `manage-users` permission)
 
 **Role & Permission Management:**
 - `GET /api/v1/roles` - List roles (requires `manage-roles` permission)
