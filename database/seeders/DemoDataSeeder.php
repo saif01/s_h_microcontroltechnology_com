@@ -7,7 +7,6 @@ use App\Models\Page;
 use App\Models\Menu;
 use App\Models\Setting;
 use App\Models\Service;
-use App\Models\Product;
 use App\Models\BlogPost;
 use App\Models\Faq;
 use App\Models\Portfolio;
@@ -43,8 +42,8 @@ class DemoDataSeeder extends Seeder
         $this->seedServices($categories['service'], $tags['service']);
 
         // Seed Products (if module enabled)
+        // Products are now seeded via OnlineUpsProductSeeder
         Module::where('name', 'products')->update(['enabled' => true]);
-        $this->seedProducts($categories['product'], $tags['product']);
 
         // Seed Portfolio
         Module::where('name', 'portfolio')->update(['enabled' => true]);
@@ -357,91 +356,6 @@ class DemoDataSeeder extends Seeder
         }
     }
 
-    private function seedProducts($categories, $tags): void
-    {
-        $products = [
-            [
-                'title' => 'Offline UPS System',
-                'slug' => 'offline-ups-system',
-                'sku' => 'UPS-OFF-001',
-                'short_description' => 'Reliable offline UPS systems for home and office use. Provides backup power during outages.',
-                'description' => '<p>Our offline UPS systems are designed to provide reliable backup power for your essential equipment. Perfect for home offices, small businesses, and personal computers.</p><h3>Key Features:</h3><ul><li>Automatic voltage regulation</li><li>Battery backup during power outages</li><li>Surge protection</li><li>Compact design</li><li>Easy installation</li></ul><h3>Applications:</h3><ul><li>Home computers</li><li>Small office equipment</li><li>Networking devices</li><li>Security systems</li></ul>',
-                'price' => null,
-                'price_range' => 'Contact for pricing',
-                'show_price' => false,
-                'specifications' => ['Multiple capacity options', 'LED status indicators', 'Audible alarm', 'Warranty included'],
-                'published' => true,
-                'featured' => true,
-                'order' => 1,
-            ],
-            [
-                'title' => 'Online UPS System',
-                'slug' => 'online-ups-system',
-                'sku' => 'UPS-ON-001',
-                'short_description' => 'Professional online UPS systems for critical applications. Zero transfer time with continuous power protection.',
-                'description' => '<p>Enterprise-grade online UPS systems providing continuous power protection for critical equipment. Ideal for servers, data centers, and mission-critical applications.</p><h3>Key Features:</h3><ul><li>Zero transfer time</li><li>Double conversion technology</li><li>High efficiency</li><li>Remote monitoring capability</li><li>Scalable power capacity</li></ul><h3>Applications:</h3><ul><li>Server rooms</li><li>Data centers</li><li>Medical equipment</li><li>Industrial automation</li><li>Telecommunications</li></ul>',
-                'price' => null,
-                'price_range' => 'Contact for pricing',
-                'show_price' => false,
-                'specifications' => ['High power factor', 'LCD display', 'Network management card', 'Extended runtime options'],
-                'published' => true,
-                'featured' => true,
-                'order' => 2,
-            ],
-            [
-                'title' => 'UPS Battery',
-                'slug' => 'ups-battery',
-                'sku' => 'BAT-UPS-001',
-                'short_description' => 'High-quality replacement batteries for all UPS systems. Long-lasting and reliable performance.',
-                'description' => '<p>Premium quality sealed lead-acid batteries designed specifically for UPS systems. Available in various capacities to match your UPS requirements.</p><h3>Key Features:</h3><ul><li>Sealed maintenance-free design</li><li>Long service life</li><li>High discharge rate</li><li>Wide temperature range</li><li>Compatible with major UPS brands</li></ul><h3>Specifications:</h3><ul><li>Multiple voltage options (12V, 24V, 48V)</li><li>Various capacity ratings</li><li>AGM technology</li><li>UL certified</li></ul>',
-                'price' => null,
-                'price_range' => 'Contact for pricing',
-                'show_price' => false,
-                'specifications' => ['Maintenance-free', 'Spill-proof design', 'Fast recharge', 'Deep cycle capable'],
-                'published' => true,
-                'featured' => true,
-                'order' => 3,
-            ],
-            [
-                'title' => 'UPS Motherboard',
-                'slug' => 'ups-motherboard',
-                'sku' => 'MB-UPS-001',
-                'short_description' => 'Replacement motherboards for UPS systems. Compatible with various UPS models and brands.',
-                'description' => '<p>Professional-grade replacement motherboards for UPS systems. Restore your UPS to full functionality with our quality replacement boards.</p><h3>Key Features:</h3><ul><li>Compatible with multiple UPS models</li><li>Quality components</li><li>Easy installation</li><li>Tested and verified</li><li>Warranty included</li></ul><h3>Applications:</h3><ul><li>UPS repair and maintenance</li><li>UPS upgrade projects</li><li>Replacement for damaged boards</li></ul>',
-                'price' => null,
-                'price_range' => 'Contact for pricing',
-                'show_price' => false,
-                'specifications' => ['Original specifications', 'Quality tested', 'Compatible models listed', 'Installation support'],
-                'published' => true,
-                'featured' => false,
-                'order' => 4,
-            ],
-        ];
-
-        foreach ($products as $index => $product) {
-            $createdProduct = Product::updateOrCreate(
-                ['slug' => $product['slug']],
-                $product
-            );
-
-            // Attach categories - map products to appropriate categories
-            $categoryMap = [
-                0 => 0, // Offline UPS -> UPS Systems
-                1 => 0, // Online UPS -> UPS Systems
-                2 => 1, // Battery -> Batteries
-                3 => 2, // UPS Motherboard -> UPS Components
-            ];
-            
-            if (isset($categoryMap[$index]) && isset($categories[$categoryMap[$index]])) {
-                $createdProduct->categories()->syncWithoutDetaching([$categories[$categoryMap[$index]]->id]);
-            }
-
-            // Attach random tags
-            $randomTags = array_slice($tags, 0, rand(2, 4));
-            $tagIds = array_map(fn($tag) => $tag->id, $randomTags);
-            $createdProduct->tags()->syncWithoutDetaching($tagIds);
-        }
-    }
 
     private function seedPortfolio(): void
     {
