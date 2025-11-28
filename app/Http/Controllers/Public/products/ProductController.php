@@ -24,6 +24,30 @@ class ProductController extends Controller
             $query->where('featured', true);
         }
 
+        // Support optional pagination (if per_page is provided)
+        if ($request->has('per_page') || $request->has('page')) {
+            $perPage = (int) $request->get('per_page', 10);
+            $perPage = max(1, min($perPage, 100)); // Limit between 1 and 100
+            
+            $products = $query->orderBy('order')
+                ->with([
+                    'categories' => function ($query) {
+                        $query->select('categories.id', 'categories.name', 'categories.slug', 'categories.type');
+                    },
+                    'tags' => function ($query) {
+                        $query->select('tags.id', 'tags.name', 'tags.slug', 'tags.type');
+                    }
+                ])
+                ->paginate($perPage);
+            
+            $products->getCollection()->transform(function ($product) {
+                return $this->transformProductWithImages($product);
+            });
+            
+            return response()->json($products);
+        }
+
+        // Default: return all products (for backward compatibility and client-side filtering)
         $products = $query->orderBy('order')
             ->with([
                 'categories' => function ($query) {

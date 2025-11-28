@@ -17,7 +17,8 @@
                         <div class="glass-pill d-inline-flex align-center px-5 py-3 rounded-pill mb-8 animate-float">
                             <div class="pulse-dot mr-2"></div>
                             <v-icon icon="mdi-shield-check" color="amber-accent-4" size="small" class="mr-2"></v-icon>
-                            <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">PREMIUM QUALITY</span>
+                            <span class="text-subtitle-2 font-weight-bold tracking-wide text-white">PREMIUM
+                                QUALITY</span>
                         </div>
                         <h1
                             class="text-h4 text-lg-h2 font-weight-black text-white mb-6 lh-tight text-shadow-sm animate-slide-up">
@@ -64,16 +65,16 @@
 
                 <!-- Products Grid -->
                 <v-row v-else>
-                    <v-col v-for="product in filteredProducts" :key="product.id" cols="12" sm="6" lg="4" xl="3">
+                    <v-col v-for="product in displayedProducts" :key="product.id" cols="12" sm="6" lg="4" xl="3">
                         <ProductCard :product="product" :comparison-disabled="!canAddMore && !isInComparison(product)"
                             @toggle-comparison="handleToggleComparison" />
                     </v-col>
                 </v-row>
 
                 <!-- Load More Section (if needed) -->
-                <div v-if="filteredProducts.length > 0 && hasMore" class="text-center mt-12">
+                <div v-if="displayedProducts.length > 0 && hasMoreProducts" class="text-center mt-12">
                     <v-btn variant="outlined" color="primary" size="large" rounded="pill" class="px-10 font-weight-bold"
-                        @click="loadMore">
+                        @click="loadMore" :loading="loadingMore">
                         Load More Products
                     </v-btn>
                 </div>
@@ -87,7 +88,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useProducts } from '../../../composables/useProducts';
 import { useCategories } from '../../../composables/useCategories';
 import { useProductFilters } from '../../../composables/useProductFilters';
@@ -95,6 +96,9 @@ import { useProductComparison } from '../../../composables/useProductComparison'
 import ProductCard from './ProductCard.vue';
 import FilterBar from './FilterBar.vue';
 import ComparisonDialog from './ComparisonDialog.vue';
+
+// Pagination constants
+const PRODUCTS_PER_PAGE = 12;
 
 // Initialize composables
 const { products, loading, fetchProducts } = useProducts();
@@ -126,12 +130,23 @@ const {
     getComparisonSpecs
 } = useProductComparison(3);
 
-// Additional state
-const hasMore = ref(false);
+// Pagination state
+const displayedCount = ref(PRODUCTS_PER_PAGE);
+const loadingMore = ref(false);
 
 // Computed properties
 const comparisonSpecs = computed(() => {
     return getComparisonSpecs();
+});
+
+// Display only the first N products from filtered results
+const displayedProducts = computed(() => {
+    return filteredProducts.value.slice(0, displayedCount.value);
+});
+
+// Check if there are more products to load
+const hasMoreProducts = computed(() => {
+    return filteredProducts.value.length > displayedCount.value;
 });
 
 // Methods
@@ -145,9 +160,18 @@ const handleToggleComparison = (product) => {
 };
 
 const loadMore = () => {
-    // Implement pagination if needed
-    hasMore.value = false;
+    loadingMore.value = true;
+    // Simulate a small delay for better UX (optional)
+    setTimeout(() => {
+        displayedCount.value += PRODUCTS_PER_PAGE;
+        loadingMore.value = false;
+    }, 200);
 };
+
+// Reset pagination when filters change
+watch([activeCategory, searchQuery, sortBy], () => {
+    displayedCount.value = PRODUCTS_PER_PAGE;
+});
 
 // Lifecycle hooks
 onMounted(async () => {
