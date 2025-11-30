@@ -52,6 +52,20 @@ export default {
 </script>
 ```
 
+## Related Modules
+
+### Announcement Management
+The system includes a dynamic announcement management module for displaying important notices on the website. See `resources/js/components/admin/announcements/README.md` for details.
+
+**Key Features:**
+- Multiple announcement types (Company News, Offers, Events, Holidays, Urgent Alerts)
+- Multiple display types (Slider Banner, Popup, Sidebar Ticker, Page Section)
+- YouTube video support with automatic embedding
+- Scheduled publishing with start/end dates
+- SEO optimization with auto-generated suggestions
+- Public display as dismissible modal dialogs
+- Priority-based ordering
+
 ## Future Improvements
 
 - Extract tab components if needed (ServiceFormBasicTab, ServiceFormContentTab, ServiceFormSEOTab)
