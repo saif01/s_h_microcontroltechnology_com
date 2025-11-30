@@ -9,6 +9,8 @@
 
         <!-- Main Content -->
         <v-main class="bg-grey-lighten-5">
+            <!-- Announcements Banner -->
+            <AnnouncementsBanner />
             <router-view />
         </v-main>
 
@@ -30,6 +32,7 @@ import MobileDrawer from './layout/MobileDrawer.vue';
 import Footer from './layout/Footer.vue';
 import WhatsAppFloat from './layout/WhatsAppFloat.vue';
 import GoToTopButton from './layout/GoToTopButton.vue';
+import AnnouncementsBanner from './announcements/AnnouncementsBanner.vue';
 
 export default {
     name: 'PublicLayout',
@@ -38,7 +41,8 @@ export default {
         MobileDrawer,
         Footer,
         WhatsAppFloat,
-        GoToTopButton
+        GoToTopButton,
+        AnnouncementsBanner
     },
     data() {
         return {

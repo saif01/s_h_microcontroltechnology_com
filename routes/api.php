@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\blog\BlogController;
 use App\Http\Controllers\Api\career\CareerController;
 use App\Http\Controllers\Api\career\JobApplicationController;
 use App\Http\Controllers\Api\announcements\AnnouncementController;
+use App\Http\Controllers\Public\announcements\AnnouncementController as PublicAnnouncementController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('test', function () {
@@ -93,6 +94,10 @@ Route::prefix('openapi')->group(function () {
     Route::get('/careers', [\App\Http\Controllers\Public\career\CareerController::class, 'index']);
     Route::get('/careers/{slug}', [\App\Http\Controllers\Public\career\CareerController::class, 'show']);
     Route::post('/careers/apply', [\App\Http\Controllers\Public\career\CareerController::class, 'apply']);
+    
+    // Announcements routes - public access to active announcements
+    Route::get('/announcements', [PublicAnnouncementController::class, 'index']);
+    Route::get('/announcements/{slug}', [PublicAnnouncementController::class, 'show']);
     
     Route::post('/contact', [ContactController::class, 'submit']);
     Route::post('/newsletter/subscribe', [PublicNewsletterController::class, 'subscribe']);
