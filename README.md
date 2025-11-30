@@ -342,6 +342,53 @@ npm run build
   - Statistics dashboard (total, by status, by career)
   - Resume file management with automatic cleanup on deletion
 
+#### Announcement Management
+- **Announcement CRUD**: Complete announcement management system with:
+  - Multiple announcement types:
+    - Company News
+    - Offers / Promotions
+    - Events
+    - Holidays
+    - Urgent Alerts
+  - Multiple display types:
+    - Slider Banner (horizontal banner display)
+    - Popup (modal dialog - auto-opens on page load)
+    - Sidebar Ticker (sidebar scrolling ticker)
+    - Page Section (embedded page section)
+  - Rich content management:
+    - Title and slug (auto-generated from title)
+    - Short description for listings
+    - Full HTML content with rich text editor
+    - Image upload with preview
+    - Video support (direct upload or YouTube URL with automatic embed)
+    - External link support with new tab option
+  - Scheduling system:
+    - Start date/time scheduling (when announcement becomes active)
+    - End date/time scheduling (when announcement expires)
+    - Automatic activation/deactivation based on schedule
+    - Priority ordering (0-999, lower numbers = higher priority)
+  - SEO optimization:
+    - Auto-generated meta titles from announcement title
+    - Auto-generated meta descriptions from short description
+    - Auto-generated keywords extracted from content
+    - Search engine preview (live preview of search results)
+    - Character count indicators with color-coded validation
+    - Open Graph image for social media sharing
+  - Status management:
+    - Active/Inactive toggle
+    - Soft delete support
+    - Search and filter by status and type
+    - Sorting by priority, date, title
+    - Pagination support
+  - Public display features:
+    - Automatic display as dismissible modal dialogs
+    - Sequential display for multiple announcements
+    - "Don't show again" option with localStorage tracking
+    - Priority-based ordering
+    - Responsive dialog sizing (minimum 80% width on desktop, 95% on mobile)
+    - YouTube video embedding support
+    - Image and video media support
+
 #### User Management
 - **User Administration**:
   - User creation and editing
@@ -521,6 +568,38 @@ npm run build
   - Only published and active careers shown to public
   - Application count per career
 
+#### Announcements System
+- **Dynamic Announcement Display**:
+  - Automatic display of active announcements as modal dialogs on page load
+  - Multiple announcement types with color-coded headers:
+    - Company News (blue/primary)
+    - Offers / Promotions (green/success)
+    - Events (info blue)
+    - Holidays (orange/warning)
+    - Urgent Alerts (red/error)
+  - Responsive dialog sizing:
+    - Minimum 80% width on desktop screens
+    - 95% width on mobile devices
+    - Adapts to content (larger for media, smaller for text-only)
+  - Sequential display for multiple announcements with pagination indicator
+  - Dismissible with "Don't show again" option (stored in localStorage)
+  - Priority-based ordering (lower priority numbers shown first)
+  - Media support:
+    - Image display with responsive sizing
+    - YouTube video embedding (automatic URL detection and conversion)
+    - Direct video file playback (MP4, WebM)
+    - Image error handling (auto-hides broken images)
+  - Content display:
+    - Rich HTML content rendering
+    - Short description display
+    - External link support with "Learn More" button
+    - Type badges and labels
+  - User experience:
+    - "Next" button to navigate through multiple announcements
+    - "Skip All" option to close all dialogs
+    - Smooth transitions between announcements
+    - Auto-opens 500ms after page load for better UX
+
 #### Contact & Communication
 - **Contact Form**: 
   - Name, email, phone, subject, message fields
@@ -657,6 +736,14 @@ All admin endpoints require authentication via Bearer token.
 - `DELETE /api/v1/job-applications/{id}` - Delete job application (requires `manage-leads` permission)
 - `GET /api/v1/job-applications/statistics` - Get application statistics (requires `view-leads` permission)
 
+**Announcement Management:**
+- `GET /api/v1/announcements` - List announcements (with pagination, filtering by status/type, sorting, search) (requires `manage-announcements` permission)
+- `POST /api/v1/announcements` - Create announcement (requires `manage-announcements` permission)
+- `GET /api/v1/announcements/{id}` - Get announcement (by ID or slug) (requires `manage-announcements` permission)
+- `PUT /api/v1/announcements/{id}` - Update announcement (requires `manage-announcements` permission)
+- `DELETE /api/v1/announcements/{id}` - Delete announcement (soft delete) (requires `manage-announcements` permission)
+- `PUT /api/v1/announcements/{id}/toggle-status` - Toggle active/inactive status (requires `manage-announcements` permission)
+
 **Services Management:**
 - `GET /api/v1/services` - List services (with pagination, filtering, sorting)
 - `POST /api/v1/services` - Create service (requires `manage-services` permission)
@@ -760,6 +847,12 @@ All admin endpoints require authentication via Bearer token.
 - `GET /api/openapi/careers` - List published and active careers (supports search, department, location, employment type filters, active_only flag, sorting, pagination, returns filter options)
 - `GET /api/openapi/careers/{slug}` - Get career by slug (includes application count, active status check)
 - `POST /api/openapi/careers/apply` - Submit job application (with resume upload, Bangladesh phone validation, deadline checking)
+
+**Announcements (Public):**
+- `GET /api/openapi/announcements` - Get active announcements (supports filtering by type, display_type, language, pagination, sorted by priority)
+- `GET /api/openapi/announcements/{slug}` - Get announcement by slug (public view)
+
+**General (Public):**
 - `GET /api/openapi/about` - Get about page content
 - `GET /api/openapi/settings` - Get public settings
 - `POST /api/openapi/contact` - Submit contact form (creates lead)
@@ -786,6 +879,7 @@ UPDATE modules SET enabled = 1 WHERE name = 'services';
 - `blog` - Blog/News
 - `faq` - FAQ
 - `careers` - Careers & Recruitment
+- `announcements` - Announcement Management (Company News, Offers, Events, Holidays, Urgent Alerts)
 - `booking` - Appointment booking
 - `events` - Events & Registrations
 - `branches` - Multi-location/Branches
@@ -801,6 +895,7 @@ app/
 │   │   ├── Api/              # Admin API controllers
 │   │   │   ├── auth/
 │   │   │   ├── about/
+│   │   │   ├── announcements/
 │   │   │   ├── blog/
 │   │   │   ├── leads/
 │   │   │   ├── NewsletterController.php
@@ -811,6 +906,7 @@ app/
 │   │   │   └── users/
 │   │   └── Public/            # Public website controllers
 │   │       ├── pages/
+│   │       ├── announcements/
 │   │       ├── blog/
 │   │       ├── NewsletterController.php
 │   │       ├── products/
