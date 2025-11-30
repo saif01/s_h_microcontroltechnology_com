@@ -77,12 +77,22 @@ class AnnouncementController extends Controller
      */
     private function transformAnnouncement(Announcement $announcement)
     {
-        if (!empty($announcement->image)) {
-            $announcement->image = MediaPath::url($announcement->image);
+        // Transform image URL if present (handle null, empty string, or valid path)
+        $imagePath = trim($announcement->image ?? '');
+        if (!empty($imagePath)) {
+            $resolvedUrl = MediaPath::url($imagePath);
+            $announcement->image = $resolvedUrl ?: null;
+        } else {
+            $announcement->image = null;
         }
 
-        if (!empty($announcement->video)) {
-            $announcement->video = MediaPath::url($announcement->video);
+        // Transform video URL if present (handle null, empty string, or valid path)
+        $videoPath = trim($announcement->video ?? '');
+        if (!empty($videoPath)) {
+            $resolvedUrl = MediaPath::url($videoPath);
+            $announcement->video = $resolvedUrl ?: null;
+        } else {
+            $announcement->video = null;
         }
 
         // Convert dates to ISO strings for frontend

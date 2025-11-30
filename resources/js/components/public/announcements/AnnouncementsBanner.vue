@@ -1,6 +1,6 @@
 <template>
-    <v-dialog v-model="dialogOpen" max-width="600" persistent scrollable>
-        <v-card v-if="currentAnnouncement">
+    <v-dialog v-model="dialogOpen" :max-width="dialogMaxWidth" persistent scrollable class="announcement-dialog">
+        <v-card v-if="currentAnnouncement" class="announcement-dialog-card">
             <v-card-title class="d-flex align-center pa-4" :class="`bg-${getAlertColor(currentAnnouncement.type)}`">
                 <v-icon class="mr-2" color="white">{{ getAnnouncementIcon(currentAnnouncement.type) }}</v-icon>
                 <span class="text-white font-weight-bold">{{ currentAnnouncement.title }}</span>
@@ -11,17 +11,27 @@
                 <v-btn icon="mdi-close" variant="text" color="white" size="small" @click="closeDialog"></v-btn>
             </v-card-title>
 
-            <v-card-text class="pa-6">
-                <div v-if="currentAnnouncement.image" class="mb-4">
-                    <v-img :src="currentAnnouncement.image" :alt="currentAnnouncement.title" max-height="300" cover
-                        class="rounded-lg"></v-img>
+            <v-card-text class="pa-4 pa-md-6 announcement-content">
+                <div v-if="resolvedImageUrl" class="mb-4 announcement-media">
+                    <v-img :src="resolvedImageUrl" :alt="currentAnnouncement.title" :max-height="imageMaxHeight" contain
+                        class="rounded-lg announcement-image" @error="handleImageError"></v-img>
                 </div>
 
-                <div v-if="currentAnnouncement.short_description" class="text-body-1 mb-4">
+                <div v-if="resolvedVideoUrl" class="mb-4 announcement-media">
+                    <video controls class="w-100 rounded-lg announcement-video"
+                        :style="{ maxHeight: imageMaxHeight + 'px' }">
+                        <source :src="resolvedVideoUrl" type="video/mp4">
+                        <source :src="resolvedVideoUrl" type="video/webm">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div v-if="currentAnnouncement.short_description" class="text-body-1 mb-4 announcement-description">
                     {{ currentAnnouncement.short_description }}
                 </div>
 
-                <div v-if="currentAnnouncement.content" class="text-body-2 mb-4" v-html="currentAnnouncement.content">
+                <div v-if="currentAnnouncement.content" class="text-body-2 mb-4 announcement-content-html"
+                    v-html="currentAnnouncement.content">
                 </div>
 
                 <v-chip size="small" :color="getAlertColor(currentAnnouncement.type)" class="mb-2">
@@ -54,6 +64,8 @@
 </template>
 
 <script>
+import { resolveUploadUrl } from '../../../utils/uploads';
+
 export default {
     name: 'AnnouncementsBanner',
     data() {
@@ -63,7 +75,9 @@ export default {
             dialogOpen: false,
             dontShowAgain: false,
             dismissedIds: [],
-            loading: false
+            loading: false,
+            windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1200,
+            windowHeight: typeof window !== 'undefined' ? window.innerHeight : 800
         };
     },
     computed: {
@@ -72,17 +86,55 @@ export default {
                 return this.announcements[this.currentAnnouncementIndex];
             }
             return null;
+        },
+        resolvedImageUrl() {
+            if (!this.currentAnnouncement || !this.currentAnnouncement.image) {
+                return null;
+            }
+            return this.getImageUrl(this.currentAnnouncement.image);
+        },
+        resolvedVideoUrl() {
+            if (!this.currentAnnouncement || !this.currentAnnouncement.video) {
+                return null;
+            }
+            return this.getVideoUrl(this.currentAnnouncement.video);
+        },
+        dialogMaxWidth() {
+            // Responsive max-width based on screen size and content type
+            if (this.windowWidth < 600) {
+                // Small devices (< 600px): nearly full width for better mobile experience
+                return '95vw';
+            } else if (this.windowWidth < 960) {
+                // Tablets (600px - 960px): 85% width
+                return '85vw';
+            }
+            // Large screens (>= 960px): minimum 80%, can expand for media content
+            if (this.resolvedImageUrl || this.resolvedVideoUrl) {
+                return '90vw'; // Larger for media content
+            }
+            return '80vw'; // Minimum 80% for text-only content on large screens
+        },
+        imageMaxHeight() {
+            // Responsive image height - max 50% of viewport height or 500px
+            return Math.min(500, this.windowHeight * 0.5);
         }
     },
     async mounted() {
         await this.loadAnnouncements();
         this.loadDismissedAnnouncements();
+        this.updateWindowSize();
+        window.addEventListener('resize', this.updateWindowSize);
         // Show dialog if there are announcements to display
         if (this.announcements.length > 0) {
             // Small delay to ensure page is loaded
             setTimeout(() => {
                 this.dialogOpen = true;
             }, 500);
+        }
+    },
+    beforeUnmount() {
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('resize', this.updateWindowSize);
         }
     },
     methods: {
@@ -104,6 +156,16 @@ export default {
                     : (response.data.data || []);
                 this.announcements = announcementsData
                     .filter(ann => !dismissed.includes(ann.id))
+                    .map(ann => {
+                        // Ensure image and video fields are properly set
+                        if (ann.image === '' || ann.image === null) {
+                            ann.image = null;
+                        }
+                        if (ann.video === '' || ann.video === null) {
+                            ann.video = null;
+                        }
+                        return ann;
+                    })
                     .sort((a, b) => (a.priority || 100) - (b.priority || 100)); // Sort by priority
             } catch (error) {
                 console.error('Error loading announcements:', error);
@@ -184,11 +246,161 @@ export default {
                 'company_news': 'Company News'
             };
             return labels[type] || type;
+        },
+        getImageUrl(imagePath) {
+            if (!imagePath || imagePath === '' || imagePath === null) {
+                return null;
+            }
+            // If already a full URL, return as is, otherwise resolve it
+            if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('//')) {
+                return imagePath;
+            }
+            // Resolve URL using the utility function to ensure proper base URL
+            return resolveUploadUrl(imagePath);
+        },
+        getVideoUrl(videoPath) {
+            if (!videoPath || videoPath === '' || videoPath === null) {
+                return null;
+            }
+            // If already a full URL, return as is, otherwise resolve it
+            if (videoPath.startsWith('http://') || videoPath.startsWith('https://') || videoPath.startsWith('//')) {
+                return videoPath;
+            }
+            // Resolve URL using the utility function to ensure proper base URL
+            return resolveUploadUrl(videoPath);
+        },
+        handleImageError(event) {
+            // Hide broken image
+            if (event.target && event.target.parentElement) {
+                event.target.parentElement.style.display = 'none';
+            }
+        },
+        updateWindowSize() {
+            if (typeof window !== 'undefined') {
+                this.windowWidth = window.innerWidth;
+                this.windowHeight = window.innerHeight;
+            }
         }
     }
 };
 </script>
 
 <style scoped>
-/* Dialog styles are handled by Vuetify */
+/* Announcement Dialog Styles */
+.announcement-dialog-card {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.announcement-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.announcement-media {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.announcement-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.announcement-video {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}
+
+.announcement-description {
+    word-wrap: break-word;
+    line-height: 1.6;
+}
+
+.announcement-content-html {
+    word-wrap: break-word;
+    line-height: 1.6;
+}
+
+.announcement-content-html :deep(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.announcement-content-html :deep(p) {
+    margin-bottom: 12px;
+}
+
+.announcement-content-html :deep(h1),
+.announcement-content-html :deep(h2),
+.announcement-content-html :deep(h3),
+.announcement-content-html :deep(h4) {
+    margin-top: 16px;
+    margin-bottom: 12px;
+}
+
+/* Small device responsiveness (< 600px) */
+@media (max-width: 599px) {
+    .announcement-dialog-card {
+        max-height: 95vh;
+    }
+
+    .announcement-content {
+        padding: 16px !important;
+    }
+
+    .announcement-dialog :deep(.v-overlay__content) {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        min-width: auto !important;
+    }
+}
+
+/* Ensure minimum 80% width on screens >= 600px */
+@media (min-width: 600px) {
+    .announcement-dialog :deep(.v-overlay__content) {
+        min-width: 80vw !important;
+        width: auto !important;
+    }
+}
+
+/* Tablet styles (600px - 959px) */
+@media (min-width: 600px) and (max-width: 959px) {
+    .announcement-dialog :deep(.v-overlay__content) {
+        min-width: 80vw !important;
+        max-width: 85vw !important;
+    }
+}
+
+/* Large screen styles (>= 960px) - minimum 80% width */
+@media (min-width: 960px) {
+    .announcement-dialog :deep(.v-overlay__content) {
+        min-width: 80vw !important;
+    }
+}
+
+/* Ensure dialog adapts to content */
+:deep(.v-dialog) {
+    margin: 24px;
+}
+
+:deep(.v-dialog > .v-card) {
+    overflow: hidden;
+}
+
+/* Small device adjustments */
+@media (max-width: 600px) {
+    :deep(.v-dialog) {
+        margin: 8px;
+    }
+}
 </style>
