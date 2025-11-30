@@ -148,14 +148,16 @@
                                         <h3 class="text-h6 font-weight-bold mb-4">Schedule</h3>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field v-model="form.start_date" label="Start Date & Time"
-                                            variant="outlined" type="datetime-local"
-                                            hint="When announcement becomes active" persistent-hint></v-text-field>
+                                        <DateTimePicker v-model="form.start_date" label="Start Date & Time"
+                                            hint="When announcement becomes active" :persistent-hint="true"
+                                            title="Select Start Date & Time">
+                                        </DateTimePicker>
                                     </v-col>
                                     <v-col cols="12" md="6">
-                                        <v-text-field v-model="form.end_date" label="End Date & Time" variant="outlined"
-                                            type="datetime-local" hint="When announcement expires" persistent-hint
-                                            :min="form.start_date"></v-text-field>
+                                        <DateTimePicker v-model="form.end_date" label="End Date & Time"
+                                            hint="When announcement expires" :persistent-hint="true"
+                                            :min-date="getStartDateForMin()" title="Select End Date & Time">
+                                        </DateTimePicker>
                                     </v-col>
                                     <v-col cols="12">
                                         <v-divider class="my-4"></v-divider>
@@ -253,12 +255,14 @@
 <script>
 import adminPaginationMixin from '../../../mixins/adminPaginationMixin';
 import RichTextEditor from '../../common/RichTextEditor.vue';
+import DateTimePicker from '../../common/DateTimePicker.vue';
 import { normalizeUploadPath, resolveUploadUrl } from '../../../utils/uploads';
 
 export default {
     name: 'AnnouncementFormDialog',
     components: {
-        RichTextEditor
+        RichTextEditor,
+        DateTimePicker
     },
     mixins: [adminPaginationMixin],
     props: {
@@ -403,8 +407,8 @@ export default {
                     video: announcement.video || '',
                     external_link: announcement.external_link || '',
                     open_in_new_tab: announcement.open_in_new_tab || false,
-                    start_date: announcement.start_date ? this.formatDateTimeForInput(announcement.start_date) : '',
-                    end_date: announcement.end_date ? this.formatDateTimeForInput(announcement.end_date) : '',
+                    start_date: announcement.start_date || '',
+                    end_date: announcement.end_date || '',
                     is_active: announcement.is_active !== undefined ? announcement.is_active : true,
                     priority: announcement.priority || 0,
                     language: announcement.language || '',
@@ -427,12 +431,17 @@ export default {
         formatDateTimeForInput(dateString) {
             if (!dateString) return '';
             const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day}T${hours}:${minutes}`;
+            if (isNaN(date.getTime())) return '';
+            return date.toISOString();
+        },
+        getStartDateForMin() {
+            if (this.form.start_date) {
+                const date = new Date(this.form.start_date);
+                if (!isNaN(date.getTime())) {
+                    return date.toISOString().split('T')[0];
+                }
+            }
+            return null;
         },
         generateSlug() {
             if (this.form.title && !this.editingAnnouncement) {
