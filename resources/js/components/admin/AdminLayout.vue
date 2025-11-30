@@ -22,50 +22,64 @@
 
             <v-list density="compact" nav v-if="currentUser && userPermissions.length > 0">
                 <!-- ============================================ -->
-                <!-- OVERVIEW -->
+                <!-- GROUP 1: OVERVIEW -->
                 <!-- ============================================ -->
-                <v-list-item v-if="hasPermission('access-dashboard')" link router prepend-icon="mdi-view-dashboard"
-                    title="Dashboard" :to="{ name: 'AdminDashboard' }" value="Dashboard" exact>
-                </v-list-item>
-
-                <!-- ============================================ -->
-                <!-- CONTENT MANAGEMENT -->
-                <!-- ============================================ -->
-                <v-list-group v-if="hasPermission('manage-products')" value="products"
-                    prepend-icon="mdi-package-variant" no-action>
+                <v-list-group v-if="hasPermission('access-dashboard')" value="overview"
+                    prepend-icon="mdi-view-dashboard" no-action>
                     <template v-slot:activator="{ props }">
-                        <v-list-item v-bind="props" title="Products"></v-list-item>
+                        <v-list-item v-bind="props" title="Overview"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-package-variant" title="Products" :to="{ name: 'AdminProducts' }">
-                    </v-list-item>
-                    <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminCategories' }">
-                    </v-list-item>
-                    <v-list-item prepend-icon="mdi-tag" title="Tags" :to="{ name: 'AdminTags' }">
+                    <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard" :to="{ name: 'AdminDashboard' }"
+                        value="Dashboard" exact>
                     </v-list-item>
                 </v-list-group>
 
-                <v-list-item v-if="hasPermission('manage-services')" link router prepend-icon="mdi-wrench"
-                    title="Services" :to="{ name: 'AdminServices' }" value="Services" exact>
-                </v-list-item>
-
-                <v-list-item v-if="hasPermission('manage-about')" link router prepend-icon="mdi-information"
-                    title="About Page" :to="{ name: 'AdminAbout' }" value="About" exact>
-                </v-list-item>
-
-                <v-list-item v-if="hasPermission('manage-announcements')" link router prepend-icon="mdi-bullhorn"
-                    title="Announcements" :to="{ name: 'AdminAnnouncements' }" value="Announcements" exact>
-                </v-list-item>
-
-                <v-list-group v-if="hasPermission('manage-blog')" value="blog" prepend-icon="mdi-post" no-action>
+                <!-- ============================================ -->
+                <!-- GROUP 2: CONTENT MANAGEMENT -->
+                <!-- ============================================ -->
+                <v-list-group
+                    v-if="hasPermission('manage-products') || hasPermission('manage-services') || hasPermission('manage-about') || hasPermission('manage-announcements') || hasPermission('manage-blog')"
+                    value="content" prepend-icon="mdi-file-document-edit" no-action>
                     <template v-slot:activator="{ props }">
-                        <v-list-item v-bind="props" title="Blog"></v-list-item>
+                        <v-list-item v-bind="props" title="Content Management"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-post" title="Blog Posts" :to="{ name: 'AdminBlog' }">
+                    <v-list-group v-if="hasPermission('manage-products')" value="products"
+                        prepend-icon="mdi-package-variant" no-action sub-group>
+                        <template v-slot:activator="{ props }">
+                            <v-list-item v-bind="props" title="Products"></v-list-item>
+                        </template>
+                        <v-list-item prepend-icon="mdi-package-variant" title="Products"
+                            :to="{ name: 'AdminProducts' }">
+                        </v-list-item>
+                        <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminCategories' }">
+                        </v-list-item>
+                        <v-list-item prepend-icon="mdi-tag" title="Tags" :to="{ name: 'AdminTags' }">
+                        </v-list-item>
+                    </v-list-group>
+                    <v-list-item v-if="hasPermission('manage-services')" prepend-icon="mdi-wrench" title="Services"
+                        :to="{ name: 'AdminServices' }" value="Services" exact>
                     </v-list-item>
-                    <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminBlogCategories' }">
+                    <v-list-item v-if="hasPermission('manage-about')" prepend-icon="mdi-information" title="About Page"
+                        :to="{ name: 'AdminAbout' }" value="About" exact>
                     </v-list-item>
+                    <v-list-item v-if="hasPermission('manage-announcements')" prepend-icon="mdi-bullhorn"
+                        title="Announcements" :to="{ name: 'AdminAnnouncements' }" value="Announcements" exact>
+                    </v-list-item>
+                    <v-list-group v-if="hasPermission('manage-blog')" value="blog" prepend-icon="mdi-post" no-action
+                        sub-group>
+                        <template v-slot:activator="{ props }">
+                            <v-list-item v-bind="props" title="Blog"></v-list-item>
+                        </template>
+                        <v-list-item prepend-icon="mdi-post" title="Blog Posts" :to="{ name: 'AdminBlog' }">
+                        </v-list-item>
+                        <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminBlogCategories' }">
+                        </v-list-item>
+                    </v-list-group>
                 </v-list-group>
 
+                <!-- ============================================ -->
+                <!-- GROUP 3: CAREERS -->
+                <!-- ============================================ -->
                 <v-list-group v-if="hasPermission('manage-careers') || hasPermission('manage-applications')"
                     value="careers" prepend-icon="mdi-briefcase" no-action>
                     <template v-slot:activator="{ props }">
@@ -80,60 +94,76 @@
                 </v-list-group>
 
                 <!-- ============================================ -->
-                <!-- USER MANAGEMENT -->
+                <!-- GROUP 4: USER MANAGEMENT -->
                 <!-- ============================================ -->
-                <v-list-item v-if="hasPermission('manage-users')" link router prepend-icon="mdi-account-group"
-                    title="Users" :to="{ name: 'AdminUsers' }" value="Users" exact>
-                </v-list-item>
-
-                <v-list-group v-if="hasPermission('manage-roles')" value="roles" prepend-icon="mdi-shield-account"
-                    no-action>
+                <v-list-group v-if="hasPermission('manage-users') || hasPermission('manage-roles')" value="users"
+                    prepend-icon="mdi-account-group" no-action>
                     <template v-slot:activator="{ props }">
-                        <v-list-item v-bind="props" title="Roles & Permissions"></v-list-item>
+                        <v-list-item v-bind="props" title="User Management"></v-list-item>
                     </template>
-                    <v-list-item prepend-icon="mdi-shield-account" title="Roles" :to="{ name: 'AdminRoles' }">
+                    <v-list-item v-if="hasPermission('manage-users')" prepend-icon="mdi-account-group" title="Users"
+                        :to="{ name: 'AdminUsers' }" value="Users" exact>
                     </v-list-item>
-                    <v-list-item prepend-icon="mdi-key" title="Permissions" :to="{ name: 'AdminPermissions' }">
+                    <v-list-group v-if="hasPermission('manage-roles')" value="roles" prepend-icon="mdi-shield-account"
+                        no-action sub-group>
+                        <template v-slot:activator="{ props }">
+                            <v-list-item v-bind="props" title="Roles & Permissions"></v-list-item>
+                        </template>
+                        <v-list-item prepend-icon="mdi-shield-account" title="Roles" :to="{ name: 'AdminRoles' }">
+                        </v-list-item>
+                        <v-list-item prepend-icon="mdi-key" title="Permissions" :to="{ name: 'AdminPermissions' }">
+                        </v-list-item>
+                    </v-list-group>
+                </v-list-group>
+
+                <!-- ============================================ -->
+                <!-- GROUP 5: COMMUNICATION -->
+                <!-- ============================================ -->
+                <v-list-group v-if="canAccessLeads() || hasPermission('manage-newsletters')" value="communication"
+                    prepend-icon="mdi-email" no-action>
+                    <template v-slot:activator="{ props }">
+                        <v-list-item v-bind="props" title="Communication"></v-list-item>
+                    </template>
+                    <v-list-item v-if="canAccessLeads()" prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }"
+                        value="Leads" exact class="leads-menu-item">
+                        <template v-slot:title>
+                            <div class="d-flex align-center justify-space-between w-100">
+                                <span>Leads</span>
+                                <span v-if="unreadCount > 0" class="unread-badge">
+                                    {{ unreadCount > 99 ? '99+' : unreadCount }}
+                                </span>
+                            </div>
+                        </template>
+                    </v-list-item>
+                    <v-list-item v-if="hasPermission('manage-newsletters')" prepend-icon="mdi-email-newsletter"
+                        :to="{ name: 'AdminNewsletters' }" value="Newsletters" exact title="Newsletters">
                     </v-list-item>
                 </v-list-group>
 
                 <!-- ============================================ -->
-                <!-- COMMUNICATION -->
+                <!-- GROUP 6: SYSTEM & ADMINISTRATION -->
                 <!-- ============================================ -->
-                <v-list-item v-if="canAccessLeads()" link router prepend-icon="mdi-email" :to="{ name: 'AdminLeads' }"
-                    value="Leads" exact class="leads-menu-item">
-                    <template v-slot:title>
-                        <div class="d-flex align-center justify-space-between w-100">
-                            <span>Leads</span>
-                            <span v-if="unreadCount > 0" class="unread-badge">
-                                {{ unreadCount > 99 ? '99+' : unreadCount }}
-                            </span>
-                        </div>
-                    </template>
-                </v-list-item>
-
-                <v-list-item v-if="hasPermission('manage-newsletters')" link router prepend-icon="mdi-email-newsletter"
-                    :to="{ name: 'AdminNewsletters' }" value="Newsletters" exact title="Newsletters">
-                </v-list-item>
-
-                <!-- ============================================ -->
-                <!-- SYSTEM & ADMINISTRATION -->
-                <!-- ============================================ -->
-                <v-list-item v-if="hasPermission('manage-settings')" link router prepend-icon="mdi-cog" title="Settings"
-                    :to="{ name: 'AdminSettings' }" value="Settings" exact>
-                </v-list-item>
-
-                <v-list-group v-if="hasPermission('view-login-logs') || hasPermission('view-visitor-logs')" value="logs"
-                    prepend-icon="mdi-file-document-multiple" no-action>
+                <v-list-group
+                    v-if="hasPermission('manage-settings') || hasPermission('view-login-logs') || hasPermission('view-visitor-logs')"
+                    value="system" prepend-icon="mdi-cog" no-action>
                     <template v-slot:activator="{ props }">
-                        <v-list-item v-bind="props" title="Logs"></v-list-item>
+                        <v-list-item v-bind="props" title="System & Administration"></v-list-item>
                     </template>
-                    <v-list-item v-if="hasPermission('view-login-logs')" prepend-icon="mdi-login" title="Login Logs"
-                        :to="{ name: 'AdminLoginLogs' }">
+                    <v-list-item v-if="hasPermission('manage-settings')" prepend-icon="mdi-cog" title="Settings"
+                        :to="{ name: 'AdminSettings' }" value="Settings" exact>
                     </v-list-item>
-                    <v-list-item v-if="hasPermission('view-visitor-logs')" prepend-icon="mdi-account-group"
-                        title="Visitor Logs" :to="{ name: 'AdminVisitorLogs' }">
-                    </v-list-item>
+                    <v-list-group v-if="hasPermission('view-login-logs') || hasPermission('view-visitor-logs')"
+                        value="logs" prepend-icon="mdi-file-document-multiple" no-action sub-group>
+                        <template v-slot:activator="{ props }">
+                            <v-list-item v-bind="props" title="Logs"></v-list-item>
+                        </template>
+                        <v-list-item v-if="hasPermission('view-login-logs')" prepend-icon="mdi-login" title="Login Logs"
+                            :to="{ name: 'AdminLoginLogs' }">
+                        </v-list-item>
+                        <v-list-item v-if="hasPermission('view-visitor-logs')" prepend-icon="mdi-account-group"
+                            title="Visitor Logs" :to="{ name: 'AdminVisitorLogs' }">
+                        </v-list-item>
+                    </v-list-group>
                 </v-list-group>
             </v-list>
 
@@ -766,6 +796,24 @@ export default {
 :deep(.v-list-group__items .v-list-item) {
     padding-left: 24px !important;
     margin: 2px 4px;
+}
+
+/* Nested sub-groups styling */
+:deep(.v-list-group__items .v-list-group) {
+    margin: 2px 0;
+}
+
+:deep(.v-list-group__items .v-list-group .v-list-group__items) {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    margin: 2px 8px;
+    padding: 2px 0;
+}
+
+:deep(.v-list-group__items .v-list-group .v-list-group__items .v-list-item) {
+    padding-left: 40px !important;
+    margin: 1px 4px;
+    font-size: 13px;
 }
 
 :deep(.v-divider) {
