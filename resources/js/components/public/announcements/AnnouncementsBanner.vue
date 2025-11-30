@@ -18,8 +18,15 @@
                 </div>
 
                 <div v-if="resolvedVideoUrl" class="mb-4 announcement-media">
-                    <video controls class="w-100 rounded-lg announcement-video"
-                        :style="{ maxHeight: imageMaxHeight + 'px' }">
+                    <!-- YouTube Embed -->
+                    <div v-if="isYouTubeUrl(resolvedVideoUrl) && youtubeEmbedUrl" class="youtube-embed-wrapper">
+                        <iframe :src="youtubeEmbedUrl" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen class="youtube-iframe rounded-lg"></iframe>
+                    </div>
+                    <!-- Regular Video -->
+                    <video v-else-if="!isYouTubeUrl(resolvedVideoUrl)" controls
+                        class="w-100 rounded-lg announcement-video" :style="{ maxHeight: imageMaxHeight + 'px' }">
                         <source :src="resolvedVideoUrl" type="video/mp4">
                         <source :src="resolvedVideoUrl" type="video/webm">
                         Your browser does not support the video tag.
@@ -97,7 +104,19 @@ export default {
             if (!this.currentAnnouncement || !this.currentAnnouncement.video) {
                 return null;
             }
-            return this.getVideoUrl(this.currentAnnouncement.video);
+            const url = this.getVideoUrl(this.currentAnnouncement.video);
+            // If it's a YouTube URL, validate that we can create an embed URL
+            if (this.isYouTubeUrl(url)) {
+                const embedUrl = this.getYouTubeEmbedUrl(url);
+                return embedUrl ? url : null; // Return original URL if we can create embed, null otherwise
+            }
+            return url;
+        },
+        youtubeEmbedUrl() {
+            if (!this.resolvedVideoUrl || !this.isYouTubeUrl(this.resolvedVideoUrl)) {
+                return null;
+            }
+            return this.getYouTubeEmbedUrl(this.resolvedVideoUrl);
         },
         dialogMaxWidth() {
             // Responsive max-width based on screen size and content type
@@ -269,6 +288,72 @@ export default {
             // Resolve URL using the utility function to ensure proper base URL
             return resolveUploadUrl(videoPath);
         },
+        isYouTubeUrl(url) {
+            if (!url) return false;
+            const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/i;
+            return youtubeRegex.test(url);
+        },
+        getYouTubeEmbedUrl(url) {
+            if (!url) return '';
+
+            // Extract video ID from various YouTube URL formats
+            let videoId = '';
+
+            try {
+                // Handle youtu.be format: https://youtu.be/VIDEO_ID or https://youtu.be/VIDEO_ID?si=xxx
+                const youtuBeMatch = url.match(/(?:youtu\.be\/)([^?&#]+)/);
+                if (youtuBeMatch) {
+                    videoId = youtuBeMatch[1];
+                } else {
+                    // Handle youtube.com/watch?v=VIDEO_ID or youtube.com/embed/VIDEO_ID or youtube.com/v/VIDEO_ID
+                    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/))([^?&#]+)/);
+                    if (youtubeMatch) {
+                        videoId = youtubeMatch[1];
+                    } else {
+                        // Try to extract from query parameters using URL object
+                        try {
+                            const urlObj = new URL(url);
+                            videoId = urlObj.searchParams.get('v');
+
+                            // If no 'v' parameter, check if pathname contains video ID (for embed URLs)
+                            if (!videoId && urlObj.pathname) {
+                                const pathParts = urlObj.pathname.split('/').filter(p => p);
+                                if (pathParts.length > 0) {
+                                    videoId = pathParts[pathParts.length - 1];
+                                }
+                            }
+                        } catch (e) {
+                            // If URL parsing fails, try regex fallback
+                            const fallbackMatch = url.match(/[?&]v=([^?&#]+)/);
+                            if (fallbackMatch) {
+                                videoId = fallbackMatch[1];
+                            }
+                        }
+                    }
+                }
+
+                // Clean video ID (remove any query parameters, fragments, or extra characters)
+                if (videoId) {
+                    videoId = videoId.split('?')[0].split('&')[0].split('#')[0].trim();
+                }
+
+                // Validate video ID (YouTube video IDs are typically 11 characters)
+                if (videoId && videoId.length >= 11) {
+                    // Return YouTube embed URL with video ID
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+
+                // If we can't extract valid video ID, check if it's already an embed URL
+                if (url.includes('youtube.com/embed/')) {
+                    return url;
+                }
+            } catch (error) {
+                console.error('Error processing YouTube URL:', error);
+            }
+
+            // Fallback: return empty string if we can't process the URL
+            return '';
+        },
         handleImageError(event) {
             // Hide broken image
             if (event.target && event.target.parentElement) {
@@ -317,6 +402,31 @@ export default {
     width: 100%;
     max-width: 100%;
     height: auto;
+}
+
+.youtube-embed-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.youtube-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 500px;
+}
+
+@media (max-width: 600px) {
+    .youtube-iframe {
+        max-height: 250px;
+    }
 }
 
 .announcement-description {

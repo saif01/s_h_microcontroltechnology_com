@@ -121,7 +121,9 @@
                                     <v-col cols="12" md="6">
                                         <v-label class="mb-2">Video (URL or file path)</v-label>
                                         <v-text-field v-model="form.video" label="Video URL or Path" variant="outlined"
-                                            hint="Enter video URL or upload file path" persistent-hint></v-text-field>
+                                            hint="Enter video URL, YouTube link (youtube.com or youtu.be), or upload file path"
+                                            persistent-hint
+                                            placeholder="https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID"></v-text-field>
                                     </v-col>
                                     <v-col cols="12">
                                         <v-divider class="my-4"></v-divider>
