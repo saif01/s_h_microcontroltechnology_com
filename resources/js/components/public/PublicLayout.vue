@@ -2,7 +2,7 @@
     <v-app>
         <!-- Topbar -->
         <AppBar :is-scrolled="isScrolled" :site-name="siteName" :site-tagline="siteTagline" :menu-items="menuItems"
-            :logo="brandingLogo" @toggle-drawer="drawer = !drawer" />
+            :logo="brandingLogo" @toggle-drawer="drawer = !drawer" @close-drawer="drawer = false" />
 
         <!-- Mobile Navigation Drawer -->
         <MobileDrawer v-model="drawer" :site-name="siteName" :menu-items="menuItems" :logo="brandingLogo" />

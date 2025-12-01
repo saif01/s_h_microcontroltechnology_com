@@ -38,7 +38,8 @@
             </div>
 
             <!-- Mobile Menu Button -->
-            <v-app-bar-nav-icon class="d-md-none ml-2" @click="$emit('toggle-drawer')"></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon class="d-md-none ml-2 mobile-menu-btn" @click="handleDrawerToggle"
+                aria-label="Toggle navigation menu"></v-app-bar-nav-icon>
         </div>
 
         <!-- Gradient Border Bottom (Visible on Scroll) -->
@@ -71,8 +72,41 @@ export default {
             default: null
         }
     },
-    emits: ['toggle-drawer'],
+    emits: ['toggle-drawer', 'close-drawer'],
+    data() {
+        return {
+            mobileBreakpoint: 960,
+            isMobileViewport: typeof window !== 'undefined' ? window.innerWidth < 960 : false
+        };
+    },
+    mounted() {
+        this.checkViewport();
+        window.addEventListener('resize', this.handleResize);
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.handleResize);
+    },
     methods: {
+        handleDrawerToggle() {
+            // Only toggle the drawer in mobile/tablet view
+            if (this.isMobileViewport) {
+                this.$emit('toggle-drawer');
+            }
+        },
+        handleResize() {
+            const wasMobile = this.isMobileViewport;
+            this.checkViewport();
+
+            // If the viewport grows to desktop, make sure the mobile drawer is closed
+            if (!this.isMobileViewport && wasMobile) {
+                this.$emit('close-drawer');
+            }
+        },
+        checkViewport() {
+            if (typeof window !== 'undefined') {
+                this.isMobileViewport = window.innerWidth < this.mobileBreakpoint;
+            }
+        },
         isActiveRoute(url) {
             const currentPath = this.$route.path;
             // For home route, only match exactly "/"
@@ -183,6 +217,15 @@ export default {
     transform: translateY(-1px);
 }
 
+.mobile-menu-btn {
+    color: #0f172a !important;
+    border-radius: 12px;
+}
+
+.mobile-menu-btn:hover {
+    background-color: rgba(15, 23, 42, 0.06);
+}
+
 /* Transitions */
 .transition-all {
     transition: all 0.3s ease;
@@ -232,6 +275,11 @@ export default {
 
     .mr-8 {
         margin-right: 12px !important;
+    }
+
+    .mobile-menu-btn {
+        padding: 8px;
+        margin-left: 6px !important;
     }
 }
 </style>
