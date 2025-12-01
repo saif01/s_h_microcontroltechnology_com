@@ -4,10 +4,9 @@
         <div class="pa-6">
             <div class="d-flex align-center mb-8">
                 <div class="logo-box mr-3">
-                    <v-img :src="logo || '/assets/logo/default.png'" alt="Logo" cover
-                        class="logo-image rounded-logo"></v-img>
+                    <v-img :src="logo || '/assets/logo/default.png'" alt="Logo" cover class="logo-image rounded-logo"
+                        :aspect-ratio="1"></v-img>
                 </div>
-
                 <span class="text-h6 font-weight-black text-grey-darken-4">{{ siteName.toUpperCase() }}</span>
                 <v-spacer></v-spacer>
                 <v-btn icon="mdi-close" variant="text" @click="closeDrawer"></v-btn>
@@ -93,9 +92,10 @@ export default {
 /* logo-box styles moved to app.css */
 
 .logo-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
 }
 
 .rounded-logo {
@@ -122,6 +122,14 @@ export default {
         z-index: 3000 !important;
     }
 
+    .mobile-drawer .logo-box {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        min-height: 42px;
+        flex-shrink: 0;
+    }
+
     /* Hide drawer by default when closed - override Vuetify's default behavior */
     .mobile-drawer:not(.v-navigation-drawer--active):not(.mobile-drawer--open) {
         transform: translateX(110%) !important;
@@ -141,13 +149,11 @@ export default {
         width: 280px !important;
     }
 
-    .logo-box {
-        width: 36px;
-        height: 36px;
-    }
-
-    .logo-box .v-icon {
-        font-size: 20px !important;
+    .mobile-drawer .logo-box {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
     }
 
     .text-h6 {
