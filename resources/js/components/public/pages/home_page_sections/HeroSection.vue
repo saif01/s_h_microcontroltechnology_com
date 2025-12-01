@@ -50,21 +50,22 @@
                     </v-fade-transition>
                 </v-col>
 
-                <v-col cols="12" md="5" class="d-none d-md-flex justify-center align-center">
+                <v-col cols="12" md="5" class="d-flex justify-center align-center hero-visual-col">
                     <div class="hero-visual-3d">
                         <div class="glass-card card-main">
                             <v-icon icon="mdi-battery-charging-high" size="48" color="amber-accent-3"
-                                class="mb-4"></v-icon>
+                                class="mb-4 icon-pulse"></v-icon>
                             <div class="text-h5 font-weight-bold text-white mb-2">Always On</div>
                             <div class="text-body-2 text-white opacity-80">Uninterrupted power supply for critical
                                 operations.</div>
                         </div>
                         <div class="glass-card card-float-1">
-                            <v-icon icon="mdi-shield-check" size="32" color="success"></v-icon>
+                            <v-icon icon="mdi-shield-check" size="32" color="success" class="icon-bounce"></v-icon>
                             <div class="text-subtitle-2 font-weight-bold text-white mt-2">Protected</div>
                         </div>
                         <div class="glass-card card-float-2">
-                            <v-icon icon="mdi-lightning-bolt" size="32" color="amber-accent-3"></v-icon>
+                            <v-icon icon="mdi-lightning-bolt" size="32" color="amber-accent-3"
+                                class="icon-shake"></v-icon>
                             <div class="text-subtitle-2 font-weight-bold text-white mt-2">Efficient</div>
                         </div>
                     </div>
@@ -108,6 +109,18 @@ export default {
     position: relative;
     padding-top: 96px;
     padding-bottom: 120px;
+}
+
+/* Ensure wave divider is always visible */
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .animated-gradient-bg {
@@ -434,7 +447,8 @@ export default {
     border-radius: 24px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     padding: 24px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: cardFadeIn 0.8s ease-out both;
 }
 
 .card-main {
@@ -443,22 +457,124 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
+    animation-delay: 0.3s;
+}
+
+.card-main:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
 }
 
 .card-float-1 {
     top: 20%;
     right: 0;
     width: 140px;
-    animation: float 6s ease-in-out infinite;
+    animation: float 6s ease-in-out infinite, cardFadeIn 0.8s ease-out 0.5s both;
     z-index: 1;
+}
+
+.card-float-1:hover {
+    transform: scale(1.08);
 }
 
 .card-float-2 {
     bottom: 20%;
     left: 0;
     width: 140px;
-    animation: float 6s ease-in-out infinite 2s;
+    animation: float 6s ease-in-out infinite 2s, cardFadeIn 0.8s ease-out 0.7s both;
     z-index: 3;
+}
+
+.card-float-2:hover {
+    transform: scale(1.08);
+}
+
+/* Icon animations */
+.icon-pulse {
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+.icon-bounce {
+    animation: iconBounce 2s ease-in-out infinite;
+}
+
+.icon-shake {
+    animation: iconShake 2.5s ease-in-out infinite;
+}
+
+/* Animation keyframes for icons */
+@keyframes iconPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes iconBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes iconShake {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-10deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes float {
@@ -481,6 +597,7 @@ export default {
     overflow: hidden;
     line-height: 0;
     transform: rotate(180deg);
+    z-index: 2;
 }
 
 .wave-divider svg {
@@ -488,23 +605,53 @@ export default {
     display: block;
     width: calc(100% + 1.3px);
     height: 100px;
-}
-
-@media (max-width: 600px) {
-    .wave-divider svg {
-        height: 60px;
-    }
+    filter: drop-shadow(0 -4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .wave-divider .shape-fill {
     fill: rgb(var(--v-theme-surface));
 }
 
+/* Mobile wave divider enhancements */
+@media (max-width: 960px) {
+    .wave-divider {
+        z-index: 10;
+        bottom: -2px;
+    }
+
+    .wave-divider svg {
+        height: 90px;
+    }
+}
+
+@media (max-width: 600px) {
+    .wave-divider {
+        bottom: -2px;
+        z-index: 10;
+    }
+
+    .wave-divider svg {
+        height: 80px;
+        filter: drop-shadow(0 -3px 8px rgba(0, 0, 0, 0.2));
+    }
+
+    /* Ensure wave is visible on mobile with solid white */
+    .wave-divider .shape-fill {
+        fill: #f5f5f5;
+    }
+}
+
+@media (max-width: 400px) {
+    .wave-divider svg {
+        height: 60px;
+    }
+}
+
 @media (max-width: 960px) {
     .hero-section {
         min-height: auto;
         padding-top: 72px;
-        padding-bottom: 96px;
+        padding-bottom: 120px;
     }
 
     .hero-content {
@@ -534,18 +681,24 @@ export default {
         height: 150px;
     }
 
+    /* Tablet visual cards */
+    .hero-visual-col {
+        margin-top: 40px;
+        order: 2;
+    }
+
     .hero-visual-3d {
-        width: 300px;
-        height: 300px;
+        width: 320px;
+        height: 320px;
     }
 
     .card-main {
-        width: 220px;
+        width: 240px;
     }
 
     .card-float-1,
     .card-float-2 {
-        width: 120px;
+        width: 130px;
     }
 
     .hero-actions {
@@ -570,7 +723,8 @@ export default {
     .hero-section {
         min-height: auto;
         padding-top: 56px;
-        padding-bottom: 80px;
+        padding-bottom: 120px;
+        overflow: visible;
     }
 
     .hero-shapes .shape {
@@ -599,18 +753,111 @@ export default {
         right: 20%;
     }
 
+    /* Mobile visual cards - horizontal layout */
+    .hero-visual-col {
+        margin-top: 32px;
+        margin-bottom: 0;
+        order: 2;
+        padding: 0 12px;
+    }
+
     .hero-visual-3d {
-        width: 250px;
-        height: 250px;
+        width: 100%;
+        max-width: 380px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        perspective: none;
+    }
+
+    /* Mobile cards - side by side layout */
+    .glass-card {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        flex: 1;
+        min-width: 0;
+        animation: fadeInUp 0.8s ease-out both;
+        border-radius: 16px;
+        padding: 16px;
     }
 
     .card-main {
-        width: 180px;
+        width: auto !important;
+        flex: 2;
+        animation-delay: 0.2s;
+    }
+
+    .card-main .text-h5 {
+        font-size: 1rem !important;
+    }
+
+    .card-main .text-body-2 {
+        font-size: 0.7rem !important;
+        line-height: 1.3;
+    }
+
+    .card-main .mb-4 {
+        margin-bottom: 8px !important;
+    }
+
+    .card-main .mb-2 {
+        margin-bottom: 4px !important;
+    }
+
+    .card-main v-icon,
+    .card-main .icon-pulse {
+        font-size: 32px !important;
     }
 
     .card-float-1,
     .card-float-2 {
-        width: 100px;
+        width: auto !important;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 8px;
+        animation: none;
+    }
+
+    .card-float-1 {
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .card-float-2 {
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+    }
+
+    .card-float-1 .text-subtitle-2,
+    .card-float-2 .text-subtitle-2 {
+        font-size: 0.7rem !important;
+        margin-top: 4px !important;
+    }
+
+    .card-float-1 v-icon,
+    .card-float-2 v-icon {
+        font-size: 24px !important;
+    }
+
+    /* Disable hover effects on mobile */
+    .card-main:hover,
+    .card-float-1:hover,
+    .card-float-2:hover {
+        transform: none !important;
+    }
+
+    /* Mobile icon animations */
+    .icon-pulse,
+    .icon-bounce,
+    .icon-shake {
+        animation-duration: 2s;
     }
 
     .hero-content {
@@ -647,6 +894,34 @@ export default {
     .btn-particles,
     .btn-shine {
         display: none;
+    }
+}
+
+/* Extra small mobile optimization */
+@media (max-width: 380px) {
+    .hero-visual-3d {
+        flex-direction: column;
+        height: auto;
+        gap: 8px;
+    }
+
+    .card-main,
+    .card-float-1,
+    .card-float-2 {
+        flex: none;
+        width: 100% !important;
+    }
+
+    .card-main {
+        order: 1;
+    }
+
+    .card-float-1 {
+        order: 2;
+    }
+
+    .card-float-2 {
+        order: 3;
     }
 }
 </style>
