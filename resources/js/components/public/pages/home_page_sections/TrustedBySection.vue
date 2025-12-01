@@ -20,14 +20,14 @@
             <div class="logo-belt">
                 <div class="belt-track belt-track-1">
                     <div v-for="(client, i) in doubledClients" :key="'a-' + i" class="logo-chip elevation-2">
-                        <v-img :src="client.logo ? resolveImageUrl(client.logo) : defaultLogo" :alt="client.name || 'Client logo'" cover
-                            class="client-logo"></v-img>
+                        <v-img :src="client.logo ? resolveImageUrl(client.logo) : defaultLogo"
+                            :alt="client.name || 'Client logo'" cover class="client-logo"></v-img>
                     </div>
                 </div>
                 <div class="belt-track belt-track-2">
                     <div v-for="(client, i) in doubledClients" :key="'b-' + i" class="logo-chip elevation-2">
-                        <v-img :src="client.logo ? resolveImageUrl(client.logo) : defaultLogo" :alt="client.name || 'Client logo'" cover
-                            class="client-logo"></v-img>
+                        <v-img :src="client.logo ? resolveImageUrl(client.logo) : defaultLogo"
+                            :alt="client.name || 'Client logo'" cover class="client-logo"></v-img>
                     </div>
                 </div>
             </div>

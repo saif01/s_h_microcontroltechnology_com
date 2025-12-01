@@ -28,14 +28,22 @@
                             </p>
                             <div class="hero-actions d-flex flex-column flex-sm-row gap-3 gap-md-4 flex-wrap">
                                 <v-btn size="large" color="amber-accent-4" variant="flat" rounded="pill"
-                                    class="px-6 px-md-8 text-black font-weight-bold elevation-4 hover-scale hero-btn"
+                                    class="px-6 px-md-8 text-black font-weight-bold elevation-4 hero-btn hero-btn-primary"
                                     :to="{ name: 'Contact' }">
-                                    Get a Quote
-                                    <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
+                                    <span class="btn-text">Get a Quote</span>
+                                    <span class="btn-shine"></span>
+                                    <span class="btn-particles">
+                                        <span class="particle"></span>
+                                        <span class="particle"></span>
+                                        <span class="particle"></span>
+                                    </span>
+                                    <v-icon end icon="mdi-arrow-right" class="ml-2 arrow-icon"></v-icon>
                                 </v-btn>
                                 <v-btn size="large" variant="outlined" color="white" rounded="pill"
-                                    class="px-6 px-md-8 font-weight-bold border-2 hover-fill hero-btn" to="/services">
-                                    Our Solutions
+                                    class="px-6 px-md-8 font-weight-bold border-2 hero-btn hero-btn-secondary"
+                                    to="/services">
+                                    <span class="btn-text">Our Solutions</span>
+                                    <span class="btn-glow"></span>
                                 </v-btn>
                             </div>
                         </div>
@@ -176,11 +184,228 @@ export default {
 .hero-btn {
     min-width: 140px;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-actions {
     width: 100%;
     max-width: 520px;
+    animation: slideInUp 0.8s ease-out 0.6s both;
+}
+
+/* Primary Button Animations */
+.hero-btn-primary {
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.8s both;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4) !important;
+}
+
+.hero-btn-primary:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(245, 158, 11, 0.6) !important;
+}
+
+.hero-btn-primary:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Secondary Button Animations */
+.hero-btn-secondary {
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 1s both;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.hero-btn-secondary:hover {
+    transform: translateY(-4px) scale(1.05);
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: white !important;
+    box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
+}
+
+.hero-btn-secondary:active {
+    transform: translateY(-2px) scale(1.02);
+}
+
+/* Button Text Animation */
+.btn-text {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+}
+
+.hero-btn:hover .btn-text {
+    animation: textBounce 0.6s ease;
+}
+
+/* Shine Effect */
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.6s ease;
+    z-index: 1;
+}
+
+.hero-btn-primary:hover .btn-shine {
+    left: 100%;
+}
+
+/* Glow Effect for Secondary Button */
+.btn-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transition: width 0.4s ease, height 0.4s ease;
+    z-index: 0;
+}
+
+.hero-btn-secondary:hover .btn-glow {
+    width: 300px;
+    height: 300px;
+}
+
+/* Arrow Icon Animation */
+.arrow-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.hero-btn-primary:hover .arrow-icon {
+    animation: arrowSlide 0.8s ease infinite;
+}
+
+/* Particles */
+.btn-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.btn-particles .particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.btn-particles .particle:nth-child(1) {
+    top: 20%;
+    left: 30%;
+}
+
+.btn-particles .particle:nth-child(2) {
+    top: 60%;
+    left: 70%;
+}
+
+.btn-particles .particle:nth-child(3) {
+    top: 40%;
+    right: 20%;
+}
+
+.hero-btn-primary:hover .particle {
+    animation: particleFloat 1.5s ease-out;
+}
+
+.hero-btn-primary:hover .particle:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.hero-btn-primary:hover .particle:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Keyframe Animations */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) translateY(20px);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05) translateY(0);
+    }
+
+    70% {
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes textBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-3px);
+    }
+}
+
+@keyframes arrowSlide {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes particleFloat {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0);
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(var(--x, 20px), var(--y, -30px)) scale(1);
+    }
 }
 
 @keyframes floatShape {
@@ -331,6 +556,11 @@ export default {
         min-width: 0;
     }
 
+    .hero-btn-primary:hover,
+    .hero-btn-secondary:hover {
+        transform: translateY(-2px) scale(1.02);
+    }
+
     .mw-600 {
         max-width: 100% !important;
     }
@@ -401,12 +631,22 @@ export default {
         justify-content: center;
     }
 
+    .hero-btn-primary:hover,
+    .hero-btn-secondary:hover {
+        transform: scale(1.02);
+    }
+
     .text-shadow-sm {
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
     .hero-actions {
         align-items: stretch;
+    }
+
+    .btn-particles,
+    .btn-shine {
+        display: none;
     }
 }
 </style>
