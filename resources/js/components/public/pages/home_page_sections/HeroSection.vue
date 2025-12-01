@@ -10,27 +10,31 @@
             <v-row class="h-100 align-center">
                 <v-col cols="12" md="7" class="text-white">
                     <v-fade-transition appear>
-                        <div>
-                            <div class="glass-pill d-inline-flex align-center px-4 py-2 rounded-pill mb-6">
+                        <div class="hero-content">
+                            <div
+                                class="glass-pill d-inline-flex align-center px-3 px-md-4 py-2 rounded-pill mb-4 mb-md-6">
                                 <v-icon icon="mdi-flash" color="amber-accent-3" size="small" class="mr-2"></v-icon>
-                                <span class="text-subtitle-2 font-weight-bold tracking-wide">POWERING YOUR
+                                <span class="text-caption text-md-subtitle-2 font-weight-bold tracking-wide">POWERING
+                                    YOUR
                                     SUCCESS</span>
                             </div>
-                            <h1 class="text-h4 text-lg-h3 font-weight-black mb-6 lh-tight text-shadow-sm">
+                            <h1
+                                class="text-h5 text-md-h4 text-lg-h3 font-weight-black mb-4 mb-md-6 lh-tight text-shadow-sm">
                                 {{ heroTitle }}
                             </h1>
-                            <p class="text-h6 text-lg-h5 font-weight-light mb-8 opacity-90 mw-600 lh-relaxed">
+                            <p
+                                class="text-body-1 text-md-h6 text-lg-h5 font-weight-light mb-6 mb-md-8 opacity-90 mw-600 lh-relaxed">
                                 {{ heroSubtitle }}
                             </p>
-                            <div class="d-flex gap-4 flex-wrap">
-                                <v-btn size="x-large" color="amber-accent-4" variant="flat" rounded="pill"
-                                    class="px-8 text-black font-weight-bold elevation-4 hover-scale"
+                            <div class="d-flex flex-column flex-sm-row gap-3 gap-md-4 flex-wrap">
+                                <v-btn size="large" color="amber-accent-4" variant="flat" rounded="pill"
+                                    class="px-6 px-md-8 text-black font-weight-bold elevation-4 hover-scale hero-btn"
                                     :to="{ name: 'Contact' }">
                                     Get a Quote
                                     <v-icon end icon="mdi-arrow-right" class="ml-2"></v-icon>
                                 </v-btn>
-                                <v-btn size="x-large" variant="outlined" color="white" rounded="pill"
-                                    class="px-8 font-weight-bold border-2 hover-fill" to="/services">
+                                <v-btn size="large" variant="outlined" color="white" rounded="pill"
+                                    class="px-6 px-md-8 font-weight-bold border-2 hover-fill hero-btn" to="/services">
                                     Our Solutions
                                 </v-btn>
                             </div>
@@ -155,6 +159,22 @@ export default {
     animation-delay: -10s;
 }
 
+.glass-pill {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hero-content {
+    width: 100%;
+}
+
+.hero-btn {
+    min-width: 140px;
+    white-space: nowrap;
+}
+
 @keyframes floatShape {
     0% {
         transform: translate(0, 0) rotate(0deg);
@@ -209,6 +229,7 @@ export default {
 }
 
 @keyframes float {
+
     0%,
     100% {
         transform: translateY(0);
@@ -236,6 +257,12 @@ export default {
     height: 100px;
 }
 
+@media (max-width: 600px) {
+    .wave-divider svg {
+        height: 60px;
+    }
+}
+
 .wave-divider .shape-fill {
     fill: rgb(var(--v-theme-surface));
 }
@@ -245,6 +272,28 @@ export default {
         min-height: auto;
         padding-top: 60px;
         padding-bottom: 60px;
+    }
+
+    .hero-shapes .shape {
+        filter: blur(60px);
+        opacity: 0.4;
+    }
+
+    .shape-1 {
+        width: 250px;
+        height: 250px;
+        top: -50px;
+        left: -50px;
+    }
+
+    .shape-2 {
+        width: 200px;
+        height: 200px;
+    }
+
+    .shape-3 {
+        width: 150px;
+        height: 150px;
     }
 
     .hero-visual-3d {
@@ -260,6 +309,10 @@ export default {
     .card-float-2 {
         width: 120px;
     }
+
+    .mw-600 {
+        max-width: 100% !important;
+    }
 }
 
 @media (max-width: 600px) {
@@ -267,6 +320,32 @@ export default {
         min-height: auto;
         padding-top: 40px;
         padding-bottom: 40px;
+    }
+
+    .hero-shapes .shape {
+        filter: blur(40px);
+        opacity: 0.3;
+    }
+
+    .shape-1 {
+        width: 200px;
+        height: 200px;
+        top: -30px;
+        left: -30px;
+    }
+
+    .shape-2 {
+        width: 150px;
+        height: 150px;
+        bottom: 5%;
+        right: 5%;
+    }
+
+    .shape-3 {
+        width: 100px;
+        height: 100px;
+        top: 15%;
+        right: 20%;
     }
 
     .hero-visual-3d {
@@ -282,6 +361,23 @@ export default {
     .card-float-2 {
         width: 100px;
     }
+
+    .hero-content {
+        padding: 0 8px;
+    }
+
+    .glass-pill {
+        padding: 6px 12px !important;
+        font-size: 0.7rem !important;
+    }
+
+    .hero-btn {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .text-shadow-sm {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
 }
 </style>
-
