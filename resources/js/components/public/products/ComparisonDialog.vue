@@ -104,7 +104,7 @@
                             </tr>
 
                             <!-- Specification Rows -->
-                            <tr v-for="spec in comparisonSpecs" :key="spec.key">
+                            <tr v-for="spec in specRows" :key="spec.key">
                                 <td class="font-weight-bold bg-grey-lighten-4">{{ spec.label }}</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
                                     {{ getSpecValue(product, spec.key) }}
@@ -115,9 +115,9 @@
                             <tr>
                                 <td class="font-weight-bold bg-grey-lighten-4">Key Features</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    <div class="d-flex flex-column align-center gap-1">
+                                    <div v-if="getKeyFeatures(product).length" class="d-flex flex-column align-center gap-1">
                                         <v-chip
-                                            v-for="(feature, idx) in getKeyFeatures(product).slice(0, 3)"
+                                            v-for="(feature, idx) in getKeyFeatures(product)"
                                             :key="idx"
                                             size="x-small"
                                             variant="tonal"
@@ -127,6 +127,7 @@
                                             {{ feature }}
                                         </v-chip>
                                     </div>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
                                 </td>
                             </tr>
 
@@ -157,7 +158,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { formatNumber, formatProductPrice } from '../../../utils/formatters';
+import { formatProductPrice } from '../../../utils/formatters';
 
 const props = defineProps({
     modelValue: {
@@ -194,18 +195,109 @@ const formatPrice = (product) => {
     return formatProductPrice(product, 'Contact for Price');
 };
 
-const getSpecValue = (product, key) => {
-    if (product.specifications && product.specifications[key]) {
-        return product.specifications[key];
+const toLabel = (text = '') => {
+    return text
+        .toString()
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+        .trim();
+};
+
+const flattenSpecifications = (specs, parentKey = '', parentLabel = '') => {
+    const rows = [];
+    if (!specs || typeof specs !== 'object') return rows;
+
+    Object.entries(specs).forEach(([key, value]) => {
+        const keyPath = parentKey ? `${parentKey}.${key}` : key;
+        const label = parentLabel ? `${parentLabel} > ${toLabel(key)}` : toLabel(key);
+
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            rows.push(...flattenSpecifications(value, keyPath, label));
+        } else {
+            rows.push({ key: keyPath, label });
+        }
+    });
+
+    return rows;
+};
+
+const specRows = computed(() => {
+    const rowsMap = new Map();
+
+    // Include any provided comparison specs first
+    (props.comparisonSpecs || []).forEach(spec => {
+        if (spec?.key) {
+            rowsMap.set(spec.key, spec.label || toLabel(spec.key));
+        }
+    });
+
+    // Flatten all product specifications to capture nested details
+    props.products.forEach(product => {
+        if (product?.specifications) {
+            flattenSpecifications(product.specifications).forEach(({ key, label }) => {
+                if (!rowsMap.has(key)) {
+                    rowsMap.set(key, label);
+                }
+            });
+        }
+    });
+
+    return Array.from(rowsMap.entries()).map(([key, label]) => ({ key, label }));
+});
+
+const formatSpecValue = (value) => {
+    if (value === null || value === undefined || value === '') return 'N/A';
+
+    if (Array.isArray(value)) {
+        if (value.length === 0) return 'N/A';
+        const hasObjects = value.some(item => typeof item === 'object');
+        if (hasObjects) {
+            return value
+                .map((item, idx) => {
+                    if (item && typeof item === 'object') {
+                        return Object.entries(item)
+                            .map(([k, v]) => `${toLabel(k)}: ${formatSpecValue(v)}`)
+                            .join('; ');
+                    }
+                    return `${idx + 1}. ${formatSpecValue(item)}`;
+                })
+                .join(' | ');
+        }
+        return value.join(', ');
     }
-    return 'N/A';
+
+    if (typeof value === 'object') {
+        return Object.entries(value)
+            .map(([k, v]) => `${toLabel(k)}: ${formatSpecValue(v)}`)
+            .join(' | ');
+    }
+
+    return value;
+};
+
+const getSpecValue = (product, keyPath) => {
+    if (!product?.specifications) return 'N/A';
+    const segments = keyPath.split('.');
+    let value = product.specifications;
+
+    for (const segment of segments) {
+        if (value && Object.prototype.hasOwnProperty.call(value, segment)) {
+            value = value[segment];
+        } else {
+            return 'N/A';
+        }
+    }
+
+    return formatSpecValue(value);
 };
 
 const getKeyFeatures = (product) => {
     if (product.key_features && Array.isArray(product.key_features)) {
         return product.key_features;
     }
-    return ['High Performance', 'Reliable Design', 'Energy Efficient'];
+    return [];
 };
 
 const getRecommendedUse = (product) => {
