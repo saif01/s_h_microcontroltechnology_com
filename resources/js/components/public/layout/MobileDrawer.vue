@@ -13,8 +13,9 @@
             </div>
 
             <v-list nav class="bg-transparent">
-                <v-list-item v-for="item in menuItems" :key="item.id" :to="item.url" class="mb-2 rounded-lg"
-                    :class="{ 'bg-primary-lighten-5 text-primary': isActiveRoute(item.url) }" @click="handleNavigate">
+                <v-list-item v-for="item in menuItems" :key="item.id" :to="item.url" :active="isActiveRoute(item.url)"
+                    class="mb-2 rounded-lg" :class="{ 'bg-primary-lighten-5 text-primary': isActiveRoute(item.url) }"
+                    @click="handleNavigate">
                     <v-list-item-title class="font-weight-bold">{{ item.label }}</v-list-item-title>
                 </v-list-item>
             </v-list>
@@ -76,13 +77,31 @@ export default {
             this.$nextTick(() => this.closeDrawer());
         },
         isActiveRoute(url) {
-            const currentPath = this.$route.path;
+            if (!url) return false;
+
+            const currentPath = this.$route.path || '/';
+
+            // Normalize paths - remove trailing slashes for comparison (except root)
+            const normalizedUrl = url === '/' ? '/' : url.replace(/\/$/, '');
+            const normalizedPath = currentPath === '/' ? '/' : currentPath.replace(/\/$/, '');
+
             // For home route, only match exactly "/"
-            if (url === '/') {
-                return currentPath === '/';
+            if (normalizedUrl === '/') {
+                return normalizedPath === '/';
             }
+
             // For other routes, match if current path starts with the route
-            return currentPath.startsWith(url);
+            // Ensure it's a complete segment match (e.g., '/services' matches '/services' and '/services/detail')
+            if (normalizedPath === normalizedUrl) {
+                return true;
+            }
+
+            // Check if path starts with the route followed by '/' or end of string
+            if (normalizedPath.startsWith(normalizedUrl + '/')) {
+                return true;
+            }
+
+            return false;
         }
     }
 };
