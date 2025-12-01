@@ -206,7 +206,10 @@
                                     class="mr-3"></v-icon>
                                 <div>
                                     <div class="text-caption font-weight-bold text-grey-darken-3">Warranty</div>
-                                    <div class="text-caption text-medium-emphasis">{{ warrantyInfo.period }}</div>
+                                    <div class="text-caption text-medium-emphasis">
+                                        {{ productWarrantyInfo?.period || productWarrantyInfo?.warranty_period ||
+                                            warrantyInfo.period }}
+                                    </div>
                                 </div>
                             </div>
                             <div
@@ -302,12 +305,16 @@
                                         </h3>
                                         <v-table density="comfortable" class="specs-table">
                                             <tbody>
-                                                <tr v-for="(value, key) in allSpecifications" :key="key">
+                                                <tr v-for="spec in flattenedSpecifications" :key="spec.key">
                                                     <td class="font-weight-bold text-grey-darken-2 bg-grey-lighten-5"
                                                         width="300">
-                                                        {{ formatSpecLabel(key) }}
+                                                        {{ spec.label }}
                                                     </td>
-                                                    <td class="text-grey-darken-3">{{ value }}</td>
+                                                    <td class="text-grey-darken-3">
+                                                        <div class="pa-2">
+                                                            <span v-html="formatSpecValue(spec.value)"></span>
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </v-table>
@@ -402,23 +409,43 @@
                                                 Warranty Coverage
                                             </v-card-title>
                                             <v-card-text class="pa-6">
-                                                <div class="mb-4">
-                                                    <div class="text-h6 font-weight-bold mb-2">Warranty Period</div>
-                                                    <div class="text-body-1">{{ warrantyInfo.period }}</div>
+                                                <div v-if="productWarrantyInfo">
+                                                    <div v-for="(value, key) in productWarrantyInfo" :key="key"
+                                                        class="mb-4">
+                                                        <div class="text-h6 font-weight-bold mb-2">{{
+                                                            formatSpecLabel(key) }}
+                                                        </div>
+                                                        <div v-if="Array.isArray(value)" class="text-body-1">
+                                                            <ul class="pl-4">
+                                                                <li v-for="(item, i) in value" :key="i" class="mb-2">
+                                                                    {{ item }}
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                        <div v-else class="text-body-1">{{ value }}</div>
+                                                    </div>
                                                 </div>
-                                                <div class="mb-4">
-                                                    <div class="text-h6 font-weight-bold mb-2">What's Covered</div>
-                                                    <ul class="pl-4">
-                                                        <li v-for="(item, i) in warrantyInfo.coverage" :key="i"
-                                                            class="mb-2">
-                                                            {{ item }}
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                                <div>
-                                                    <div class="text-h6 font-weight-bold mb-2">Terms & Conditions</div>
-                                                    <div class="text-body-2 text-medium-emphasis">{{ warrantyInfo.terms
-                                                    }}</div>
+                                                <div v-else>
+                                                    <div class="mb-4">
+                                                        <div class="text-h6 font-weight-bold mb-2">Warranty Period</div>
+                                                        <div class="text-body-1">{{ warrantyInfo.period }}</div>
+                                                    </div>
+                                                    <div class="mb-4">
+                                                        <div class="text-h6 font-weight-bold mb-2">What's Covered</div>
+                                                        <ul class="pl-4">
+                                                            <li v-for="(item, i) in warrantyInfo.coverage" :key="i"
+                                                                class="mb-2">
+                                                                {{ item }}
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <div>
+                                                        <div class="text-h6 font-weight-bold mb-2">Terms & Conditions
+                                                        </div>
+                                                        <div class="text-body-2 text-medium-emphasis">{{
+                                                            warrantyInfo.terms
+                                                        }}</div>
+                                                    </div>
                                                 </div>
                                             </v-card-text>
                                         </v-card>
@@ -590,6 +617,10 @@ export default {
             if (this.product.key_features && Array.isArray(this.product.key_features)) {
                 return this.product.key_features;
             }
+            // Check in specifications
+            if (this.product.specifications?._key_features && Array.isArray(this.product.specifications._key_features)) {
+                return this.product.specifications._key_features;
+            }
             // Extract from description or use defaults
             return [
                 'High Performance',
@@ -616,6 +647,44 @@ export default {
         },
         allSpecifications() {
             return this.product.specifications || {};
+        },
+        flattenedSpecifications() {
+            const specs = [];
+            if (!this.product.specifications || typeof this.product.specifications !== 'object') {
+                return specs;
+            }
+
+            // Exclude special fields that are handled in other tabs
+            const excludedKeys = ['_key_features', '_faqs', '_warranty_info'];
+
+            const flatten = (obj, parentKey = '', parentLabel = '') => {
+                Object.entries(obj).forEach(([key, value]) => {
+                    // Skip excluded keys
+                    if (excludedKeys.includes(key)) {
+                        return;
+                    }
+
+                    const keyPath = parentKey ? `${parentKey}.${key}` : key;
+                    const label = parentLabel ? `${parentLabel} > ${this.formatSpecLabel(key)}` : this.formatSpecLabel(key);
+
+                    if (value && typeof value === 'object' && !Array.isArray(value)) {
+                        // Recursively flatten nested objects
+                        flatten(value, keyPath, label);
+                    } else {
+                        // Add leaf node
+                        specs.push({ key: keyPath, label, value });
+                    }
+                });
+            };
+
+            flatten(this.product.specifications);
+            return specs;
+        },
+        productWarrantyInfo() {
+            if (this.product.specifications?._warranty_info && typeof this.product.specifications._warranty_info === 'object') {
+                return this.product.specifications._warranty_info;
+            }
+            return null;
         },
         formattedDescription() {
             if (this.product.description) {
@@ -645,8 +714,10 @@ export default {
         },
         detailedFeatures() {
             const features = [];
-            if (this.product.key_features && Array.isArray(this.product.key_features)) {
-                this.product.key_features.forEach((feature, idx) => {
+            const keyFeatures = this.keyFeatures;
+
+            if (keyFeatures && keyFeatures.length > 0) {
+                keyFeatures.forEach((feature) => {
                     features.push({
                         title: feature,
                         description: `This product includes ${feature.toLowerCase()} for enhanced performance and reliability.`,
@@ -654,6 +725,7 @@ export default {
                     });
                 });
             }
+
             if (features.length === 0) {
                 return [
                     { title: 'High Performance', description: 'Optimized for maximum output and efficiency.', icon: 'mdi-speedometer' },
@@ -681,7 +753,14 @@ export default {
             ];
         },
         productFAQs() {
-            // Default FAQs - can be extended from product data
+            // Use FAQs from product specifications if available
+            if (this.product.specifications?._faqs && Array.isArray(this.product.specifications._faqs) && this.product.specifications._faqs.length > 0) {
+                return this.product.specifications._faqs.map(faq => ({
+                    question: faq.question || 'Question',
+                    answer: faq.answer || 'Answer'
+                }));
+            }
+            // Default FAQs
             return [
                 {
                     question: 'What is the warranty period for this product?',
@@ -798,6 +877,62 @@ export default {
                 .split(' ')
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(' ');
+        },
+        formatSpecValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return '<span class="text-medium-emphasis">N/A</span>';
+            }
+
+            // Handle arrays
+            if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    return '<span class="text-medium-emphasis">N/A</span>';
+                }
+
+                // Check if array contains objects
+                const hasObjects = value.some(item => typeof item === 'object' && item !== null);
+                if (hasObjects) {
+                    // Format array of objects
+                    return value
+                        .map((item, idx) => {
+                            if (item && typeof item === 'object') {
+                                const entries = Object.entries(item)
+                                    .map(([k, v]) => `<strong>${this.formatSpecLabel(k)}:</strong> ${this.formatSpecValue(v)}`)
+                                    .join('; ');
+                                return `${idx + 1}. ${entries}`;
+                            }
+                            return `${idx + 1}. ${this.formatSpecValue(item)}`;
+                        })
+                        .join('<br>');
+                }
+
+                // Simple array - join with commas
+                return value.map(v => this.escapeHtml(String(v))).join(', ');
+            }
+
+            // Handle objects
+            if (typeof value === 'object') {
+                return Object.entries(value)
+                    .map(([k, v]) => {
+                        const formattedKey = this.formatSpecLabel(k);
+                        const formattedValue = this.formatSpecValue(v);
+                        return `<div class="mb-1"><strong>${formattedKey}:</strong> ${formattedValue}</div>`;
+                    })
+                    .join('');
+            }
+
+            // Handle boolean values
+            if (typeof value === 'boolean') {
+                return value ? '<span class="text-success">Yes</span>' : '<span class="text-error">No</span>';
+            }
+
+            // Simple value - escape HTML
+            return this.escapeHtml(String(value));
+        },
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         },
         getCategoryName(product) {
             if (product.categories && product.categories.length > 0) {
