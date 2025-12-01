@@ -1,17 +1,13 @@
 <template>
-    <v-dialog :model-value="modelValue" max-width="1400" scrollable @update:model-value="$emit('update:modelValue', $event)">
+    <v-dialog :model-value="modelValue" max-width="1400" scrollable
+        @update:model-value="$emit('update:modelValue', $event)">
         <v-card class="rounded-xl">
             <v-card-title class="d-flex align-center justify-space-between pa-6 bg-primary text-white">
                 <div class="d-flex align-center">
                     <v-icon icon="mdi-scale-balance" class="mr-3" />
                     <span class="text-h5 font-weight-bold">Compare Products</span>
                 </div>
-                <v-btn
-                    icon="mdi-close"
-                    variant="text"
-                    color="white"
-                    @click="$emit('update:modelValue', false)"
-                />
+                <v-btn icon="mdi-close" variant="text" color="white" @click="$emit('update:modelValue', false)" />
             </v-card-title>
 
             <v-card-text class="pa-0">
@@ -28,38 +24,22 @@
                         <thead>
                             <tr>
                                 <th class="comparison-header">Feature</th>
-                                <th
-                                    v-for="product in products"
-                                    :key="product.id"
-                                    class="comparison-product-header text-center"
-                                >
+                                <th v-for="product in products" :key="product.id"
+                                    class="comparison-product-header text-center">
                                     <div class="product-comparison-card">
-                                        <v-btn
-                                            icon="mdi-close"
-                                            size="x-small"
-                                            variant="text"
+                                        <v-btn icon="mdi-close" size="x-small" variant="text"
                                             class="position-absolute top-0 right-0"
-                                            @click="$emit('remove-product', product)"
-                                        />
-                                        <v-img
-                                            :src="getProductImage(product)"
-                                            :alt="product.title"
-                                            max-height="120"
-                                            contain
-                                            class="mb-3"
-                                        />
+                                            @click="$emit('remove-product', product)" />
+                                        <v-img :src="getProductImage(product)" :alt="product.title" max-height="120"
+                                            contain class="mb-3" />
                                         <h4 class="text-subtitle-1 font-weight-bold mb-2">
                                             {{ product.title }}
                                         </h4>
                                         <div class="text-h6 font-weight-black text-primary mb-2">
                                             {{ formatPrice(product) }}
                                         </div>
-                                        <v-btn
-                                            variant="outlined"
-                                            color="primary"
-                                            size="small"
-                                            :to="`/products/${product.slug}`"
-                                        >
+                                        <v-btn variant="outlined" color="primary" size="small"
+                                            :to="`/products/${product.slug}`">
                                             View Details
                                         </v-btn>
                                     </div>
@@ -67,11 +47,21 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Section: Basic Information -->
+                            <tr class="section-header">
+                                <td :colspan="products.length + 1"
+                                    class="font-weight-bold text-h6 bg-primary text-white pa-3">
+                                    Basic Information
+                                </td>
+                            </tr>
+
                             <!-- Category Row -->
                             <tr>
                                 <td class="font-weight-bold bg-grey-lighten-4">Category</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    {{ getCategoryName(product) }}
+                                    <v-chip size="small" variant="tonal" color="primary">
+                                        {{ getCategoryName(product) }}
+                                    </v-chip>
                                 </td>
                             </tr>
 
@@ -79,7 +69,15 @@
                             <tr>
                                 <td class="font-weight-bold bg-grey-lighten-4">SKU</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    {{ product.sku || 'N/A' }}
+                                    <span class="font-weight-medium">{{ product.sku || 'N/A' }}</span>
+                                </td>
+                            </tr>
+
+                            <!-- Model Row -->
+                            <tr v-if="hasAnyModel">
+                                <td class="font-weight-bold bg-grey-lighten-4">Model</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <span class="font-weight-medium">{{ getModel(product) }}</span>
                                 </td>
                             </tr>
 
@@ -87,7 +85,32 @@
                             <tr>
                                 <td class="font-weight-bold bg-grey-lighten-4">Price</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    {{ formatPrice(product) }}
+                                    <span class="text-h6 font-weight-black text-primary">{{ formatPrice(product)
+                                    }}</span>
+                                </td>
+                            </tr>
+
+                            <!-- Stock Row -->
+                            <tr v-if="hasAnyStock">
+                                <td class="font-weight-bold bg-grey-lighten-4">Stock Status</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <v-chip v-if="product.stock !== null && product.stock !== undefined"
+                                        :color="product.stock > 0 ? 'success' : 'error'" size="small" variant="flat">
+                                        {{ product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock' }}
+                                    </v-chip>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- Featured Row -->
+                            <tr v-if="hasAnyFeatured">
+                                <td class="font-weight-bold bg-grey-lighten-4">Featured</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <v-chip v-if="product.featured" color="amber" size="small" variant="flat">
+                                        <v-icon icon="mdi-star" size="x-small" class="mr-1" />
+                                        Featured
+                                    </v-chip>
+                                    <span v-else class="text-medium-emphasis">No</span>
                                 </td>
                             </tr>
 
@@ -99,7 +122,57 @@
                                         <v-icon icon="mdi-star" color="amber" size="small" class="mr-1" />
                                         <span class="font-weight-bold">{{ product.rating }}</span>
                                     </div>
-                                    <span v-else>N/A</span>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- Section: Description -->
+                            <tr v-if="hasAnyDescription" class="section-header">
+                                <td :colspan="products.length + 1"
+                                    class="font-weight-bold text-h6 bg-primary text-white pa-3">
+                                    Description
+                                </td>
+                            </tr>
+
+                            <!-- Short Description Row -->
+                            <tr v-if="hasAnyDescription">
+                                <td class="font-weight-bold bg-grey-lighten-4">Short Description</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <p v-if="product.short_description" class="text-body-2 text-left pa-2">
+                                        {{ product.short_description }}
+                                    </p>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- Section: Key Features -->
+                            <tr v-if="hasAnyKeyFeatures" class="section-header">
+                                <td :colspan="products.length + 1"
+                                    class="font-weight-bold text-h6 bg-primary text-white pa-3">
+                                    Key Features
+                                </td>
+                            </tr>
+
+                            <!-- Key Features Row -->
+                            <tr v-if="hasAnyKeyFeatures">
+                                <td class="font-weight-bold bg-grey-lighten-4">Features</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <div v-if="getKeyFeatures(product).length"
+                                        class="d-flex flex-column align-center gap-1 pa-2">
+                                        <v-chip v-for="(feature, idx) in getKeyFeatures(product)" :key="idx"
+                                            size="small" variant="tonal" color="primary" class="mb-1">
+                                            {{ feature }}
+                                        </v-chip>
+                                    </div>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- Section: Technical Specifications -->
+                            <tr v-if="specRows.length > 0" class="section-header">
+                                <td :colspan="products.length + 1"
+                                    class="font-weight-bold text-h6 bg-primary text-white pa-3">
+                                    Technical Specifications
                                 </td>
                             </tr>
 
@@ -107,25 +180,80 @@
                             <tr v-for="spec in specRows" :key="spec.key">
                                 <td class="font-weight-bold bg-grey-lighten-4">{{ spec.label }}</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    {{ getSpecValue(product, spec.key) }}
+                                    <div class="pa-2">
+                                        <span class="text-body-2">{{ getSpecValue(product, spec.key) }}</span>
+                                    </div>
                                 </td>
                             </tr>
 
-                            <!-- Key Features Row -->
-                            <tr>
-                                <td class="font-weight-bold bg-grey-lighten-4">Key Features</td>
+                            <!-- Section: Additional Information -->
+                            <tr class="section-header">
+                                <td :colspan="products.length + 1"
+                                    class="font-weight-bold text-h6 bg-primary text-white pa-3">
+                                    Additional Information
+                                </td>
+                            </tr>
+
+                            <!-- Tags Row -->
+                            <tr v-if="hasAnyTags">
+                                <td class="font-weight-bold bg-grey-lighten-4">Tags</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    <div v-if="getKeyFeatures(product).length" class="d-flex flex-column align-center gap-1">
-                                        <v-chip
-                                            v-for="(feature, idx) in getKeyFeatures(product)"
-                                            :key="idx"
-                                            size="x-small"
-                                            variant="tonal"
-                                            color="primary"
-                                            class="mb-1"
-                                        >
-                                            {{ feature }}
+                                    <div v-if="getTags(product).length"
+                                        class="d-flex flex-wrap justify-center gap-1 pa-2">
+                                        <v-chip v-for="(tag, idx) in getTags(product)" :key="idx" size="x-small"
+                                            variant="outlined" color="secondary">
+                                            {{ tag }}
                                         </v-chip>
+                                    </div>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- Downloads Row -->
+                            <tr v-if="hasAnyDownloads">
+                                <td class="font-weight-bold bg-grey-lighten-4">Downloads</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <div v-if="getDownloads(product).length"
+                                        class="d-flex flex-column align-center gap-1 pa-2">
+                                        <v-chip v-for="(download, idx) in getDownloads(product)" :key="idx" size="small"
+                                            variant="outlined" color="info" class="mb-1">
+                                            <v-icon icon="mdi-download" size="small" class="mr-1" />
+                                            {{ download.name || `Download ${idx + 1}` }}
+                                        </v-chip>
+                                    </div>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- FAQs Row -->
+                            <tr v-if="hasAnyFAQs">
+                                <td class="font-weight-bold bg-grey-lighten-4">FAQs</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <div v-if="getFAQs(product).length"
+                                        class="d-flex flex-column align-start gap-2 pa-2">
+                                        <div v-for="(faq, idx) in getFAQs(product)" :key="idx" class="text-left w-100">
+                                            <div class="font-weight-bold text-body-2 mb-1">
+                                                Q{{ idx + 1 }}: {{ faq.question || 'Question' }}
+                                            </div>
+                                            <div class="text-body-2 text-medium-emphasis">
+                                                A: {{ faq.answer || 'Answer' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span v-else class="text-medium-emphasis">N/A</span>
+                                </td>
+                            </tr>
+
+                            <!-- Warranty Info Row -->
+                            <tr v-if="hasAnyWarranty">
+                                <td class="font-weight-bold bg-grey-lighten-4">Warranty Information</td>
+                                <td v-for="product in products" :key="product.id" class="text-center">
+                                    <div v-if="getWarrantyInfo(product)" class="text-left pa-2">
+                                        <div v-for="(value, key) in getWarrantyInfo(product)" :key="key"
+                                            class="mb-1 text-body-2">
+                                            <span class="font-weight-medium">{{ toLabel(key) }}:</span>
+                                            <span class="ml-1">{{ formatSpecValue(value) }}</span>
+                                        </div>
                                     </div>
                                     <span v-else class="text-medium-emphasis">N/A</span>
                                 </td>
@@ -135,7 +263,7 @@
                             <tr>
                                 <td class="font-weight-bold bg-grey-lighten-4">Recommended Use</td>
                                 <td v-for="product in products" :key="product.id" class="text-center">
-                                    {{ getRecommendedUse(product) }}
+                                    <span class="text-body-2">{{ getRecommendedUse(product) }}</span>
                                 </td>
                             </tr>
                         </tbody>
@@ -225,10 +353,11 @@ const flattenSpecifications = (specs, parentKey = '', parentLabel = '') => {
 
 const specRows = computed(() => {
     const rowsMap = new Map();
+    const excludedKeys = ['_key_features', '_faqs', '_warranty_info'];
 
     // Include any provided comparison specs first
     (props.comparisonSpecs || []).forEach(spec => {
-        if (spec?.key) {
+        if (spec?.key && !excludedKeys.includes(spec.key)) {
             rowsMap.set(spec.key, spec.label || toLabel(spec.key));
         }
     });
@@ -237,8 +366,11 @@ const specRows = computed(() => {
     props.products.forEach(product => {
         if (product?.specifications) {
             flattenSpecifications(product.specifications).forEach(({ key, label }) => {
-                if (!rowsMap.has(key)) {
-                    rowsMap.set(key, label);
+                // Exclude special fields that are handled separately
+                if (!excludedKeys.some(excluded => key === excluded || key.startsWith(excluded + '.'))) {
+                    if (!rowsMap.has(key)) {
+                        rowsMap.set(key, label);
+                    }
                 }
             });
         }
@@ -297,12 +429,16 @@ const getKeyFeatures = (product) => {
     if (product.key_features && Array.isArray(product.key_features)) {
         return product.key_features;
     }
+    // Also check in specifications
+    if (product.specifications?._key_features && Array.isArray(product.specifications._key_features)) {
+        return product.specifications._key_features;
+    }
     return [];
 };
 
 const getRecommendedUse = (product) => {
     if (product.recommended_use) return product.recommended_use;
-    
+
     const categoryName = getCategoryName(product).toLowerCase();
     if (categoryName.includes('ups')) return 'Data Centers, Servers';
     if (categoryName.includes('battery')) return 'Backup Power Systems';
@@ -310,8 +446,80 @@ const getRecommendedUse = (product) => {
     return 'General Purpose';
 };
 
+const getModel = (product) => {
+    if (product.specifications?.Model) {
+        return product.specifications.Model;
+    }
+    return 'N/A';
+};
+
+const getTags = (product) => {
+    if (product.tags && Array.isArray(product.tags)) {
+        return product.tags.map(tag => tag.name || tag);
+    }
+    return [];
+};
+
+const getDownloads = (product) => {
+    if (product.downloads && Array.isArray(product.downloads)) {
+        return product.downloads;
+    }
+    return [];
+};
+
+const getFAQs = (product) => {
+    if (product.specifications?._faqs && Array.isArray(product.specifications._faqs)) {
+        return product.specifications._faqs;
+    }
+    return [];
+};
+
+const getWarrantyInfo = (product) => {
+    if (product.specifications?._warranty_info && typeof product.specifications._warranty_info === 'object') {
+        return product.specifications._warranty_info;
+    }
+    return null;
+};
+
+// Computed properties for conditional rendering
 const hasAnyRating = computed(() => {
     return props.products.some(p => p.rating);
+});
+
+const hasAnyModel = computed(() => {
+    return props.products.some(p => p.specifications?.Model);
+});
+
+const hasAnyStock = computed(() => {
+    return props.products.some(p => p.stock !== null && p.stock !== undefined);
+});
+
+const hasAnyFeatured = computed(() => {
+    return props.products.some(p => p.featured);
+});
+
+const hasAnyDescription = computed(() => {
+    return props.products.some(p => p.short_description || p.description);
+});
+
+const hasAnyKeyFeatures = computed(() => {
+    return props.products.some(p => getKeyFeatures(p).length > 0);
+});
+
+const hasAnyTags = computed(() => {
+    return props.products.some(p => getTags(p).length > 0);
+});
+
+const hasAnyDownloads = computed(() => {
+    return props.products.some(p => getDownloads(p).length > 0);
+});
+
+const hasAnyFAQs = computed(() => {
+    return props.products.some(p => getFAQs(p).length > 0);
+});
+
+const hasAnyWarranty = computed(() => {
+    return props.products.some(p => getWarrantyInfo(p) !== null);
 });
 </script>
 
@@ -355,6 +563,26 @@ tbody td:first-child {
 
 tbody tr:nth-child(even) td:first-child {
     background: #f8fafc;
+}
+
+.section-header td {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+tbody td {
+    vertical-align: top;
+    padding: 12px 16px !important;
+}
+
+tbody td:not(:first-child) {
+    min-width: 250px;
+    max-width: 350px;
+}
+
+.comparison-product-header {
+    min-width: 280px;
 }
 
 /* Responsive Styles */
@@ -414,4 +642,3 @@ tbody tr:nth-child(even) td:first-child {
     }
 }
 </style>
-
