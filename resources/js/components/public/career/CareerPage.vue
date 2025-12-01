@@ -282,4 +282,89 @@ export default {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* Responsive Styles */
+@media (max-width: 960px) {
+    .page-hero {
+        min-height: 400px !important;
+        padding: 48px 16px !important;
+    }
+
+    .page-hero h1 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 16px !important;
+    }
+
+    .page-hero p {
+        font-size: 1.1rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .glass-pill {
+        padding: 10px 20px !important;
+        margin-bottom: 24px !important;
+    }
+
+    .glass-pill span {
+        font-size: 0.75rem !important;
+    }
+
+    .gradient-orb {
+        width: 200px !important;
+        height: 200px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-hero {
+        min-height: 350px !important;
+        padding: 32px 12px !important;
+    }
+
+    .page-hero h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 12px !important;
+    }
+
+    .page-hero p {
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+        padding: 0 8px !important;
+    }
+
+    .glass-pill {
+        padding: 8px 16px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .glass-pill .v-icon {
+        font-size: 16px !important;
+    }
+
+    .glass-pill span {
+        font-size: 0.7rem !important;
+    }
+
+    .gradient-orb {
+        width: 150px !important;
+        height: 150px !important;
+    }
+
+    .orb-1 {
+        top: -75px !important;
+        left: -75px !important;
+    }
+
+    .orb-2 {
+        bottom: -75px !important;
+        right: -75px !important;
+    }
+
+    .orb-3 {
+        top: 50% !important;
+        right: -75px !important;
+    }
+}
 </style>

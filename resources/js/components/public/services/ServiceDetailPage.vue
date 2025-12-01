@@ -303,15 +303,60 @@ export default {
 /* Responsive Styles */
 @media (max-width: 960px) {
     .page-hero {
-        height: 250px;
-        padding: 40px 0;
+        min-height: 400px !important;
+        padding: 48px 16px !important;
+    }
+
+    .page-hero h1 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 16px !important;
+    }
+
+    .page-hero p {
+        font-size: 1.1rem !important;
+        line-height: 1.5 !important;
+    }
+
+    .glass-pill {
+        padding: 10px 20px !important;
+        margin-bottom: 24px !important;
+    }
+
+    .glass-pill span {
+        font-size: 0.75rem !important;
     }
 }
 
 @media (max-width: 600px) {
     .page-hero {
-        height: 200px;
-        padding: 30px 0;
+        min-height: 350px !important;
+        padding: 32px 12px !important;
+    }
+
+    .page-hero h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 12px !important;
+    }
+
+    .page-hero p {
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+        padding: 0 8px !important;
+    }
+
+    .glass-pill {
+        padding: 8px 16px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .glass-pill .v-icon {
+        font-size: 16px !important;
+    }
+
+    .glass-pill span {
+        font-size: 0.7rem !important;
     }
 }
 </style>

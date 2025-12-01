@@ -344,4 +344,31 @@ export default {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
     background-color: rgba(var(--v-theme-primary), 0.05);
 }
+
+/* Responsive Styles */
+@media (max-width: 960px) {
+    .page-hero {
+        min-height: 400px !important;
+        padding: 48px 16px !important;
+    }
+
+    .page-hero h1 {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 16px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-hero {
+        min-height: 350px !important;
+        padding: 32px 12px !important;
+    }
+
+    .page-hero h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 12px !important;
+    }
+}
 </style>
