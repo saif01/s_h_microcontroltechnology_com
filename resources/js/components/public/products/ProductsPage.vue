@@ -1,5 +1,15 @@
 <template>
-    <div class="products-page-modern">
+    <div class="products-page-modern position-relative">
+        <!-- Mobile Filter Toggle Button - Moved to root for better positioning context -->
+        <v-btn v-if="!mobileFiltersOpen && isMobile" class="mobile-filter-toggle d-lg-none"
+            :class="{ 'has-active-filters': hasActiveFilters }" color="primary" size="large" elevation="6"
+            @click="mobileFiltersOpen = true">
+            <v-icon icon="mdi-filter-variant" size="20" />
+            <span class="filter-text ml-2">Filters</span>
+            <v-badge v-if="hasActiveFilters" :content="activeFiltersCount" color="error" class="filter-badge"
+                offset-x="-8" offset-y="-8" />
+        </v-btn>
+
         <!-- Hero Section -->
         <section
             class="mb-10 page-hero position-relative d-flex align-center justify-center text-center overflow-hidden">
@@ -37,15 +47,6 @@
         <!-- Main Content -->
         <section class="pb-12 bg-grey-lighten-5 min-vh-100">
             <v-container fluid>
-                <!-- Mobile Filter Toggle Button -->
-                <v-btn class="mobile-filter-toggle"
-                    :class="{ 'has-active-filters': hasActiveFilters, 'mobile-visible': true, 'dialog-closed': !mobileFiltersOpen }"
-                    color="primary" size="large" elevation="6" @click="mobileFiltersOpen = true">
-                    <v-icon icon="mdi-filter-variant" size="20" />
-                    <span class="filter-text ml-2">Filters</span>
-                    <v-badge v-if="hasActiveFilters" :content="activeFiltersCount" color="error" class="filter-badge"
-                        offset-x="-8" offset-y="-8" />
-                </v-btn>
 
                 <v-row class="products-layout">
                     <!-- Desktop Sidebar - Filter Bar -->
@@ -96,7 +97,7 @@
                                     :availability="availability" :brands="availableBrands"
                                     :selected-brands="selectedBrands" :min-rating="minRating"
                                     :features="availableFeatures" :selected-features="selectedFeatures"
-                                    :discount="discount" @update:active-category="setActiveCategory"
+                                    :discount="discount" :mobile="true" @update:active-category="setActiveCategory"
                                     @update:search-query="setSearchQuery" @update:sort-by="setSortBy"
                                     @update:price-range="setPriceRange" @update:availability="setAvailability"
                                     @update:brands="setSelectedBrands" @update:min-rating="setMinRating"
@@ -218,6 +219,9 @@ const loadingMore = ref(false);
 
 // Mobile filters state
 const mobileFiltersOpen = ref(false);
+
+// Mobile screen detection
+const isMobile = ref(false);
 
 // Advanced filter states
 const priceRange = ref([0, 10000]);
@@ -380,59 +384,23 @@ watch([activeCategory, searchQuery, sortBy, priceRange, availability, selectedBr
     displayedCount.value = PRODUCTS_PER_PAGE;
 }, { deep: true });
 
-// Ensure mobile filter button stays visible after dialog closes
-watch(mobileFiltersOpen, (newVal) => {
-    if (!newVal) {
-        nextTick(() => {
-            // Force DOM update to ensure button visibility
-            const button = document.querySelector('.mobile-filter-toggle');
-            if (button && window.innerWidth < 1280) {
-                button.style.display = 'inline-flex';
-                button.style.visibility = 'visible';
-                button.style.opacity = '1';
-                button.style.pointerEvents = 'all';
-            }
-        });
-    }
-});
 
-// Handle window resize to ensure button visibility
+// Handle window resize
 const handleResize = () => {
-    nextTick(() => {
-        const button = document.querySelector('.mobile-filter-toggle');
-        if (button) {
-            if (window.innerWidth < 1280) {
-                button.style.display = 'inline-flex';
-                button.style.visibility = 'visible';
-                button.style.opacity = '1';
-                button.style.pointerEvents = 'all';
-            }
-        }
-    });
+    isMobile.value = window.innerWidth < 1280;
 };
 
 // Lifecycle hooks
 onMounted(async () => {
+    // Set initial mobile state immediately
+    handleResize();
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+
     await Promise.all([
         fetchCategories(),
         fetchProducts()
     ]);
-
-    // Ensure mobile filter button is visible on mount for mobile devices
-    nextTick(() => {
-        if (window.innerWidth < 1280) {
-            const button = document.querySelector('.mobile-filter-toggle');
-            if (button) {
-                button.style.display = 'inline-flex';
-                button.style.visibility = 'visible';
-                button.style.opacity = '1';
-                button.style.pointerEvents = 'all';
-            }
-        }
-    });
-
-    // Add resize listener
-    window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
@@ -448,45 +416,24 @@ onUnmounted(() => {
 /* Mobile Filter Toggle Button */
 .mobile-filter-toggle {
     position: fixed !important;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1500;
+    bottom: 24px !important;
+    right: 24px !important;
+    z-index: 2000 !important;
     border-radius: 28px !important;
     font-weight: 700;
     letter-spacing: 0.5px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
     transition: all 0.3s ease;
-    animation: slideInFromRight 0.5s ease-out;
     padding: 12px 24px !important;
     min-height: 56px !important;
     white-space: nowrap;
-}
-
-.mobile-filter-toggle.mobile-visible {
     display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: all !important;
 }
 
 .mobile-filter-toggle .filter-text {
     font-size: 0.95rem;
     font-weight: 700;
     margin-left: 8px;
-}
-
-@keyframes slideInFromRight {
-    from {
-        transform: translateX(120px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
 }
 
 .mobile-filter-toggle:hover {
@@ -548,6 +495,7 @@ onUnmounted(() => {
 /* Ensure button stays visible when dialog is open */
 .mobile-filters-dialog:not([model-value="false"])~.mobile-filter-toggle {
     z-index: 2500 !important;
+    transform: translateY(-4px) !important;
 }
 
 .mobile-filter-card {
@@ -667,12 +615,6 @@ onUnmounted(() => {
 /* Responsive Styles */
 /* Desktop - hide mobile elements */
 @media (min-width: 1280px) {
-
-    .mobile-filter-toggle,
-    .mobile-filter-toggle.mobile-visible {
-        display: none !important;
-    }
-
     .products-content {
         width: 100%;
     }
@@ -691,38 +633,13 @@ onUnmounted(() => {
         display: none !important;
     }
 
-    /* Show mobile toggle button */
+    /* Mobile filter button styles - Vue controls visibility */
     .mobile-filter-toggle {
         display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: all !important;
-    }
-
-    .mobile-filter-toggle.mobile-visible {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        pointer-events: all !important;
-        transform: translateZ(0);
-    }
-
-    .mobile-filter-toggle.dialog-closed {
-        z-index: 1500 !important;
-    }
-
-    .mobile-filter-toggle.mobile-visible.dialog-closed {
-        z-index: 1500 !important;
-        pointer-events: all !important;
     }
 
     .mobile-filter-toggle .filter-text {
         display: inline !important;
-        visibility: visible !important;
     }
 
     .mobile-filter-toggle .v-icon {
@@ -750,6 +667,7 @@ onUnmounted(() => {
         font-size: 0.9rem;
         padding: 12px 20px !important;
         display: inline-flex !important;
+        z-index: 2000 !important;
     }
 
     .products-layout {
@@ -810,6 +728,7 @@ onUnmounted(() => {
         padding: 10px 20px !important;
         min-height: 52px !important;
         display: inline-flex !important;
+        z-index: 2000 !important;
     }
 
     .mobile-filter-toggle .filter-text {

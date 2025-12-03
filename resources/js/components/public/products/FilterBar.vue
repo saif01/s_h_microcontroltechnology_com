@@ -131,7 +131,7 @@
 
             <!-- Advanced Filters Section -->
             <div class="advanced-filters-block">
-                <div class="filter-section-header">
+                <div v-if="!mobile" class="filter-section-header">
                     <span class="eyebrow">Advanced Filters</span>
                     <v-btn variant="text" size="x-small" color="primary" class="text-capitalize"
                         @click="toggleAdvancedFilters">
@@ -141,7 +141,138 @@
                     </v-btn>
                 </div>
 
-                <v-expand-transition>
+                <!-- Mobile Accordion View -->
+                <v-expansion-panels v-if="mobile" variant="accordion" class="mobile-expansion-panels">
+                    <v-expansion-panel elevation="0" bg-color="transparent">
+                        <v-expansion-panel-title>
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-currency-usd" size="18" color="primary" class="mr-2" />
+                                <span class="filter-label mb-0">Price Range</span>
+                            </div>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <div class="price-inputs">
+                                <v-text-field v-model="localPriceRange[0]" type="number" density="compact"
+                                    variant="outlined" label="Min" prefix="$" hide-details class="price-field"
+                                    @update:model-value="handlePriceChange" />
+                                <span class="price-separator">—</span>
+                                <v-text-field v-model="localPriceRange[1]" type="number" density="compact"
+                                    variant="outlined" label="Max" prefix="$" hide-details class="price-field"
+                                    @update:model-value="handlePriceChange" />
+                            </div>
+                            <v-range-slider v-model="localPriceRange" :min="0" :max="10000" :step="50" color="primary"
+                                class="mt-4" thumb-label="always" hide-details @update:model-value="handlePriceChange">
+                                <template #thumb-label="{ modelValue }">
+                                    ${{ modelValue }}
+                                </template>
+                            </v-range-slider>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel elevation="0" bg-color="transparent">
+                        <v-expansion-panel-title>
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-package-variant-closed" size="18" color="primary" class="mr-2" />
+                                <span class="filter-label mb-0">Availability</span>
+                            </div>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <v-chip-group v-model="localAvailability" column multiple
+                                @update:model-value="$emit('update:availability', localAvailability)">
+                                <v-chip v-for="option in availabilityOptions" :key="option.value" :value="option.value"
+                                    filter variant="outlined" color="primary" size="small">
+                                    <v-icon :icon="option.icon" size="14" class="mr-1" />
+                                    {{ option.label }}
+                                </v-chip>
+                            </v-chip-group>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel elevation="0" bg-color="transparent">
+                        <v-expansion-panel-title>
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-tag-multiple" size="18" color="primary" class="mr-2" />
+                                <span class="filter-label mb-0">Brand</span>
+                            </div>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <v-select v-model="localBrands" :items="brands" multiple chips closable-chips
+                                density="compact" variant="outlined" placeholder="Select brands" hide-details
+                                class="brand-select" @update:model-value="$emit('update:brands', localBrands)">
+                                <template #chip="{ item, props: chipProps }">
+                                    <v-chip v-bind="chipProps" size="small" color="primary" variant="flat">
+                                        {{ item.title }}
+                                    </v-chip>
+                                </template>
+                            </v-select>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel elevation="0" bg-color="transparent">
+                        <v-expansion-panel-title>
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-star" size="18" color="primary" class="mr-2" />
+                                <span class="filter-label mb-0">Minimum Rating</span>
+                            </div>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <v-chip-group v-model="localMinRating" mandatory
+                                @update:model-value="$emit('update:minRating', localMinRating)">
+                                <v-chip v-for="rating in [5, 4, 3, 2, 1]" :key="rating" :value="rating" filter
+                                    variant="outlined" color="primary" size="small">
+                                    {{ rating }}
+                                    <v-icon icon="mdi-star" size="12" class="ml-1" color="amber" />
+                                    & up
+                                </v-chip>
+                            </v-chip-group>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel elevation="0" bg-color="transparent">
+                        <v-expansion-panel-title>
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-feature-search" size="18" color="primary" class="mr-2" />
+                                <span class="filter-label mb-0">Features</span>
+                            </div>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <div class="features-grid">
+                                <v-checkbox v-for="feature in features" :key="feature.value"
+                                    :model-value="localFeatures.includes(feature.value)" :label="feature.label"
+                                    :value="feature.value" density="compact" hide-details color="primary"
+                                    class="feature-checkbox" @update:model-value="toggleFeature(feature.value)">
+                                    <template #label>
+                                        <div class="d-flex align-center">
+                                            <v-icon :icon="feature.icon" size="14" class="mr-1" />
+                                            <span class="text-body-2">{{ feature.label }}</span>
+                                        </div>
+                                    </template>
+                                </v-checkbox>
+                            </div>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel elevation="0" bg-color="transparent">
+                        <v-expansion-panel-title>
+                            <div class="d-flex align-center">
+                                <v-icon icon="mdi-sale" size="18" color="primary" class="mr-2" />
+                                <span class="filter-label mb-0">Discounts & Offers</span>
+                            </div>
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <v-chip-group v-model="localDiscount"
+                                @update:model-value="$emit('update:discount', localDiscount)">
+                                <v-chip v-for="option in discountOptions" :key="option.value" :value="option.value"
+                                    filter variant="outlined" color="primary" size="small">
+                                    {{ option.label }}
+                                </v-chip>
+                            </v-chip-group>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                </v-expansion-panels>
+
+                <v-expand-transition v-else>
                     <div v-show="showAdvancedFilters" class="filters-content">
                         <!-- Price Range Filter -->
                         <div class="filter-item">
@@ -334,6 +465,10 @@ const props = defineProps({
     discount: {
         type: String,
         default: null
+    },
+    mobile: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -489,6 +624,23 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.mobile-expansion-panels {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: white;
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel-title) {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    min-height: 48px;
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel-text__wrapper) {
+    padding: 12px 16px 16px;
+}
+
 .filter-shell {
     position: relative;
 }
