@@ -343,15 +343,15 @@
                                         <v-icon icon="mdi-filter-variant" class="mr-2"></v-icon>
                                         Filter Features
                                     </div>
-                                    <v-select v-model="localForm.features" :items="filterFeatureOptions"
-                                        label="Select Filter Features" variant="outlined" multiple chips closable-chips
-                                        hint="Choose features for product filtering" persistent-hint
+                                    <v-combobox v-model="localForm.features" :items="filterFeatureOptions"
+                                        label="Select or Add Filter Features" variant="outlined" multiple chips closable-chips
+                                        hint="Choose from existing features or type to add new ones" persistent-hint
                                         @update:model-value="$emit('update:form', localForm)">
                                         <template v-slot:chip="{ item, props: chipProps }">
                                             <v-chip v-bind="chipProps" size="small" color="primary" variant="flat">
-                                                <v-icon :icon="getFeatureIcon(item.value)" size="14"
+                                                <v-icon :icon="getFeatureIcon(typeof item === 'string' ? item : item.value)" size="14"
                                                     class="mr-1"></v-icon>
-                                                {{ item.title }}
+                                                {{ typeof item === 'string' ? formatFeatureLabel(item) : item.title }}
                                             </v-chip>
                                         </template>
                                         <template v-slot:item="{ item, props: itemProps }">
@@ -361,7 +361,7 @@
                                                 </template>
                                             </v-list-item>
                                         </template>
-                                    </v-select>
+                                    </v-combobox>
                                 </v-col>
 
                                 <v-col cols="12">
@@ -826,14 +826,6 @@ export default {
             localThumbnailFile: this.thumbnailFile,
             localGalleryFiles: this.galleryFiles,
             localDownloadsList: [],
-            filterFeatureOptions: [
-                { value: 'wireless', title: 'Wireless' },
-                { value: 'waterproof', title: 'Waterproof' },
-                { value: 'bluetooth', title: 'Bluetooth' },
-                { value: 'rechargeable', title: 'Rechargeable' },
-                { value: 'warranty', title: 'Warranty' },
-                { value: 'eco_friendly', title: 'Eco-Friendly' }
-            ],
             availabilityOptions: [
                 { value: 'in_stock', title: 'In Stock' },
                 { value: 'out_of_stock', title: 'Out of Stock' },
@@ -890,6 +882,21 @@ export default {
             }
             // Keep local state in sync when dialog is reopened with new data
             this.localForm = { ...this.form };
+        }
+    },
+    computed: {
+        filterFeatureOptions() {
+            // Common/default features
+            const defaultFeatures = [
+                { value: 'wireless', title: 'Wireless' },
+                { value: 'waterproof', title: 'Waterproof' },
+                { value: 'bluetooth', title: 'Bluetooth' },
+                { value: 'rechargeable', title: 'Rechargeable' },
+                { value: 'warranty', title: 'Warranty' },
+                { value: 'eco_friendly', title: 'Eco-Friendly' }
+            ];
+            
+            return defaultFeatures;
         }
     },
     methods: {
@@ -1044,6 +1051,15 @@ export default {
                 'eco_friendly': 'mdi-leaf'
             };
             return iconMap[feature] || 'mdi-check-circle';
+        },
+        formatFeatureLabel(feature) {
+            // Convert underscore-separated to title case
+            if (typeof feature === 'string') {
+                return feature.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+            return feature;
         },
         getAvailabilityIcon(availability) {
             const iconMap = {

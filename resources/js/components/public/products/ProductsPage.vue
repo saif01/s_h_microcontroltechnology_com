@@ -254,15 +254,38 @@ const availableBrands = computed(() => {
 });
 
 const availableFeatures = computed(() => {
-    // Define common product features
-    return [
-        { value: 'wireless', label: 'Wireless', icon: 'mdi-wifi' },
-        { value: 'waterproof', label: 'Waterproof', icon: 'mdi-water' },
-        { value: 'bluetooth', label: 'Bluetooth', icon: 'mdi-bluetooth' },
-        { value: 'rechargeable', label: 'Rechargeable', icon: 'mdi-battery-charging' },
-        { value: 'warranty', label: 'Warranty', icon: 'mdi-shield-check' },
-        { value: 'eco_friendly', label: 'Eco-Friendly', icon: 'mdi-leaf' }
-    ];
+    // Icon mapping for known features
+    const iconMap = {
+        'wireless': 'mdi-wifi',
+        'waterproof': 'mdi-water',
+        'bluetooth': 'mdi-bluetooth',
+        'rechargeable': 'mdi-battery-charging',
+        'warranty': 'mdi-shield-check',
+        'eco_friendly': 'mdi-leaf'
+    };
+
+    // Extract unique features from all products dynamically
+    const featuresSet = new Set();
+    products.value.forEach(product => {
+        if (product.features && Array.isArray(product.features)) {
+            product.features.forEach(feature => {
+                if (feature) {
+                    featuresSet.add(feature);
+                }
+            });
+        }
+    });
+
+    // Convert to array and format with labels and icons
+    return Array.from(featuresSet).sort().map(feature => {
+        return {
+            value: feature,
+            label: feature.split('_').map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' '),
+            icon: iconMap[feature] || 'mdi-check-circle'
+        };
+    });
 });
 
 // Computed properties

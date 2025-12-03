@@ -1024,18 +1024,32 @@ export default {
                     }
                 });
 
+                // Normalize features - handle both string values (from combobox) and objects
+                const normalizedFeatures = this.form.features ? this.form.features.map(f => {
+                    if (typeof f === 'string') return f.toLowerCase().replace(/\s+/g, '_');
+                    if (typeof f === 'object' && f.value) return f.value;
+                    return f;
+                }).filter(f => f) : [];
+
                 // Prepare form data - ensure all fields are included
                 const formData = {
                     title: this.form.title,
                     slug: this.form.slug,
                     sku: this.form.sku || null,
+                    brand: this.form.brand || null,
                     short_description: this.form.short_description || null,
                     description: this.form.description || null,
                     thumbnail: this.normalizeImageInput(thumbnailPath) || null,
                     images: galleryPaths.map(img => this.normalizeImageInput(img)),
                     price: this.form.price ? parseFloat(this.form.price) : null,
+                    discount_percent: this.form.discount_percent ? parseFloat(this.form.discount_percent) : 0,
+                    discounted_price: this.form.discounted_price ? parseFloat(this.form.discounted_price) : null,
                     price_range: this.form.price_range || null,
                     show_price: this.form.show_price !== false,
+                    availability: this.form.availability || 'in_stock',
+                    rating: this.form.rating ? parseFloat(this.form.rating) : 0,
+                    rating_count: this.form.rating_count ? parseInt(this.form.rating_count) : 0,
+                    features: normalizedFeatures.length > 0 ? normalizedFeatures : null,
                     specifications: Object.keys(specifications).length > 0 ? specifications : null,
                     downloads: this.downloadsList.filter(d => d.title && d.url).length > 0
                         ? this.downloadsList.filter(d => d.title && d.url)
