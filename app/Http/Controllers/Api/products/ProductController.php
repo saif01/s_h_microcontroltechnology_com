@@ -118,7 +118,7 @@ class ProductController extends Controller
             'price_range' => 'nullable|string',
             'show_price' => 'boolean',
             'availability' => 'nullable|in:in_stock,out_of_stock,pre_order,coming_soon',
-            'rating' => 'nullable|numeric|min:0|max:5',
+            'rating' => 'nullable|numeric|min:0|max:5|regex:/^\d+(\.\d{1,2})?$/', // 0.00 to 5.00
             'rating_count' => 'nullable|integer|min:0',
             'features' => 'nullable|array',
             'specifications' => 'nullable|array',
@@ -291,7 +291,7 @@ class ProductController extends Controller
             'price_range' => 'nullable|string',
             'show_price' => 'boolean',
             'availability' => 'nullable|in:in_stock,out_of_stock,pre_order,coming_soon',
-            'rating' => 'nullable|numeric|min:0|max:5',
+            'rating' => 'nullable|numeric|min:0|max:5|regex:/^\d+(\.\d{1,2})?$/', // 0.00 to 5.00
             'rating_count' => 'nullable|integer|min:0',
             'features' => 'nullable|array',
             'specifications' => 'nullable|array',

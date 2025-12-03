@@ -635,6 +635,14 @@
                                 <v-col cols="12">
                                     <v-divider class="my-2"></v-divider>
                                     <div class="text-subtitle-1 font-weight-bold mb-3">Product Rating</div>
+
+                                    <v-alert type="info" variant="tonal" density="compact" class="mb-4">
+                                        <div class="text-body-2">
+                                            <strong>Note:</strong> Ratings are automatically calculated from approved
+                                            customer reviews.
+                                            Manual input is only needed if you don't use the review system.
+                                        </div>
+                                    </v-alert>
                                 </v-col>
 
                                 <v-col cols="12" md="6">
@@ -644,8 +652,28 @@
                                             active-color="amber" color="grey-lighten-1" half-increments
                                             @update:model-value="$emit('update:form', localForm)"></v-rating>
                                         <div class="text-caption text-medium-emphasis mt-1">
-                                            Current: {{ localForm.rating || 0 }} / 5 stars
+                                            Current: {{ formatRating(localForm.rating) }} / 5 stars
                                         </div>
+                                        <v-chip v-if="localForm.rating >= 4.5" color="success" size="small"
+                                            class="mt-1">
+                                            Excellent
+                                        </v-chip>
+                                        <v-chip v-else-if="localForm.rating >= 4.0" color="success" size="small"
+                                            class="mt-1">
+                                            Very Good
+                                        </v-chip>
+                                        <v-chip v-else-if="localForm.rating >= 3.0" color="warning" size="small"
+                                            class="mt-1">
+                                            Good
+                                        </v-chip>
+                                        <v-chip v-else-if="localForm.rating >= 2.0" color="orange" size="small"
+                                            class="mt-1">
+                                            Fair
+                                        </v-chip>
+                                        <v-chip v-else-if="localForm.rating > 0" color="error" size="small"
+                                            class="mt-1">
+                                            Poor
+                                        </v-chip>
                                     </div>
                                 </v-col>
                                 <v-col cols="12" md="6">
@@ -1079,6 +1107,9 @@ export default {
                 'coming_soon': 'info'
             };
             return colorMap[availability] || 'grey';
+        },
+        formatRating(rating) {
+            return rating ? Number(rating).toFixed(1) : '0.0';
         }
     }
 };

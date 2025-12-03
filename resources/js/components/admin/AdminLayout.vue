@@ -51,6 +51,9 @@
                         <v-list-item prepend-icon="mdi-package-variant" title="Products"
                             :to="{ name: 'AdminProducts' }">
                         </v-list-item>
+                        <v-list-item prepend-icon="mdi-star-half-full" title="Reviews"
+                            :to="{ name: 'AdminProductReviews' }">
+                        </v-list-item>
                         <v-list-item prepend-icon="mdi-folder" title="Categories" :to="{ name: 'AdminCategories' }">
                         </v-list-item>
                         <v-list-item prepend-icon="mdi-tag" title="Tags" :to="{ name: 'AdminTags' }">

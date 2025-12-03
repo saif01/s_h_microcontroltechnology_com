@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             IpsCatalogProductSeeder::class,
             Stabilizer1ProductSeeder::class,
             Stabilizer2ProductSeeder::class,
+            UpdateProductFieldsSeeder::class,  // Update existing products with new fields
+            ProductReviewSeeder::class,        // Add sample reviews
         ]);
     }
 }

@@ -127,6 +127,12 @@ const routes = [
                 meta: { title: 'Tags Management', permissions: ['manage-products'] }
             },
             {
+                path: 'product-reviews',
+                component: () => import('./components/admin/products/AdminProductReviews.vue'),
+                name: 'AdminProductReviews',
+                meta: { title: 'Product Reviews', permissions: ['manage-products'] }
+            },
+            {
                 path: 'leads',
                 component: () => import('./components/admin/leads/AdminLeads.vue'),
                 name: 'AdminLeads',

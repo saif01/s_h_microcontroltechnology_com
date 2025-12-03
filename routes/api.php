@@ -81,6 +81,14 @@ Route::prefix('openapi')->group(function () {
     Route::get('/services/{slug}', [PublicServiceController::class, 'show']);
     Route::get('/products', [PublicProductController::class, 'index']);
     Route::get('/products/{slug}', [PublicProductController::class, 'show']);
+    
+    // Public Product Reviews (read-only and submission)
+    // Note: Specific routes must come before parameterized routes
+    Route::get('/products/{product}/reviews/stats', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'stats']);
+    Route::post('/products/{product}/reviews/{review}/helpful', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'markHelpful']);
+    Route::get('/products/{product}/reviews', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'index']);
+    Route::post('/products/{product}/reviews', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'store']);
+    
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/settings', [SettingController::class, 'publicIndex']);
     Route::get('/about', [PublicAboutController::class, 'index']);
@@ -134,6 +142,14 @@ Route::prefix('v1')->group(function () {
 
         // Products - requires manage-products permission
         Route::middleware('permission:manage-products')->group(function () {
+            // Product Review Management (Admin) - Must come before products resource
+            Route::get('/products/reviews/all', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'allReviews']); // Get all reviews (changed from /products/reviews)
+            Route::put('/products/{product}/reviews/{review}/approve', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'approve']);
+            Route::put('/products/{product}/reviews/{review}/reject', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'reject']);
+            Route::put('/products/{product}/reviews/{review}', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'update']);
+            Route::delete('/products/{product}/reviews/{review}', [\App\Http\Controllers\Api\products\ProductReviewController::class, 'destroy']);
+            
+            // Products CRUD
             Route::apiResource('products', ProductController::class);
             Route::apiResource('categories', CategoryController::class);
             Route::apiResource('tags', TagController::class);
