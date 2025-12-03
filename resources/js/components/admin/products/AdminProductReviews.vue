@@ -338,30 +338,17 @@ export default {
         async approveReview(review) {
             try {
                 this.processing = true;
-                const token = this.getAuthToken();
-                if (!token) {
-                    this.showError('Authentication token not found. Please login again.');
-                    this.$router.push('/admin/login');
-                    return;
-                }
-                
                 await this.$axios.put(
                     `/api/v1/products/${review.product_id}/reviews/${review.id}/approve`,
                     {},
                     { headers: this.getAuthHeaders() }
                 );
-                
-                this.$toast.success('Review approved successfully');
+
+                this.showSuccess('Review approved successfully');
                 this.showDetailsDialog = false;
                 await this.loadReviews();
             } catch (error) {
-                if (error.response?.status === 401 || error.response?.status === 403) {
-                    this.showError('Session expired. Please login again.');
-                    localStorage.removeItem('admin_token');
-                    this.$router.push('/admin/login');
-                } else {
-                    this.handleApiError(error, 'Failed to approve review');
-                }
+                this.handleApiError(error, 'Failed to approve review');
             } finally {
                 this.processing = false;
             }
@@ -369,30 +356,17 @@ export default {
         async rejectReview(review) {
             try {
                 this.processing = true;
-                const token = this.getAuthToken();
-                if (!token) {
-                    this.showError('Authentication token not found. Please login again.');
-                    this.$router.push('/admin/login');
-                    return;
-                }
-                
                 await this.$axios.put(
                     `/api/v1/products/${review.product_id}/reviews/${review.id}/reject`,
                     {},
                     { headers: this.getAuthHeaders() }
                 );
-                
-                this.$toast.success('Review rejected successfully');
+
+                this.showSuccess('Review rejected successfully');
                 this.showDetailsDialog = false;
                 await this.loadReviews();
             } catch (error) {
-                if (error.response?.status === 401 || error.response?.status === 403) {
-                    this.showError('Session expired. Please login again.');
-                    localStorage.removeItem('admin_token');
-                    this.$router.push('/admin/login');
-                } else {
-                    this.handleApiError(error, 'Failed to reject review');
-                }
+                this.handleApiError(error, 'Failed to reject review');
             } finally {
                 this.processing = false;
             }
@@ -406,30 +380,17 @@ export default {
 
             try {
                 this.processing = true;
-                const token = this.getAuthToken();
-                if (!token) {
-                    this.showError('Authentication token not found. Please login again.');
-                    this.$router.push('/admin/login');
-                    return;
-                }
-                
                 await this.$axios.delete(
                     `/api/v1/products/${this.reviewToDelete.product_id}/reviews/${this.reviewToDelete.id}`,
                     { headers: this.getAuthHeaders() }
                 );
-                
-                this.$toast.success('Review deleted successfully');
+
+                this.showSuccess('Review deleted successfully');
                 this.showDeleteDialog = false;
                 this.showDetailsDialog = false;
                 await this.loadReviews();
             } catch (error) {
-                if (error.response?.status === 401 || error.response?.status === 403) {
-                    this.showError('Session expired. Please login again.');
-                    localStorage.removeItem('admin_token');
-                    this.$router.push('/admin/login');
-                } else {
-                    this.handleApiError(error, 'Failed to delete review');
-                }
+                this.handleApiError(error, 'Failed to delete review');
             } finally {
                 this.processing = false;
                 this.reviewToDelete = null;
