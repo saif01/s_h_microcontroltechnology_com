@@ -331,6 +331,18 @@ export default {
             this.loadTags()
         ]);
     },
+    watch: {
+        'form.title': {
+            handler(newTitle) {
+                // Auto-generate slug from title only when creating a new product
+                // Don't auto-update slug when editing to preserve existing URLs
+                if (newTitle && !this.editingProduct) {
+                    this.generateSlug();
+                }
+            },
+            immediate: false
+        }
+    },
     methods: {
         async loadProducts() {
             try {

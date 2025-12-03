@@ -80,7 +80,7 @@
                                         @update:model-value="$emit('update:form', localForm)"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="localForm.slug" label="Slug *" variant="outlined"
+                                    <v-text-field v-model="localForm.slug" label="Slug *" readonly variant="outlined"
                                         hint="URL-friendly version of title" :rules="[v => !!v || 'Slug is required']"
                                         @update:model-value="$emit('update:form', localForm)">
                                         <template v-slot:append>
@@ -344,13 +344,14 @@
                                         Filter Features
                                     </div>
                                     <v-combobox v-model="localForm.features" :items="filterFeatureOptions"
-                                        label="Select or Add Filter Features" variant="outlined" multiple chips closable-chips
-                                        hint="Choose from existing features or type to add new ones" persistent-hint
-                                        @update:model-value="$emit('update:form', localForm)">
+                                        label="Select or Add Filter Features" variant="outlined" multiple chips
+                                        closable-chips hint="Choose from existing features or type to add new ones"
+                                        persistent-hint @update:model-value="$emit('update:form', localForm)">
                                         <template v-slot:chip="{ item, props: chipProps }">
                                             <v-chip v-bind="chipProps" size="small" color="primary" variant="flat">
-                                                <v-icon :icon="getFeatureIcon(typeof item === 'string' ? item : item.value)" size="14"
-                                                    class="mr-1"></v-icon>
+                                                <v-icon
+                                                    :icon="getFeatureIcon(typeof item === 'string' ? item : item.value)"
+                                                    size="14" class="mr-1"></v-icon>
                                                 {{ typeof item === 'string' ? formatFeatureLabel(item) : item.title }}
                                             </v-chip>
                                         </template>
@@ -895,7 +896,7 @@ export default {
                 { value: 'warranty', title: 'Warranty' },
                 { value: 'eco_friendly', title: 'Eco-Friendly' }
             ];
-            
+
             return defaultFeatures;
         }
     },
@@ -1055,7 +1056,7 @@ export default {
         formatFeatureLabel(feature) {
             // Convert underscore-separated to title case
             if (typeof feature === 'string') {
-                return feature.split('_').map(word => 
+                return feature.split('_').map(word =>
                     word.charAt(0).toUpperCase() + word.slice(1)
                 ).join(' ');
             }
