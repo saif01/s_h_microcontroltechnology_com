@@ -141,13 +141,24 @@
                     </v-btn>
                 </div>
 
+                <!-- Mobile Section Header -->
+                <div v-if="mobile" class="mobile-filters-header">
+                    <v-icon icon="mdi-tune" size="20" color="primary" class="mr-2" />
+                    <span class="eyebrow">Filter Options</span>
+                </div>
+
                 <!-- Mobile Accordion View -->
                 <v-expansion-panels v-if="mobile" variant="accordion" class="mobile-expansion-panels">
                     <v-expansion-panel elevation="0" bg-color="transparent">
-                        <v-expansion-panel-title>
-                            <div class="d-flex align-center">
+                        <v-expansion-panel-title class="filter-panel-title">
+                            <div class="d-flex align-center w-100">
                                 <v-icon icon="mdi-currency-usd" size="18" color="primary" class="mr-2" />
                                 <span class="filter-label mb-0">Price Range</span>
+                                <v-spacer />
+                                <v-chip v-if="priceRange[0] > 0 || priceRange[1] < 10000" size="x-small" color="primary"
+                                    variant="tonal" class="mr-2">
+                                    Active
+                                </v-chip>
                             </div>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
@@ -170,10 +181,15 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel elevation="0" bg-color="transparent">
-                        <v-expansion-panel-title>
-                            <div class="d-flex align-center">
+                        <v-expansion-panel-title class="filter-panel-title">
+                            <div class="d-flex align-center w-100">
                                 <v-icon icon="mdi-package-variant-closed" size="18" color="primary" class="mr-2" />
                                 <span class="filter-label mb-0">Availability</span>
+                                <v-spacer />
+                                <v-chip v-if="availability.length > 0" size="x-small" color="primary" variant="tonal"
+                                    class="mr-2">
+                                    {{ availability.length }}
+                                </v-chip>
                             </div>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
@@ -189,10 +205,15 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel elevation="0" bg-color="transparent">
-                        <v-expansion-panel-title>
-                            <div class="d-flex align-center">
+                        <v-expansion-panel-title class="filter-panel-title">
+                            <div class="d-flex align-center w-100">
                                 <v-icon icon="mdi-tag-multiple" size="18" color="primary" class="mr-2" />
                                 <span class="filter-label mb-0">Brand</span>
+                                <v-spacer />
+                                <v-chip v-if="selectedBrands.length > 0" size="x-small" color="primary" variant="tonal"
+                                    class="mr-2">
+                                    {{ selectedBrands.length }}
+                                </v-chip>
                             </div>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
@@ -209,10 +230,14 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel elevation="0" bg-color="transparent">
-                        <v-expansion-panel-title>
-                            <div class="d-flex align-center">
+                        <v-expansion-panel-title class="filter-panel-title">
+                            <div class="d-flex align-center w-100">
                                 <v-icon icon="mdi-star" size="18" color="primary" class="mr-2" />
                                 <span class="filter-label mb-0">Minimum Rating</span>
+                                <v-spacer />
+                                <v-chip v-if="minRating > 0" size="x-small" color="primary" variant="tonal" class="mr-2">
+                                    {{ minRating }}+ ⭐
+                                </v-chip>
                             </div>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
@@ -229,10 +254,15 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel elevation="0" bg-color="transparent">
-                        <v-expansion-panel-title>
-                            <div class="d-flex align-center">
+                        <v-expansion-panel-title class="filter-panel-title">
+                            <div class="d-flex align-center w-100">
                                 <v-icon icon="mdi-feature-search" size="18" color="primary" class="mr-2" />
                                 <span class="filter-label mb-0">Features</span>
+                                <v-spacer />
+                                <v-chip v-if="selectedFeatures.length > 0" size="x-small" color="primary" variant="tonal"
+                                    class="mr-2">
+                                    {{ selectedFeatures.length }}
+                                </v-chip>
                             </div>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
@@ -253,10 +283,14 @@
                     </v-expansion-panel>
 
                     <v-expansion-panel elevation="0" bg-color="transparent">
-                        <v-expansion-panel-title>
-                            <div class="d-flex align-center">
+                        <v-expansion-panel-title class="filter-panel-title">
+                            <div class="d-flex align-center w-100">
                                 <v-icon icon="mdi-sale" size="18" color="primary" class="mr-2" />
                                 <span class="filter-label mb-0">Discounts & Offers</span>
+                                <v-spacer />
+                                <v-chip v-if="discount" size="x-small" color="primary" variant="tonal" class="mr-2">
+                                    Active
+                                </v-chip>
                             </div>
                         </v-expansion-panel-title>
                         <v-expansion-panel-text>
@@ -624,21 +658,65 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Mobile Filters Header */
+.mobile-filters-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 4px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid rgba(var(--v-theme-primary), 0.15);
+}
+
+.mobile-filters-header .eyebrow {
+    font-size: 0.85rem;
+}
+
+/* Mobile Expansion Panels */
 .mobile-expansion-panels {
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.06);
     background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel:last-child) {
+    border-bottom: none;
 }
 
 .mobile-expansion-panels :deep(.v-expansion-panel-title) {
-    padding: 12px 16px;
+    padding: 14px 16px;
     font-size: 0.9rem;
-    min-height: 48px;
+    min-height: 52px;
+    font-weight: 600;
+    color: #1e293b;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel-title:hover) {
+    background-color: rgba(var(--v-theme-primary), 0.04);
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel-title--active) {
+    background-color: rgba(var(--v-theme-primary), 0.06);
 }
 
 .mobile-expansion-panels :deep(.v-expansion-panel-text__wrapper) {
-    padding: 12px 16px 16px;
+    padding: 16px;
+    background: #fafbfc;
+}
+
+.mobile-expansion-panels :deep(.v-expansion-panel-title__icon) {
+    color: rgb(var(--v-theme-primary));
+}
+
+/* Mobile Filter Label in Panels */
+.filter-panel-title .filter-label {
+    font-weight: 600;
+    font-size: 0.9rem;
 }
 
 .filter-shell {

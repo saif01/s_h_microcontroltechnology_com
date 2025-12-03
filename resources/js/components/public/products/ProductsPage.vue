@@ -68,11 +68,15 @@
 
                     <!-- Mobile Dialog - Filter Bar -->
                     <v-dialog v-model="mobileFiltersOpen" fullscreen transition="dialog-bottom-transition"
-                        class="mobile-filters-dialog d-lg-none" scrollable>
+                        class="mobile-filters-dialog d-lg-none" scrollable persistent>
                         <v-card class="mobile-filter-card">
-                            <v-toolbar color="primary" class="mobile-filter-toolbar">
-                                <v-btn icon="mdi-close" @click="mobileFiltersOpen = false" />
-                                <v-toolbar-title class="font-weight-bold">Filters</v-toolbar-title>
+                            <v-toolbar color="primary" class="mobile-filter-toolbar" elevation="2">
+                                <v-btn icon="mdi-close" @click="mobileFiltersOpen = false"
+                                    aria-label="Close filters" />
+                                <v-toolbar-title class="font-weight-bold">
+                                    <v-icon icon="mdi-filter-variant" size="20" class="mr-2" />
+                                    Filters
+                                </v-toolbar-title>
                                 <v-spacer />
                                 <v-chip v-if="hasActiveFilters" color="white" variant="flat" size="small"
                                     class="filter-count-chip">
@@ -82,10 +86,17 @@
 
                             <v-card-text class="mobile-dialog-content pa-4">
                                 <div class="results-banner mb-4">
-                                    <v-icon icon="mdi-tag-multiple" color="primary" size="20" class="mr-2" />
-                                    <span class="text-body-1 font-weight-medium">
-                                        {{ advancedFilteredProducts.length }} products found
-                                    </span>
+                                    <div class="results-icon-wrapper">
+                                        <v-icon icon="mdi-package-variant" color="primary" size="24" />
+                                    </div>
+                                    <div class="results-info">
+                                        <span class="text-subtitle-2 font-weight-bold text-grey-darken-3">
+                                            {{ advancedFilteredProducts.length }} Products
+                                        </span>
+                                        <span class="text-caption text-grey-darken-1">
+                                            {{ hasActiveFilters ? 'Filtered results' : 'All available products' }}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <FilterBar :categories="categories" :active-category="activeCategory"
@@ -507,11 +518,12 @@ onUnmounted(() => {
 }
 
 .mobile-filter-toolbar {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobile-filter-toolbar :deep(.v-toolbar__content) {
-    padding: 4px 8px;
+    padding: 8px 12px;
 }
 
 .filter-count-chip {
@@ -523,10 +535,29 @@ onUnmounted(() => {
 .results-banner {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08), rgba(var(--v-theme-primary), 0.04));
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.1), rgba(var(--v-theme-primary), 0.05));
+    border-radius: 16px;
+    border: 1.5px solid rgba(var(--v-theme-primary), 0.2);
+    box-shadow: 0 2px 8px rgba(var(--v-theme-primary), 0.1);
+}
+
+.results-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
     border-radius: 12px;
-    border: 1px solid rgba(var(--v-theme-primary), 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.results-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .mobile-dialog-content {
@@ -555,9 +586,10 @@ onUnmounted(() => {
 
 .mobile-dialog-footer {
     background: white;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
     gap: 12px;
     flex: 0 0 auto;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .mobile-dialog-footer .v-btn {
@@ -565,14 +597,18 @@ onUnmounted(() => {
     letter-spacing: 0.5px;
     border-radius: 12px;
     min-height: 48px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
 }
 
 .mobile-dialog-footer .v-btn:first-child {
     flex: 1;
+    border: 2px solid rgba(0, 0, 0, 0.12);
 }
 
 .mobile-dialog-footer .v-btn:last-child {
     flex: 2;
+    box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.3);
 }
 
 /* Products Layout */
