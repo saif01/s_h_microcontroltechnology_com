@@ -5,9 +5,23 @@
             <!-- Product Image -->
             <div class="product-image-container position-relative bg-grey-lighten-4"
                 style="height: 240px; overflow: hidden;">
-                <v-chip v-if="product.featured" color="amber-accent-4" variant="flat" size="x-small"
-                    class="position-absolute top-0 left-0 ma-3 font-weight-bold z-index-2">
-                    FEATURED
+                <!-- Badges Container (Top Left) -->
+                <div class="position-absolute top-0 left-0 ma-3 z-index-2 d-flex flex-column gap-2">
+                    <v-chip v-if="product.featured" color="amber-accent-4" variant="flat" size="x-small"
+                        class="font-weight-bold">
+                        FEATURED
+                    </v-chip>
+                    <v-chip v-if="product.discount_percent > 0" color="error" variant="flat" size="x-small"
+                        class="font-weight-bold">
+                        -{{ Math.round(product.discount_percent) }}% OFF
+                    </v-chip>
+                </div>
+
+                <!-- Availability Badge (Top Right) -->
+                <v-chip v-if="product.availability && product.availability !== 'in_stock'"
+                    :color="getAvailabilityColor(product.availability)" variant="flat" size="x-small"
+                    class="position-absolute top-0 right-0 ma-3 font-weight-bold z-index-2">
+                    {{ getAvailabilityLabel(product.availability) }}
                 </v-chip>
 
                 <v-img :src="productImage" :alt="product.title" height="100%" cover
@@ -45,19 +59,39 @@
                     <div class="text-caption font-weight-bold text-primary text-uppercase tracking-wide">
                         {{ categoryName }}
                     </div>
-                    <div v-if="product.rating" class="d-flex align-center">
-                        <v-icon icon="mdi-star" color="amber" size="x-small" class="mr-1" />
-                        <span class="text-caption font-weight-bold">{{ product.rating }}</span>
+                    <div v-if="product.rating && product.rating > 0" class="d-flex align-center gap-1">
+                        <v-icon icon="mdi-star" color="amber" size="16" />
+                        <span class="text-body-2 font-weight-bold">{{ product.rating.toFixed(1) }}</span>
+                        <span v-if="product.rating_count > 0" class="text-caption text-grey">
+                            ({{ product.rating_count }})
+                        </span>
                     </div>
+                </div>
+
+                <!-- Brand Name -->
+                <div v-if="product.brand" class="text-caption text-medium-emphasis mb-1">
+                    <v-icon icon="mdi-tag" size="12" class="mr-1" />
+                    {{ product.brand }}
                 </div>
 
                 <h3 class="text-h6 font-weight-bold text-grey-darken-4 mb-2 lh-tight" style="min-height: 48px;">
                     {{ product.title }}
                 </h3>
 
-                <p class="text-body-2 text-medium-emphasis mb-4 line-clamp-2" style="min-height: 40px;">
+                <p class="text-body-2 text-medium-emphasis mb-3 line-clamp-2" style="min-height: 40px;">
                     {{ product.short_description }}
                 </p>
+
+                <!-- Features Chips -->
+                <div v-if="product.features && product.features.length > 0" class="mb-3">
+                    <div class="d-flex flex-wrap gap-1">
+                        <v-chip v-for="feature in product.features.slice(0, 3)" :key="feature" size="x-small"
+                            color="primary" variant="tonal" class="text-capitalize">
+                            <v-icon :icon="getFeatureIcon(feature)" size="12" class="mr-1" />
+                            {{ feature.replace('_', ' ') }}
+                        </v-chip>
+                    </div>
+                </div>
 
                 <!-- Quick Specs -->
                 <div v-if="quickSpecs.length > 0"
@@ -72,13 +106,20 @@
 
                 <div class="d-flex align-center justify-space-between mt-4">
                     <div v-if="hasPrice">
-                        <span v-if="product.oldPrice && formatNumber(product.oldPrice)"
-                            class="text-caption text-medium-emphasis text-decoration-line-through mr-2">
-                            Tk {{ formatNumber(product.oldPrice) }}
-                        </span>
-                        <span class="text-h6 font-weight-black text-primary">
-                            {{ formattedPrice }}
-                        </span>
+                        <!-- Show original price crossed out if there's a discount -->
+                        <div v-if="product.discount_percent > 0 && product.price" class="d-flex flex-column">
+                            <span class="text-caption text-medium-emphasis text-decoration-line-through">
+                                Tk {{ formatNumber(product.price) }}
+                            </span>
+                            <span class="text-h6 font-weight-black text-error">
+                                Tk {{ formatNumber(product.discounted_price || product.price) }}
+                            </span>
+                        </div>
+                        <div v-else>
+                            <span class="text-h6 font-weight-black text-primary">
+                                {{ formattedPrice }}
+                            </span>
+                        </div>
                     </div>
                     <div v-else class="text-h6 font-weight-bold text-primary">
                         {{ formattedPrice }}
@@ -234,6 +275,40 @@ const openShareMenu = () => {
     } else {
         showShareMenu.value = true;
     }
+};
+
+// Helper function to get feature icon
+const getFeatureIcon = (feature) => {
+    const iconMap = {
+        'wireless': 'mdi-wifi',
+        'waterproof': 'mdi-water',
+        'bluetooth': 'mdi-bluetooth',
+        'rechargeable': 'mdi-battery-charging',
+        'warranty': 'mdi-shield-check',
+        'eco_friendly': 'mdi-leaf'
+    };
+    return iconMap[feature] || 'mdi-check-circle';
+};
+
+// Helper function to get availability color
+const getAvailabilityColor = (availability) => {
+    const colorMap = {
+        'out_of_stock': 'error',
+        'pre_order': 'warning',
+        'coming_soon': 'info'
+    };
+    return colorMap[availability] || 'success';
+};
+
+// Helper function to get availability label
+const getAvailabilityLabel = (availability) => {
+    const labelMap = {
+        'in_stock': 'In Stock',
+        'out_of_stock': 'Out of Stock',
+        'pre_order': 'Pre-Order',
+        'coming_soon': 'Coming Soon'
+    };
+    return labelMap[availability] || availability;
 };
 </script>
 

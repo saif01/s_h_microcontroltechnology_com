@@ -19,13 +19,22 @@
                             </template>
                         </v-breadcrumbs>
 
-                        <div class="d-flex align-center gap-3 mb-4">
+                        <div class="d-flex align-center gap-3 mb-4 flex-wrap">
                             <v-chip v-if="product.featured" color="amber-accent-4" variant="flat" size="small"
                                 class="font-weight-bold">
                                 FEATURED
                             </v-chip>
+                            <v-chip v-if="product.discount_percent > 0" color="error" variant="flat" size="small"
+                                class="font-weight-bold">
+                                -{{ Math.round(product.discount_percent) }}% OFF
+                            </v-chip>
                             <v-chip color="white" variant="flat" size="small" class="font-weight-bold text-primary">
                                 {{ getCategoryName(product) }}
+                            </v-chip>
+                            <v-chip v-if="product.availability && product.availability !== 'in_stock'"
+                                :color="getAvailabilityColorDetail(product.availability)" variant="flat" size="small"
+                                class="font-weight-bold">
+                                {{ getAvailabilityLabelDetail(product.availability) }}
                             </v-chip>
                         </div>
 
@@ -38,16 +47,24 @@
                         </p>
 
                         <div class="d-flex align-center gap-6 flex-wrap">
-                            <div v-if="product.rating" class="d-flex align-center">
+                            <div v-if="product.brand" class="d-flex align-center text-white">
+                                <v-icon icon="mdi-tag" size="small" class="mr-2"></v-icon>
+                                <span class="text-body-2 font-weight-bold">{{ product.brand }}</span>
+                            </div>
+                            <div v-if="product.rating && product.rating > 0" class="d-flex align-center">
                                 <v-rating :model-value="product.rating" color="amber" density="compact" half-increments
                                     readonly size="small"></v-rating>
                                 <span class="text-body-2 text-white ml-2">
-                                    ({{ product.reviewCount || 0 }} Reviews)
+                                    {{ product.rating.toFixed(1) }} ({{ product.rating_count || 0 }} ratings)
                                 </span>
                             </div>
                             <div class="d-flex align-center text-white">
                                 <v-icon icon="mdi-barcode" size="small" class="mr-2"></v-icon>
                                 <span class="text-body-2">SKU: {{ product.sku || 'N/A' }}</span>
+                            </div>
+                            <div v-if="product.availability" class="d-flex align-center text-white">
+                                <v-icon :icon="getAvailabilityIconDetail(product.availability)" size="small" class="mr-2"></v-icon>
+                                <span class="text-body-2">{{ getAvailabilityLabelDetail(product.availability) }}</span>
                             </div>
                             <v-tooltip text="Share Product" location="top">
                                 <template v-slot:activator="{ props: tooltipProps }">
@@ -125,11 +142,24 @@
                         <!-- Price Block -->
                         <div class="price-block mb-6 pa-5 bg-white rounded-xl border-thin elevation-1">
                             <div class="d-flex align-end lh-1 mb-2">
-                                <span class="text-h3 font-weight-black text-primary">{{ formatPrice(product) }}</span>
-                                <span v-if="product.oldPrice"
-                                    class="text-h6 text-medium-emphasis text-decoration-line-through ml-3 mb-1">
-                                    Tk {{ formatNumber(product.oldPrice) }}
+                                <!-- Show discounted price in red if there's a discount -->
+                                <span v-if="product.discount_percent > 0 && product.discounted_price"
+                                    class="text-h3 font-weight-black text-error">
+                                    Tk {{ formatNumber(product.discounted_price) }}
                                 </span>
+                                <span v-else class="text-h3 font-weight-black text-primary">
+                                    {{ formatPrice(product) }}
+                                </span>
+                                <!-- Show original price crossed out if there's a discount -->
+                                <span v-if="product.discount_percent > 0 && product.price"
+                                    class="text-h6 text-medium-emphasis text-decoration-line-through ml-3 mb-1">
+                                    Tk {{ formatNumber(product.price) }}
+                                </span>
+                            </div>
+                            <!-- Show savings message -->
+                            <div v-if="product.discount_percent > 0" class="text-success text-body-2 font-weight-bold mb-2">
+                                You save: Tk {{ formatNumber((product.price - product.discounted_price)) }} 
+                                ({{ Math.round(product.discount_percent) }}% off)
                             </div>
                             <div class="d-flex align-center gap-4 flex-wrap mt-4">
                                 <v-tooltip text="Request a custom quote for this product" location="top">
@@ -980,6 +1010,36 @@ export default {
             } else {
                 this.showShareMenu = true;
             }
+        },
+        // Helper function to get availability color
+        getAvailabilityColorDetail(availability) {
+            const colorMap = {
+                'in_stock': 'success',
+                'out_of_stock': 'error',
+                'pre_order': 'warning',
+                'coming_soon': 'info'
+            };
+            return colorMap[availability] || 'success';
+        },
+        // Helper function to get availability label
+        getAvailabilityLabelDetail(availability) {
+            const labelMap = {
+                'in_stock': 'In Stock',
+                'out_of_stock': 'Out of Stock',
+                'pre_order': 'Pre-Order',
+                'coming_soon': 'Coming Soon'
+            };
+            return labelMap[availability] || availability;
+        },
+        // Helper function to get availability icon
+        getAvailabilityIconDetail(availability) {
+            const iconMap = {
+                'in_stock': 'mdi-check-circle',
+                'out_of_stock': 'mdi-close-circle',
+                'pre_order': 'mdi-clock-outline',
+                'coming_soon': 'mdi-new-box'
+            };
+            return iconMap[availability] || 'mdi-help-circle';
         }
     }
 };
