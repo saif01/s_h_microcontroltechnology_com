@@ -346,7 +346,7 @@ export default {
                     params.verified_only = true;
                 }
 
-                const response = await this.$axios.get(`/api/public/products/${this.productId}/reviews`, { params });
+                const response = await this.$axios.get(`/api/openapi/products/${this.productId}/reviews`, { params });
 
                 this.reviews = response.data.data || [];
                 this.totalPages = response.data.last_page || 1;
@@ -358,7 +358,7 @@ export default {
         },
         async loadRatingStats() {
             try {
-                const response = await this.$axios.get(`/api/public/products/${this.productId}/reviews/stats`);
+                const response = await this.$axios.get(`/api/openapi/products/${this.productId}/reviews/stats`);
                 this.ratingStats = response.data.stats || null;
             } catch (error) {
                 console.error('Error loading rating stats:', error);
@@ -373,7 +373,7 @@ export default {
                 this.submitting = true;
                 this.submitError = null;
 
-                await this.$axios.post(`/api/public/products/${this.productId}/reviews`, this.reviewForm);
+                await this.$axios.post(`/api/openapi/products/${this.productId}/reviews`, this.reviewForm);
 
                 this.submitSuccess = true;
                 
@@ -395,7 +395,7 @@ export default {
             }
 
             try {
-                await this.$axios.post(`/api/public/products/${this.productId}/reviews/${reviewId}/helpful`, {
+                await this.$axios.post(`/api/openapi/products/${this.productId}/reviews/${reviewId}/helpful`, {
                     helpful
                 });
 
