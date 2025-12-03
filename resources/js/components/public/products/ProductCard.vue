@@ -13,7 +13,7 @@
                     </v-chip>
                     <v-chip v-if="product.discount_percent > 0" color="error" variant="flat" size="x-small"
                         class="font-weight-bold">
-                        -{{ Math.round(product.discount_percent) }}% OFF
+                        -{{ Math.round(parseFloat(product.discount_percent)) }}% OFF
                     </v-chip>
                 </div>
 
@@ -61,7 +61,7 @@
                     </div>
                     <div v-if="product.rating && product.rating > 0" class="d-flex align-center gap-1">
                         <v-icon icon="mdi-star" color="amber" size="16" />
-                        <span class="text-body-2 font-weight-bold">{{ product.rating.toFixed(1) }}</span>
+                        <span class="text-body-2 font-weight-bold">{{ parseFloat(product.rating).toFixed(1) }}</span>
                         <span v-if="product.rating_count > 0" class="text-caption text-grey">
                             ({{ product.rating_count }})
                         </span>

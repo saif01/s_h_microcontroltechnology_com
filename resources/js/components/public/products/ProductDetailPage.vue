@@ -26,7 +26,7 @@
                             </v-chip>
                             <v-chip v-if="product.discount_percent > 0" color="error" variant="flat" size="small"
                                 class="font-weight-bold">
-                                -{{ Math.round(product.discount_percent) }}% OFF
+                                -{{ Math.round(parseFloat(product.discount_percent)) }}% OFF
                             </v-chip>
                             <v-chip color="white" variant="flat" size="small" class="font-weight-bold text-primary">
                                 {{ getCategoryName(product) }}
@@ -52,10 +52,10 @@
                                 <span class="text-body-2 font-weight-bold">{{ product.brand }}</span>
                             </div>
                             <div v-if="product.rating && product.rating > 0" class="d-flex align-center">
-                                <v-rating :model-value="product.rating" color="amber" density="compact" half-increments
+                                <v-rating :model-value="parseFloat(product.rating)" color="amber" density="compact" half-increments
                                     readonly size="small"></v-rating>
                                 <span class="text-body-2 text-white ml-2">
-                                    {{ product.rating.toFixed(1) }} ({{ product.rating_count || 0 }} ratings)
+                                    {{ parseFloat(product.rating).toFixed(1) }} ({{ product.rating_count || 0 }} ratings)
                                 </span>
                             </div>
                             <div class="d-flex align-center text-white">
@@ -159,7 +159,7 @@
                             <!-- Show savings message -->
                             <div v-if="product.discount_percent > 0" class="text-success text-body-2 font-weight-bold mb-2">
                                 You save: Tk {{ formatNumber((product.price - product.discounted_price)) }} 
-                                ({{ Math.round(product.discount_percent) }}% off)
+                                ({{ Math.round(parseFloat(product.discount_percent)) }}% off)
                             </div>
                             <div class="d-flex align-center gap-4 flex-wrap mt-4">
                                 <v-tooltip text="Request a custom quote for this product" location="top">
