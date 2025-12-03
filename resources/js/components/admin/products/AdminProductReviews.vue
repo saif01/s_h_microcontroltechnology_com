@@ -69,7 +69,8 @@
                                     </v-avatar>
                                     <div>
                                         <div class="text-body-2">{{ review.reviewer_display_name || 'Anonymous' }}</div>
-                                        <v-chip v-if="review.verified_purchase" size="x-small" color="success" variant="flat">
+                                        <v-chip v-if="review.verified_purchase" size="x-small" color="success"
+                                            variant="flat">
                                             <v-icon size="x-small" class="mr-1">mdi-check-decagram</v-icon>
                                             Verified
                                         </v-chip>
@@ -77,7 +78,7 @@
                                 </div>
                             </td>
                             <td>
-                                <v-rating :model-value="review.rating" readonly :length="5" :size="16" 
+                                <v-rating :model-value="review.rating" readonly :length="5" :size="16"
                                     active-color="amber" color="grey-lighten-1" density="compact" half-increments>
                                 </v-rating>
                                 <div class="text-caption">{{ review.rating }} / 5.0</div>
@@ -112,16 +113,16 @@
                                         <v-list-item @click="viewReview(review)" prepend-icon="mdi-eye">
                                             <v-list-item-title>View Details</v-list-item-title>
                                         </v-list-item>
-                                        <v-list-item v-if="review.status !== 'approved'" @click="approveReview(review)" 
+                                        <v-list-item v-if="review.status !== 'approved'" @click="approveReview(review)"
                                             prepend-icon="mdi-check-circle" :disabled="processing">
                                             <v-list-item-title>Approve</v-list-item-title>
                                         </v-list-item>
-                                        <v-list-item v-if="review.status !== 'rejected'" @click="rejectReview(review)" 
+                                        <v-list-item v-if="review.status !== 'rejected'" @click="rejectReview(review)"
                                             prepend-icon="mdi-close-circle" :disabled="processing">
                                             <v-list-item-title>Reject</v-list-item-title>
                                         </v-list-item>
                                         <v-divider></v-divider>
-                                        <v-list-item @click="confirmDelete(review)" prepend-icon="mdi-delete" 
+                                        <v-list-item @click="confirmDelete(review)" prepend-icon="mdi-delete"
                                             :disabled="processing">
                                             <v-list-item-title class="text-error">Delete</v-list-item-title>
                                         </v-list-item>
@@ -207,7 +208,9 @@
                             <div class="text-subtitle-1 font-weight-bold mb-2">Helpful</div>
                             <div class="text-body-1">
                                 <v-icon color="success">mdi-thumb-up</v-icon> {{ selectedReview.helpful_count }}
-                                <v-icon color="error" class="ml-2">mdi-thumb-down</v-icon> {{ selectedReview.not_helpful_count }}
+                                <v-icon color="error" class="ml-2">mdi-thumb-down</v-icon> {{
+                                    selectedReview.not_helpful_count
+                                }}
                             </div>
                         </v-col>
 
@@ -220,12 +223,12 @@
 
                 <v-card-actions class="pa-4 bg-grey-lighten-4">
                     <v-spacer></v-spacer>
-                    <v-btn v-if="selectedReview.status !== 'approved'" color="success" variant="flat" 
+                    <v-btn v-if="selectedReview.status !== 'approved'" color="success" variant="flat"
                         @click="approveReview(selectedReview)" :loading="processing">
                         <v-icon class="mr-2">mdi-check-circle</v-icon>
                         Approve
                     </v-btn>
-                    <v-btn v-if="selectedReview.status !== 'rejected'" color="error" variant="flat" 
+                    <v-btn v-if="selectedReview.status !== 'rejected'" color="error" variant="flat"
                         @click="rejectReview(selectedReview)" :loading="processing">
                         <v-icon class="mr-2">mdi-close-circle</v-icon>
                         Reject
@@ -303,9 +306,9 @@ export default {
                 }
 
                 // Get all reviews from all products
-                // Axios interceptor automatically adds Authorization header
                 const response = await this.$axios.get('/api/v1/products/reviews/all', {
-                    params
+                    params,
+                    headers: this.getAuthHeaders()
                 });
 
                 this.reviews = response.data.data || [];
@@ -335,16 +338,30 @@ export default {
         async approveReview(review) {
             try {
                 this.processing = true;
-                // Axios interceptor automatically adds Authorization header
+                const token = this.getAuthToken();
+                if (!token) {
+                    this.showError('Authentication token not found. Please login again.');
+                    this.$router.push('/admin/login');
+                    return;
+                }
+                
                 await this.$axios.put(
-                    `/api/v1/products/${review.product_id}/reviews/${review.id}/approve`
+                    `/api/v1/products/${review.product_id}/reviews/${review.id}/approve`,
+                    {},
+                    { headers: this.getAuthHeaders() }
                 );
                 
                 this.$toast.success('Review approved successfully');
                 this.showDetailsDialog = false;
                 await this.loadReviews();
             } catch (error) {
-                this.handleApiError(error, 'Failed to approve review');
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    this.showError('Session expired. Please login again.');
+                    localStorage.removeItem('admin_token');
+                    this.$router.push('/admin/login');
+                } else {
+                    this.handleApiError(error, 'Failed to approve review');
+                }
             } finally {
                 this.processing = false;
             }
@@ -352,16 +369,30 @@ export default {
         async rejectReview(review) {
             try {
                 this.processing = true;
-                // Axios interceptor automatically adds Authorization header
+                const token = this.getAuthToken();
+                if (!token) {
+                    this.showError('Authentication token not found. Please login again.');
+                    this.$router.push('/admin/login');
+                    return;
+                }
+                
                 await this.$axios.put(
-                    `/api/v1/products/${review.product_id}/reviews/${review.id}/reject`
+                    `/api/v1/products/${review.product_id}/reviews/${review.id}/reject`,
+                    {},
+                    { headers: this.getAuthHeaders() }
                 );
                 
                 this.$toast.success('Review rejected successfully');
                 this.showDetailsDialog = false;
                 await this.loadReviews();
             } catch (error) {
-                this.handleApiError(error, 'Failed to reject review');
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    this.showError('Session expired. Please login again.');
+                    localStorage.removeItem('admin_token');
+                    this.$router.push('/admin/login');
+                } else {
+                    this.handleApiError(error, 'Failed to reject review');
+                }
             } finally {
                 this.processing = false;
             }
@@ -375,9 +406,16 @@ export default {
 
             try {
                 this.processing = true;
-                // Axios interceptor automatically adds Authorization header
+                const token = this.getAuthToken();
+                if (!token) {
+                    this.showError('Authentication token not found. Please login again.');
+                    this.$router.push('/admin/login');
+                    return;
+                }
+                
                 await this.$axios.delete(
-                    `/api/v1/products/${this.reviewToDelete.product_id}/reviews/${this.reviewToDelete.id}`
+                    `/api/v1/products/${this.reviewToDelete.product_id}/reviews/${this.reviewToDelete.id}`,
+                    { headers: this.getAuthHeaders() }
                 );
                 
                 this.$toast.success('Review deleted successfully');
@@ -385,7 +423,13 @@ export default {
                 this.showDetailsDialog = false;
                 await this.loadReviews();
             } catch (error) {
-                this.handleApiError(error, 'Failed to delete review');
+                if (error.response?.status === 401 || error.response?.status === 403) {
+                    this.showError('Session expired. Please login again.');
+                    localStorage.removeItem('admin_token');
+                    this.$router.push('/admin/login');
+                } else {
+                    this.handleApiError(error, 'Failed to delete review');
+                }
             } finally {
                 this.processing = false;
                 this.reviewToDelete = null;
@@ -435,4 +479,3 @@ export default {
     text-overflow: ellipsis;
 }
 </style>
-
