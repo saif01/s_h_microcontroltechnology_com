@@ -2,6 +2,10 @@
 
 ## [UNRELEASED]
 
+## v3.7.2 - 2025-09-24
+
+- Fix placeholders ? replace by :p0 .. :pN for q-quoted strings #159
+
 ## v3.7.1 - 2025-01-20
 
 - fix: Silence PHP8.4's deprecation warnings.
